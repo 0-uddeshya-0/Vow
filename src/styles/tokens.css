@@ -1,0 +1,84 @@
+/* ————————————————————————————————————————————————————————————————
+   Vow · design tokens
+   Two themes mapped to the wedding day itself:
+   light  = Morning Garden   (11:30 Standesamt, September sun)
+   dark   = Candlelit Evening (Henrichs 161, dinner by the Danube)
+   Source of identity: the couple's flyer — ivory, botanicals, gold.
+   ———————————————————————————————————————————————————————————————— */
+
+:root {
+  /* Morning Garden (default) */
+  --bg: oklch(0.965 0.01 95);            /* ivory — the flyer's own ground */
+  --bg-deep: oklch(0.935 0.014 100);     /* shaded ivory for alternate bands */
+  --ink: oklch(0.28 0.02 80);            /* warm near-black */
+  --ink-soft: oklch(0.42 0.025 95);      /* secondary text — AA on --bg */
+  --sage: oklch(0.58 0.055 130);
+  --sage-deep: oklch(0.43 0.055 135);    /* sage as text — AA on --bg */
+  --gold: oklch(0.68 0.095 85);          /* ornament only, never body text */
+  --gold-ink: oklch(0.5 0.09 80);        /* gold as large text — AA-large */
+  --err: oklch(0.5 0.12 30);
+
+  --surface: oklch(1 0 0 / 0.55);
+  --surface-solid: oklch(0.985 0.006 95);
+  --hairline: oklch(0.68 0.095 85 / 0.45);
+  --hairline-soft: oklch(0.58 0.055 130 / 0.25);
+  --shadow: 0 18px 44px -22px oklch(0.35 0.04 110 / 0.35);
+  --glass-blur: 14px;
+  --scrim: oklch(0.965 0.01 95 / 0.72);
+
+  --focus: oklch(0.5 0.09 80);
+
+  /* type */
+  --font-display: "Cormorant Garamond", "Didot", Georgia, serif;
+  --font-script: "Pinyon Script", "Snell Roundhand", cursive;
+  --font-body: "Jost Variable", "Jost", "Avenir Next", system-ui, sans-serif;
+
+  --step--1: clamp(0.83rem, 0.8rem + 0.15vw, 0.9rem);
+  --step-0: clamp(1.0625rem, 1.03rem + 0.2vw, 1.125rem);
+  --step-1: clamp(1.25rem, 1.15rem + 0.5vw, 1.5rem);
+  --step-2: clamp(1.6rem, 1.4rem + 1vw, 2.1rem);
+  --step-3: clamp(2.1rem, 1.7rem + 2vw, 3rem);
+  --step-4: clamp(3rem, 2.2rem + 4.2vw, 4.75rem);
+  --step-script: clamp(1.9rem, 1.5rem + 2vw, 2.8rem);
+
+  --measure: 62ch;
+  --col: min(100% - 2.5rem, 42rem);
+  --radius: 18px;
+  --radius-lg: 26px;
+
+  /* z-scale: content < thread < topbar < gate < toast */
+  --z-thread: 1;
+  --z-topbar: 30;
+  --z-gate: 40;
+  --z-toast: 50;
+
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --dur-micro: 180ms;
+  --dur-soft: 420ms;
+
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --bg: oklch(0.185 0.015 140);          /* green-black night */
+  --bg-deep: oklch(0.215 0.018 140);
+  --ink: oklch(0.93 0.012 90);           /* warm chalk */
+  --ink-soft: oklch(0.74 0.02 100);
+  --sage: oklch(0.76 0.055 130);
+  --sage-deep: oklch(0.83 0.045 130);
+  --gold: oklch(0.78 0.095 85);          /* candle gold */
+  --gold-ink: oklch(0.8 0.09 85);
+  --err: oklch(0.72 0.11 30);
+
+  --surface: oklch(0.24 0.02 140 / 0.6);
+  --surface-solid: oklch(0.225 0.018 140);
+  --hairline: oklch(0.78 0.095 85 / 0.4);
+  --hairline-soft: oklch(0.76 0.055 130 / 0.22);
+  --shadow: 0 22px 50px -20px oklch(0 0 0 / 0.6);
+  --glass-blur: 16px;
+  --scrim: oklch(0.185 0.015 140 / 0.72);
+
+  --focus: oklch(0.8 0.09 85);
+
+  color-scheme: dark;
+}

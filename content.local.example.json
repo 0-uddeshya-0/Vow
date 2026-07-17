@@ -1,0 +1,6 @@
+{
+  "_comment": "Copy to public/content.local.json for local dev ONLY (gitignored). In production these values come from Supabase site_content via content_get(token).",
+  "bookingCode": "",
+  "emergencyPhone": "",
+  "menu": null
+}

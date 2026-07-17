@@ -1,0 +1,44 @@
+# Deploys the site to GitHub Pages — MANUALLY triggered only.
+# The couple reviews and approves before anything goes live
+# (run it from the Actions tab once the audit is done).
+name: Deploy to Pages
+
+on:
+  workflow_dispatch:
+    inputs:
+      base:
+        description: "Vite base path (/Vow/ for project pages, / for the custom domain)"
+        required: true
+        default: "/Vow/"
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          VITE_BASE: ${{ inputs.base }}
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,10 @@
+node_modules
+dist
+.DS_Store
+*.local
+.env
+.env.*
+
+# Real values live in Supabase site_content; this file is only for local dev
+# and must never be committed (emergency phone, booking code).
+content.local.json
