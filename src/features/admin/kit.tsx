@@ -209,9 +209,14 @@ export function Stat({ label, value, tone }: { label: string; value: string | nu
   );
 }
 
-export const newId = () =>
+/**
+ * Guest ids double as the capability to read that guest (rules allow `get`,
+ * never `list`), so they must be long enough not to be guessable — hence 20
+ * hex chars for guests rather than the 8 that suffice for content items.
+ */
+export const newId = (length = 8) =>
   typeof crypto !== "undefined" && "randomUUID" in crypto
-    ? crypto.randomUUID().slice(0, 8)
-    : Math.random().toString(36).slice(2, 10);
+    ? crypto.randomUUID().replace(/-/g, "").slice(0, length)
+    : Math.random().toString(36).slice(2, 2 + length);
 
 export const emptyText = (): LocalizedText => ({ en: "", de: "" });

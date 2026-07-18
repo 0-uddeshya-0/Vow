@@ -10,7 +10,7 @@ import { hasFirebase } from "../firebase/app";
  *             login screen says so in plain words; never present it as
  *             protection.
  */
-export type AdminUser = { email: string };
+export type AdminUser = { email: string; uid: string };
 
 export type AdminAuth = {
   readonly kind: "seed" | "firebase";
@@ -47,7 +47,7 @@ function makeSeedAuth(): AdminAuth {
     async signIn(email, password) {
       await new Promise((r) => setTimeout(r, 250));
       if (password !== SEED_PASSPHRASE) throw new Error("wrong-passphrase");
-      user = { email: email.trim() || "demo@vow.app" };
+      user = { email: email.trim() || "demo@vow.app", uid: "local-demo" };
       try {
         sessionStorage.setItem(SEED_KEY, JSON.stringify(user));
       } catch {
@@ -81,7 +81,7 @@ function makeFirebaseAuth(): AdminAuth {
     ]);
     const auth = getAuth(getFirebaseApp());
     onAuthStateChanged(auth, (u) => {
-      user = u?.email ? { email: u.email } : null;
+      user = u ? { email: u.email ?? "(no email)", uid: u.uid } : null;
       subs.forEach((cb) => cb(user));
     });
     return auth;

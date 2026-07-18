@@ -40,14 +40,38 @@ Demo guests for identify: `demo@vow.app` (Guest) · `witness@vow.app` (Witness �
 Admin CMS at `#/admin` — in demo mode any email with passphrase `demo` (this is **not** security; there is no backend, and the UI says so). Admin edits persist to `localStorage` under `vow.seed.db.v1`; clear it to restore the factory demo event.
 Debug: append `?noanim=1` to render all motion settled (used for headless screenshots).
 
-## Connect Firebase (owner setup, ~10 min)
+## Connect Firebase
 
-1. [console.firebase.google.com](https://console.firebase.google.com) → create project, region **europe-west3 (Frankfurt)**.
-2. Add a **Web App** → copy config into `.env.local` per [.env.example](.env.example).
-3. Firestore: create database (production mode) → paste `firestore.rules` → seed the first event per [docs/SCHEMA.md](docs/SCHEMA.md).
-4. Restart dev server — the app switches from seed to Firestore automatically.
+Project **vow-1809** is registered and `.env.local` holds its config (gitignored; Firebase web
+config is public by design — security lives in `firestore.rules`). Firebase **Analytics is
+deliberately not installed**: no third-party tracking on this site.
 
-Phase 4 additionally needs the **Blaze plan** (Cloud Functions) and an **Azure app registration** (Microsoft Graph → OneDrive sync).
+Remaining console steps (owner only):
+
+1. **Create the database** — Build → Firestore Database → *Create database* → **europe-west3
+   (Frankfurt)**, production mode. *(Not yet done: the API currently reports `SERVICE_DISABLED`.)*
+2. **Create the admin** — Build → Authentication → *Get started* → enable **Email/Password** →
+   Users → *Add user*.
+3. **Deploy the rules** — paste [`firestore.rules`](firestore.rules) into the Rules tab and replace
+   `ADMIN_UID` (or `ADMIN_EMAIL`). Sign in at `#/admin` and the page prints both values for you.
+4. **Import content** — `#/admin` → *Import starter content*. A fresh project is empty, so this
+   writes the event, schedule, hotels, FAQ, messages, settings and demo guests, then you edit
+   everything in the CMS.
+
+Restart the dev server after changing `.env.local` — Vite reads env only at startup.
+
+Phase 4 additionally needs the **Blaze plan** (Cloud Functions) and an **Azure app registration**
+(Microsoft Graph → OneDrive sync).
+
+### How guests identify without accounts
+
+The site is static, so there is no server to authenticate guests. Rules therefore allow **`get` but
+never `list`** on anything personal: the app hashes the typed email/phone (SHA-256, see
+[`src/lib/contact.ts`](src/lib/contact.ts)) and reads `guestLookup/{hash}` → `guests/{unguessable-id}`.
+Nothing is enumerable, so the guest list cannot be scraped. The residual exposure — someone who
+learns a guest id could read or overwrite that one RSVP — is the same as a shared invite link, and
+is called out in the rules file. True per-guest auth needs Anonymous Auth + a Cloud Function
+(Phase 4).
 
 ## Architecture
 

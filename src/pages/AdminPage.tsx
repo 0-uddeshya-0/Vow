@@ -45,7 +45,16 @@ export default function AdminPage() {
       <header className="mb-5 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="font-display text-3xl text-ink">Admin</h1>
-          <p className="text-sm text-ink-soft">{user.email}</p>
+          <p className="text-sm text-ink-soft">
+            {user.email}
+            <span className="ml-2 rounded-full border border-hairline-soft px-2 py-0.5 text-xs">
+              {adminAuth.kind === "firebase" ? "Firebase" : "demo"}
+            </span>
+          </p>
+          {adminAuth.kind === "firebase" ? (
+            // Printed so it can be pasted straight into firestore.rules.
+            <p className="mt-1 font-mono text-xs text-ink-soft">UID {user.uid}</p>
+          ) : null}
         </div>
         <AdminButton variant="quiet" onClick={() => void adminAuth.signOut()}>
           <LogOut size={14} /> Sign out
@@ -80,8 +89,10 @@ export default function AdminPage() {
         ))}
       </nav>
 
-      {isLoading || !event ? (
+      {isLoading ? (
         <CardSkeleton />
+      ) : !event ? (
+        <EmptyBackend />
       ) : (
         <div className="flex flex-col gap-5">
           {tab === "Dashboard" ? <DashboardPanel event={event} /> : null}
@@ -100,6 +111,50 @@ export default function AdminPage() {
           ) : null}
         </div>
       )}
+    </div>
+  );
+}
+
+/**
+ * A brand-new Firestore project has no documents, so the whole site would
+ * render empty. This is the bootstrap — and the same button starts a new
+ * event when the platform is reused.
+ */
+function EmptyBackend() {
+  const [state, setState] = useState<"idle" | "working" | "done" | "error">("idle");
+  const [step, setStep] = useState("");
+  const [message, setMessage] = useState("");
+
+  const run = async () => {
+    setState("working");
+    try {
+      const { importDemoContent } = await import("../services/admin/importDemo");
+      await importDemoContent(setStep);
+      setState("done");
+      location.reload();
+    } catch (e) {
+      setState("error");
+      setMessage(e instanceof Error ? e.message : String(e));
+    }
+  };
+
+  return (
+    <div className="rounded-[var(--radius-card)] border border-hairline-soft bg-surface-solid/70 p-6">
+      <h2 className="font-display text-2xl text-ink">No event found</h2>
+      <p className="mt-2 max-w-[60ch] text-sm text-ink-soft">
+        This backend is empty. Import the starter event to populate it — schedule, hotels, FAQ,
+        messages, settings and two demo guests — then edit everything from here. All content is
+        marked as placeholder until you switch that off in Settings.
+      </p>
+      <AdminButton className="mt-4" onClick={() => void run()} disabled={state === "working"}>
+        {state === "working" ? `Importing ${step}…` : "Import starter content"}
+      </AdminButton>
+      {state === "error" ? (
+        <p role="alert" className="mt-3 text-sm text-err">
+          Import failed: {message}. If this says “permission denied”, the security rules are not
+          deployed yet or ADMIN_EMAIL does not match this account.
+        </p>
+      ) : null}
     </div>
   );
 }

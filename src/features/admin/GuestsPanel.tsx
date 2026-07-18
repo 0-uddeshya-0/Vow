@@ -36,7 +36,7 @@ const statusTone: Record<Guest["invitationStatus"], string> = {
 
 function blankGuest(eventId: string): Guest {
   return {
-    id: `g-${newId()}`,
+    id: `g-${newId(20)}`,
     eventId,
     fullName: "",
     email: "",

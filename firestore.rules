@@ -1,56 +1,93 @@
 rules_version = '2';
 
 // ————————————————————————————————————————————————————————————————
-// Vow — Firestore security rules
+// Vow — Firestore security rules   (project: vow-1809)
 //
-// Model: public event *content* is world-readable (the site is a static SPA
-// with no server, so content must be readable by the anon key). Everything
-// that identifies a person — guests, RSVPs, plus-one requests, photos — is
-// NOT publicly readable and is writable only by the admin.
+// The site is a static SPA with no server, so guests identify without
+// accounts. The rule that makes that safe is: NOTHING personal is listable.
 //
-// Deploy:  firebase deploy --only firestore:rules
-// Set ADMIN_UIDS to the Authentication → Users UID of the admin account.
+//  • Event *content* (schedule, hotels, FAQ, gallery, messages, settings)
+//    is world-readable — it has to be, the anon key is all the site has.
+//  • Personal data is `get`-only, never `list`. To read a guest you must
+//    already know their unguessable document id, which you can only obtain
+//    by computing SHA-256 of their exact email or phone (see
+//    src/lib/contact.ts). No enumeration is possible, in the same way a
+//    magic link cannot be guessed.
+//  • Everything is admin-writable only, except a guest's own RSVP and their
+//    own plus-one requests, which are scoped by that same unguessable id.
 //
-// KNOWN GAP (documented in docs/SCHEMA.md): guests identify by email/phone
-// with no account, and rules cannot constrain an unauthenticated query by
-// its where-clause. Until the anonymous-auth identify flow ships (P4), the
-// guest app reads `guests`/`rsvps` only in seed mode; against a real project
-// those collections stay admin-only and guest identification will require
-// the Cloud Function. Do NOT loosen this to make the demo work.
+// LIMIT, stated plainly: anyone who learns a guest id could read or
+// overwrite that one guest's RSVP. For a 20-person private event this is
+// the same exposure as a shared invite link. If you later want true
+// per-guest auth, upgrade to Anonymous Auth + a Cloud Function that mints
+// custom claims (Phase 4 / Blaze).
+//
+// SETUP: replace ADMIN_EMAIL below with the address of the account you
+// created in Authentication → Users, then deploy:
+//   firebase deploy --only firestore:rules
 // ————————————————————————————————————————————————————————————————
 
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    // Fill in EITHER value (the admin page prints both once you sign in).
+    // UID is the robust one; email is easier to eyeball. A console-created
+    // account has email_verified == false, so do NOT gate on that — it would
+    // lock the real admin out on day one.
     function isAdmin() {
       return request.auth != null
-        && request.auth.uid in [
-             'REPLACE_WITH_ADMIN_UID'
-           ];
-    }
-
-    // Content collections: read-only to everyone, writable only by admin.
-    function publicContent() {
-      return true;
+        && (request.auth.uid == 'ADMIN_UID'
+            || request.auth.token.email == 'ADMIN_EMAIL');
     }
 
     match /events/{eventId} {
-      allow read:  if publicContent();
+      allow get, list: if true;              // public shell content
       allow write: if isAdmin();
 
-      match /schedule/{id}        { allow read: if publicContent(); allow write: if isAdmin(); }
-      match /hotels/{id}          { allow read: if publicContent(); allow write: if isAdmin(); }
-      match /faq/{id}             { allow read: if publicContent(); allow write: if isAdmin(); }
-      match /gallery/{id}         { allow read: if publicContent(); allow write: if isAdmin(); }
-      match /messages/{id}        { allow read: if publicContent(); allow write: if isAdmin(); }
-      match /settings/{id}        { allow read: if publicContent(); allow write: if isAdmin(); }
-      match /weatherSettings/{id} { allow read: if publicContent(); allow write: if isAdmin(); }
+      match /schedule/{id}        { allow get, list: if true; allow write: if isAdmin(); }
+      match /hotels/{id}          { allow get, list: if true; allow write: if isAdmin(); }
+      match /faq/{id}             { allow get, list: if true; allow write: if isAdmin(); }
+      match /gallery/{id}         { allow get, list: if true; allow write: if isAdmin(); }
+      match /messages/{id}        { allow get, list: if true; allow write: if isAdmin(); }
+      match /settings/{id}        { allow get, list: if true; allow write: if isAdmin(); }
+      match /weatherSettings/{id} { allow get, list: if true; allow write: if isAdmin(); }
 
-      // Personal data — never publicly listable or readable.
-      match /guests/{guestId}     { allow read, write: if isAdmin(); }
-      match /rsvps/{guestId}      { allow read, write: if isAdmin(); }
-      match /plusOneRequests/{id} { allow read, write: if isAdmin(); }
-      match /photos/{id}          { allow read, write: if isAdmin(); }
+      // contact-hash → guestId. `get` only: the id IS the secret.
+      match /guestLookup/{hash} {
+        allow get: if true;
+        allow list: if isAdmin();
+        allow write: if isAdmin();
+      }
+
+      match /guests/{guestId} {
+        allow get: if true;                  // requires the unguessable id
+        allow list: if isAdmin();            // no enumeration of the guest list
+        allow write: if isAdmin();
+
+        // Scoped by the parent guest id, so no shared collection is exposed.
+        match /plusOneRequests/{id} {
+          allow get, list, create: if true;
+          allow update, delete: if isAdmin();
+        }
+      }
+
+      match /rsvps/{guestId} {
+        allow get: if true;
+        allow list: if isAdmin();
+        allow create, update: if true;       // the guest's own reply
+        allow delete: if isAdmin();
+      }
+
+      match /photos/{id} {
+        allow get, list: if isAdmin();
+        allow create: if true;               // guest uploads (Phase 4)
+        allow update, delete: if isAdmin();
+      }
+    }
+
+    // Admin dashboard reads plus-ones across all guests.
+    match /{path=**}/plusOneRequests/{id} {
+      allow list: if isAdmin();
     }
 
     // Anything not matched above is denied.

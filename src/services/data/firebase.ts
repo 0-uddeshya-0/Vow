@@ -1,5 +1,6 @@
 import {
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
@@ -10,6 +11,7 @@ import {
   setDoc,
   where,
 } from "firebase/firestore";
+import { contactHash } from "../../lib/contact";
 import { z } from "zod";
 import {
   zEvent,
@@ -59,13 +61,19 @@ export const firebaseDataSource: DataSource = {
     return d ? zEvent.parse({ ...d.data(), id: d.id }) : null;
   },
 
+  /**
+   * Identify without an account: hash the contact, `get` (never `list`) the
+   * lookup doc, then `get` the guest by its unguessable id. See
+   * src/lib/contact.ts for why this is the shape it is.
+   */
   async findGuest(eventId, contact) {
-    const n = contact.trim().toLowerCase();
-    const field = n.includes("@") ? "email" : "phone";
-    const value = n.includes("@") ? n : n.replace(/[^\d+]/g, "").replace(/^00/, "+").replace(/^0/, "+49");
-    const snap = await getDocs(query(sub(eventId, "guests"), where(field, "==", value), limit(1)));
-    const d = snap.docs[0];
-    return d ? zGuest.parse({ ...d.data(), id: d.id, eventId }) : null;
+    const hash = await contactHash(contact);
+    const lookup = await getDoc(doc(getDb(), "events", eventId, "guestLookup", hash));
+    if (!lookup.exists()) return null;
+    const guestId = (lookup.data() as { guestId?: string }).guestId;
+    if (!guestId) return null;
+    const d = await getDoc(doc(getDb(), "events", eventId, "guests", guestId));
+    return d.exists() ? zGuest.parse({ ...d.data(), id: d.id, eventId }) : null;
   },
 
   async getGuest(eventId, guestId) {
@@ -117,13 +125,21 @@ export const firebaseDataSource: DataSource = {
     await setDoc(doc(getDb(), "events", rsvp.eventId, "rsvps", rsvp.guestId), rsvp);
   },
 
+  /**
+   * Nested under the requesting guest: the path itself scopes access, so a
+   * guest can read their own requests without `list` on a shared collection
+   * (which would expose every proposed plus-one's contact details).
+   */
   async createPlusOneRequest(req) {
-    await setDoc(doc(getDb(), "events", req.eventId, "plusOneRequests", req.id), req);
+    await setDoc(
+      doc(getDb(), "events", req.eventId, "guests", req.guestId, "plusOneRequests", req.id),
+      req,
+    );
   },
 
   async listPlusOneRequests(eventId, guestId) {
     const snap = await getDocs(
-      query(sub(eventId, "plusOneRequests"), where("guestId", "==", guestId)),
+      collection(getDb(), "events", eventId, "guests", guestId, "plusOneRequests"),
     );
     return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
   },
@@ -134,23 +150,62 @@ export const firebaseDataSource: DataSource = {
     const snap = await getDocs(sub(eventId, "guests"));
     return parseAll(zGuest, snap.docs).map((g) => ({ ...g, eventId }));
   },
+  /**
+   * Saving a guest also rewrites their lookup documents (one per contact
+   * method) and clears stale ones, so changing an email can never leave a
+   * dangling key that still resolves to this guest.
+   */
   async adminSaveGuest(guest) {
-    await setDoc(doc(getDb(), "events", guest.eventId, "guests", guest.id), guest);
+    const db = getDb();
+    const path = (h: string) => doc(db, "events", guest.eventId, "guestLookup", h);
+    const previous = await getDoc(doc(db, "events", guest.eventId, "guests", guest.id));
+    const before = previous.exists() ? zGuest.parse({ ...previous.data(), id: guest.id, eventId: guest.eventId }) : null;
+
+    await setDoc(doc(db, "events", guest.eventId, "guests", guest.id), guest);
+
+    const nextHashes = new Set(
+      await Promise.all([guest.email, guest.phone].filter(Boolean).map((c) => contactHash(c))),
+    );
+    const prevHashes = before
+      ? await Promise.all([before.email, before.phone].filter(Boolean).map((c) => contactHash(c)))
+      : [];
+
+    await Promise.all([
+      ...[...nextHashes].map((h) => setDoc(path(h), { guestId: guest.id })),
+      ...prevHashes.filter((h) => !nextHashes.has(h)).map((h) => deleteDoc(path(h))),
+    ]);
   },
+
   async adminDeleteGuest(eventId, guestId) {
-    await deleteDoc(doc(getDb(), "events", eventId, "guests", guestId));
+    const db = getDb();
+    const snap = await getDoc(doc(db, "events", eventId, "guests", guestId));
+    if (snap.exists()) {
+      const g = zGuest.parse({ ...snap.data(), id: guestId, eventId });
+      const hashes = await Promise.all(
+        [g.email, g.phone].filter(Boolean).map((c) => contactHash(c)),
+      );
+      await Promise.all(hashes.map((h) => deleteDoc(doc(db, "events", eventId, "guestLookup", h))));
+    }
+    await deleteDoc(doc(db, "events", eventId, "guests", guestId));
+    await deleteDoc(doc(db, "events", eventId, "rsvps", guestId));
   },
 
   async adminListRsvps(eventId) {
     const snap = await getDocs(sub(eventId, "rsvps"));
     return snap.docs.map((d) => zRsvp.parse({ ...d.data(), eventId, guestId: d.id }));
   },
+  /** Collection-group read across every guest's nested requests (admin only). */
   async adminListPlusOnes(eventId) {
-    const snap = await getDocs(sub(eventId, "plusOneRequests"));
+    const snap = await getDocs(
+      query(collectionGroup(getDb(), "plusOneRequests"), where("eventId", "==", eventId)),
+    );
     return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
   },
   async adminSavePlusOne(req) {
-    await setDoc(doc(getDb(), "events", req.eventId, "plusOneRequests", req.id), req);
+    await setDoc(
+      doc(getDb(), "events", req.eventId, "guests", req.guestId, "plusOneRequests", req.id),
+      req,
+    );
   },
 
   async adminSaveEvent(event) {

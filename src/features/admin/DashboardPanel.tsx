@@ -97,7 +97,7 @@ function PlusOnePanel({
 
   const approve = (req: PlusOneRequest) => {
     const guest: Guest = {
-      id: `g-${newId()}`,
+      id: `g-${newId(20)}`,
       eventId: event.id,
       fullName: req.fullName,
       email: req.email,
