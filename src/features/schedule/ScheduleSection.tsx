@@ -38,23 +38,28 @@ function MomentCard({ item, personal }: { item: ScheduleItem; personal: boolean 
       ) : null}
 
       <div className="p-6">
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-          <span className="flex size-10 items-center justify-center rounded-full border border-hairline bg-surface/60 text-gold-ink">
-            <ScheduleIcon name={item.icon} />
+        {/* Header mirrors the weather card: text left, one large icon right. */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="tnum font-display text-xl text-gold-ink">
+                {item.start}
+                {item.end ? <span className="text-ink-soft"> – {item.end}</span> : null}
+              </span>
+              {personal ? (
+                <span className="rounded-full border border-hairline bg-surface/60 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.14em] text-gold-ink">
+                  {t.schedule.onlyForYou}
+                </span>
+              ) : null}
+            </div>
+            <h3 className="mt-1.5 font-display text-2xl text-ink">{lt(item.title)}</h3>
+          </div>
+          <span className="shrink-0 text-gold-ink">
+            <ScheduleIcon name={item.icon} size={38} />
           </span>
-          <span className="tnum font-display text-xl text-gold-ink">
-            {item.start}
-            {item.end ? <span className="text-ink-soft"> – {item.end}</span> : null}
-          </span>
-          {personal ? (
-            <span className="rounded-full border border-hairline bg-surface/60 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.14em] text-gold-ink">
-              {t.schedule.onlyForYou}
-            </span>
-          ) : null}
         </div>
 
-        <h3 className="mt-2 font-display text-2xl text-ink">{lt(item.title)}</h3>
-        <p className="mt-1.5 max-w-[52ch] text-ink-soft">{lt(item.description)}</p>
+        <p className="mt-2 max-w-[52ch] text-ink-soft">{lt(item.description)}</p>
 
         {item.location.name ? (
           <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-ink">

@@ -15,7 +15,7 @@ import { eventStartMs, formatEventDate, isEventDay } from "../lib/datetime";
 
 function HeroSkeleton() {
   return (
-    <div className="mx-auto w-full max-w-xl px-5" aria-busy="true">
+    <div className="mx-auto my-auto w-full max-w-xl px-5" aria-busy="true">
       <div className="glass rounded-[var(--radius-panel)] p-10 text-center">
         <Skeleton className="mx-auto size-36 rounded-full" />
         <Skeleton className="mx-auto mt-8 h-5 w-40" />
@@ -37,13 +37,15 @@ export default function Landing() {
   const live = !!event && isEventDay(event);
 
   return (
-    // min-h-dvh minus the fixed chrome, so centring never hides content behind
-    // the dock on short phone viewports.
-    <div className="wash-garden flex min-h-svh flex-col justify-center px-4 pb-[var(--dock-space)] pt-24 sm:pt-28">
+    // Overflow-safe centring: `my-auto` on the child centres when there is
+    // room but collapses to 0 when the hero is taller than the viewport, so
+    // content can never be pushed under the fixed dock. `justify-center`
+    // would overflow symmetrically and hide the countdown behind it.
+    <div className="wash-garden flex min-h-svh flex-col px-4 pb-[var(--dock-space)] pt-24 sm:pt-28">
       {isLoading || !event ? (
         <HeroSkeleton />
       ) : (
-        <div className="mx-auto w-full max-w-xl">
+        <div className="mx-auto my-auto w-full max-w-xl">
           {event.placeholder ? (
             <div className="mb-4">
               <DemoRibbon text={t.common.demoRibbon} />

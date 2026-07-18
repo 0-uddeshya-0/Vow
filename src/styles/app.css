@@ -16,11 +16,11 @@
   --gold-ink: oklch(0.5 0.09 80);
   --blush: oklch(0.82 0.035 40);
   --err: oklch(0.5 0.12 30);
-  --surface: oklch(1 0 0 / 0.62);
+  --surface: oklch(1 0 0 / 0.40);
   --surface-solid: oklch(0.985 0.006 95);
   --hairline: oklch(0.68 0.095 85 / 0.45);
   --hairline-soft: oklch(0.58 0.055 130 / 0.25);
-  --glass-blur: 18px;
+  --glass-blur: 22px;
   --shadow-soft: 0 18px 44px -22px oklch(0.35 0.04 110 / 0.4);
   --on-accent: oklch(0.985 0.006 95);
   --btn-primary: var(--sage-deep); /* candle-gold in dark — the day's arc */
@@ -38,7 +38,7 @@
   --gold-ink: oklch(0.8 0.09 85);
   --blush: oklch(0.45 0.045 40);
   --err: oklch(0.72 0.11 30);
-  --surface: oklch(0.24 0.02 140 / 0.6);
+  --surface: oklch(0.24 0.02 140 / 0.42);
   --surface-solid: oklch(0.225 0.018 140);
   --hairline: oklch(0.78 0.095 85 / 0.4);
   --hairline-soft: oklch(0.76 0.055 130 / 0.22);
@@ -78,7 +78,12 @@
 /* ——— base ——— */
 
 body {
-  background: var(--bg);
+  background:
+    radial-gradient(75% 55% at 4% -4%, oklch(0.80 0.075 135 / 0.30), transparent 66%),
+    radial-gradient(68% 50% at 104% 8%, oklch(0.85 0.075 85 / 0.26), transparent 68%),
+    radial-gradient(70% 55% at 96% 98%, oklch(0.86 0.05 40 / 0.24), transparent 70%),
+    var(--bg);
+  background-attachment: fixed;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 1.0625rem;
@@ -112,8 +117,8 @@ h1, h2, h3 {
 
 @utility glass {
   background: var(--surface);
-  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
-  backdrop-filter: blur(var(--glass-blur)) saturate(1.5);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.7);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.7);
   border: 1px solid var(--hairline);
   box-shadow:
     inset 0 1px 0 0 oklch(1 0 0 / 0.5),
@@ -128,9 +133,9 @@ h1, h2, h3 {
 }
 
 @utility glass-strong {
-  background: color-mix(in oklab, var(--surface) 70%, transparent);
-  -webkit-backdrop-filter: blur(26px) saturate(1.6);
-  backdrop-filter: blur(26px) saturate(1.6);
+  background: color-mix(in oklab, var(--surface) 78%, transparent);
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  backdrop-filter: blur(30px) saturate(1.8);
   border: 1px solid var(--hairline);
   box-shadow:
     inset 0 1.5px 0 0 oklch(1 0 0 / 0.55),
@@ -140,19 +145,21 @@ h1, h2, h3 {
 /* colorful washes that live BEHIND glass so the blur reads clearly */
 @utility wash-garden {
   background:
-    radial-gradient(52% 44% at 12% 8%, oklch(0.78 0.09 135 / 0.55), transparent 70%),
-    radial-gradient(44% 40% at 88% 16%, oklch(0.82 0.09 85 / 0.5), transparent 72%),
-    radial-gradient(50% 46% at 78% 82%, oklch(0.84 0.06 40 / 0.45), transparent 70%),
-    radial-gradient(40% 38% at 22% 78%, oklch(0.8 0.07 160 / 0.4), transparent 72%),
+    radial-gradient(75% 60% at 4% -6%, oklch(0.80 0.075 135 / 0.42), transparent 68%),
+    radial-gradient(68% 55% at 104% 10%, oklch(0.85 0.075 85 / 0.38), transparent 70%),
+    radial-gradient(72% 60% at 92% 96%, oklch(0.86 0.05 40 / 0.34), transparent 70%),
+    radial-gradient(64% 55% at -8% 88%, oklch(0.82 0.055 165 / 0.30), transparent 72%),
     var(--bg);
+  background-attachment: fixed;
 }
 :root[data-theme="dark"] .wash-garden {
   background:
-    radial-gradient(52% 44% at 12% 8%, oklch(0.45 0.09 150 / 0.55), transparent 70%),
-    radial-gradient(44% 40% at 88% 16%, oklch(0.55 0.1 85 / 0.45), transparent 72%),
-    radial-gradient(50% 46% at 78% 82%, oklch(0.4 0.08 40 / 0.4), transparent 70%),
-    radial-gradient(40% 38% at 22% 78%, oklch(0.42 0.08 200 / 0.35), transparent 72%),
+    radial-gradient(75% 60% at 4% -6%, oklch(0.46 0.075 150 / 0.48), transparent 68%),
+    radial-gradient(68% 55% at 104% 10%, oklch(0.56 0.085 85 / 0.40), transparent 70%),
+    radial-gradient(72% 60% at 92% 96%, oklch(0.42 0.07 40 / 0.34), transparent 70%),
+    radial-gradient(64% 55% at -8% 88%, oklch(0.44 0.07 200 / 0.30), transparent 72%),
     var(--bg);
+  background-attachment: fixed;
 }
 
 /* ——— skeletons (never spinners) ——— */

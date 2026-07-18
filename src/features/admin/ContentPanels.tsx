@@ -28,6 +28,7 @@ import {
 import { useAdminGuests } from "../../hooks/adminQueries";
 import { useFaq, useGallery, useHotels, useMessages, useSchedule } from "../../hooks/queries";
 import { SCHEDULE_ICON_NAMES, ScheduleIcon } from "../../lib/icons";
+import { ImageField } from "./ImageField";
 import type {
   EventDoc,
   FaqItem,
@@ -226,6 +227,7 @@ export function SchedulePanel({ event }: { event: EventDoc }) {
       {editing ? (
         <ScheduleModal
           item={editing}
+          event={event}
           onClose={() => setEditing(null)}
           onSave={(i) => {
             save.mutate(i);
@@ -239,10 +241,12 @@ export function SchedulePanel({ event }: { event: EventDoc }) {
 
 function ScheduleModal({
   item,
+  event,
   onClose,
   onSave,
 }: {
   item: ScheduleItem;
+  event: EventDoc;
   onClose: () => void;
   onSave: (i: ScheduleItem) => void;
 }) {
@@ -304,9 +308,13 @@ function ScheduleModal({
             </datalist>
           </div>
         </Labeled>
-        <Labeled label="Image URL" hint="optional banner shown on the card — paste any public image link (or a gallery photo URL)">
-          <Input value={d.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} />
-        </Labeled>
+        <ImageField
+          label="Banner image"
+          hint="optional — shown across the top of the card"
+          value={d.imageUrl}
+          onChange={(url) => set({ imageUrl: url })}
+          event={event}
+        />
       </div>
       <LocationEditor value={d.location} onChange={(v) => set({ location: v })} />
       <LocalizedInput
@@ -426,6 +434,7 @@ export function HotelsPanel({ event }: { event: EventDoc }) {
       {editing ? (
         <HotelModal
           hotel={editing}
+          event={event}
           onClose={() => setEditing(null)}
           onSave={(h) => {
             save.mutate(h);
@@ -439,10 +448,12 @@ export function HotelsPanel({ event }: { event: EventDoc }) {
 
 function HotelModal({
   hotel,
+  event,
   onClose,
   onSave,
 }: {
   hotel: Hotel;
+  event: EventDoc;
   onClose: () => void;
   onSave: (h: Hotel) => void;
 }) {
@@ -506,6 +517,13 @@ function HotelModal({
           />
         </Labeled>
       </div>
+      <ImageField
+        label="Add image"
+        hint="browse from this device or paste a link — adds to the list below"
+        value=""
+        onChange={(url) => url && set({ images: [...d.images, url] })}
+        event={event}
+      />
       <Labeled label="Image URLs" hint="One per line">
         <Textarea
           value={d.images.join("\n")}
@@ -634,22 +652,18 @@ export function GalleryPanel({ event }: { event: EventDoc }) {
 
   return (
     <Panel title={`Gallery (${items.length})`}>
-      <div className="mb-4 flex flex-wrap gap-2">
-        <Input
+      <div className="mb-4 flex flex-col gap-3">
+        <ImageField
+          label="Add image"
+          hint="browse from this device or paste a public link"
           value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="Image URL"
-          aria-label="Image URL"
-          className="min-w-52 flex-1"
+          onChange={setUrl}
+          event={event}
         />
-        <AdminButton onClick={add} disabled={!url.trim()}>
-          <Plus size={14} /> Add image
+        <AdminButton className="w-fit" onClick={add} disabled={!url.trim()}>
+          <Plus size={14} /> Add to gallery
         </AdminButton>
       </div>
-      <p className="mb-4 text-sm text-ink-soft">
-        File uploads to Firebase Storage arrive with the photo pipeline in Phase 4; for now images
-        are referenced by URL.
-      </p>
 
       {items.length === 0 ? (
         <p className="py-6 text-center text-sm text-ink-soft">No images yet.</p>
