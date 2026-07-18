@@ -143,6 +143,15 @@ export const en = {
 
   faq: { title: "Good to know" },
 
+  photos: {
+    title: "Your photos",
+    lead: "Share every photo you take with us — straight from your phone, no app.",
+    upload: "Add photos",
+    uploadHint: "Tap to choose, or drop images here. They're compressed on your phone before upload.",
+    yours: "Uploaded by you",
+    reviewNote: "the couple reviews photos before they appear in the gallery.",
+  },
+
   admin: {
     title: "Admin CMS",
     stub: "The admin area arrives in Phase 3 — with guest management, schedule editor, hotel editor, theme settings, RSVP dashboard and reminders. It authenticates with Firebase and is disabled until then.",

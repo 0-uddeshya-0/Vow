@@ -1,15 +1,13 @@
 # Deploys the site to GitHub Pages — MANUALLY triggered only.
-# The couple reviews and approves before anything goes live
-# (run it from the Actions tab once the audit is done).
 name: Deploy to Pages
 
 on:
   workflow_dispatch:
     inputs:
       base:
-        description: "Vite base path (/Vow/ for project pages, / for the custom domain)"
+        description: "Vite base path (/ for the custom domain, /Vow/ for project pages)"
         required: true
-        default: "/Vow/"
+        default: "/"
 
 permissions:
   contents: read
@@ -36,6 +34,16 @@ jobs:
       - run: npm run build
         env:
           VITE_BASE: ${{ inputs.base }}
+          # Firebase web config — public by design; all security is in
+          # firestore.rules / storage.rules. Analytics deliberately absent.
+          VITE_FIREBASE_API_KEY: AIzaSyDBhm3hjvZ2lKGhJGc3QPpWBRBe5YoQL8M
+          VITE_FIREBASE_AUTH_DOMAIN: vow-1809.firebaseapp.com
+          VITE_FIREBASE_PROJECT_ID: vow-1809
+          VITE_FIREBASE_STORAGE_BUCKET: vow-1809.firebasestorage.app
+          VITE_FIREBASE_APP_ID: 1:696666654769:web:5996e05db90d4d06f0ad10
+      # Custom domain: only stamp CNAME into domain-rooted builds.
+      - if: ${{ inputs.base == '/' }}
+        run: echo "cannonfoundry.com" > dist/CNAME
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:

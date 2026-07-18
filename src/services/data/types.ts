@@ -5,6 +5,7 @@ import type {
   Guest,
   Hotel,
   Message,
+  Photo,
   PlusOneRequest,
   Rsvp,
   ScheduleItem,
@@ -45,6 +46,15 @@ export interface DataSource {
   createPlusOneRequest(req: PlusOneRequest): Promise<void>;
   listPlusOneRequests(eventId: string, guestId: string): Promise<PlusOneRequest[]>;
 
+  /** Guest photo upload (already client-compressed). Progress in [0,1]. */
+  uploadPhoto(
+    eventId: string,
+    guest: Guest,
+    blob: Blob,
+    onProgress: (fraction: number) => void,
+  ): Promise<Photo>;
+  listMyPhotos(eventId: string, guestId: string): Promise<Photo[]>;
+
   /* ——— admin ——— */
 
   adminListGuests(eventId: string): Promise<Guest[]>;
@@ -73,4 +83,8 @@ export interface DataSource {
 
   adminSaveMessage(message: Message): Promise<void>;
   adminDeleteMessage(eventId: string, id: string): Promise<void>;
+
+  adminListPhotos(eventId: string): Promise<Photo[]>;
+  adminSavePhoto(photo: Photo): Promise<void>;
+  adminDeletePhoto(eventId: string, id: string): Promise<void>;
 }

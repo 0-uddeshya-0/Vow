@@ -1,0 +1,22 @@
+rules_version = '2';
+
+// Firebase Storage — guest photo uploads.
+// Deploy: Firebase console → Storage → Rules (or `firebase deploy --only storage`).
+//
+// Guests upload without accounts, so `create` is open but tightly constrained
+// (path shape, JPEG only, ≤10MB — the client compresses to ~400KB; the limit
+// only caps abuse). Objects are NOT publicly readable: the app shares photos
+// via tokened download URLs, which work regardless of read rules and are
+// only handed to the admin/gallery flow.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /events/{eventId}/photos/{photoId} {
+      allow create: if request.resource.size < 10 * 1024 * 1024
+        && request.resource.contentType == 'image/jpeg';
+      allow read, update, delete: if request.auth != null; // admin (only signed-in user)
+    }
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -20,11 +20,13 @@ import {
   zGuest,
   zHotel,
   zMessage,
+  zPhoto,
   zPlusOneRequest,
   zRsvp,
   zScheduleItem,
   zSettings,
   zWeatherSettings,
+  type Photo,
 } from "../../types";
 import { getDb } from "../firebase/app";
 import type { DataSource } from "./types";
@@ -144,6 +146,51 @@ export const firebaseDataSource: DataSource = {
     return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
   },
 
+  /**
+   * Browser → Storage direct (resumable, real progress), then a Firestore
+   * photo doc. The OneDrive Cloud Function picks it up from `uploaded`
+   * (see functions/ + docs/ONEDRIVE.md).
+   */
+  async uploadPhoto(eventId, guest, blob, onProgress) {
+    const { getStorage, ref, uploadBytesResumable, getDownloadURL } = await import(
+      "firebase/storage"
+    );
+    const { getFirebaseApp } = await import("../firebase/app");
+    const id = `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
+    const storagePath = `events/${eventId}/photos/${id}.jpg`;
+    const task = uploadBytesResumable(ref(getStorage(getFirebaseApp()), storagePath), blob, {
+      contentType: "image/jpeg",
+    });
+    await new Promise<void>((resolve, reject) => {
+      task.on(
+        "state_changed",
+        (s) => onProgress(s.bytesTransferred / s.totalBytes),
+        reject,
+        () => resolve(),
+      );
+    });
+    const url = await getDownloadURL(task.snapshot.ref);
+    const photo: Photo = {
+      id,
+      eventId,
+      guestId: guest.id,
+      guestName: guest.fullName,
+      storagePath,
+      url,
+      status: "uploaded",
+      createdAt: new Date().toISOString(),
+    };
+    await setDoc(doc(getDb(), "events", eventId, "photos", id), photo);
+    return photo;
+  },
+
+  async listMyPhotos(eventId, guestId) {
+    const snap = await getDocs(
+      query(sub(eventId, "photos"), where("guestId", "==", guestId)),
+    );
+    return snap.docs.map((d) => zPhoto.parse({ ...d.data(), id: d.id, eventId }));
+  },
+
   /* ——— admin (security enforced by firestore.rules, not by this file) ——— */
 
   async adminListGuests(eventId) {
@@ -251,5 +298,28 @@ export const firebaseDataSource: DataSource = {
   },
   async adminDeleteMessage(eventId, id) {
     await deleteDoc(doc(getDb(), "events", eventId, "messages", id));
+  },
+
+  async adminListPhotos(eventId) {
+    const snap = await getDocs(sub(eventId, "photos"));
+    return snap.docs.map((d) => zPhoto.parse({ ...d.data(), id: d.id, eventId }));
+  },
+  async adminSavePhoto(photo) {
+    await setDoc(doc(getDb(), "events", photo.eventId, "photos", photo.id), photo);
+  },
+  async adminDeletePhoto(eventId, id) {
+    // Best-effort object delete; the doc is the source of truth for the UI.
+    try {
+      const snap = await getDoc(doc(getDb(), "events", eventId, "photos", id));
+      const path = snap.exists() ? (snap.data() as Photo).storagePath : "";
+      if (path) {
+        const { getStorage, ref, deleteObject } = await import("firebase/storage");
+        const { getFirebaseApp } = await import("../firebase/app");
+        await deleteObject(ref(getStorage(getFirebaseApp()), path));
+      }
+    } catch {
+      /* object may already be gone */
+    }
+    await deleteDoc(doc(getDb(), "events", eventId, "photos", id));
   },
 };

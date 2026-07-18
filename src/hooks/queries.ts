@@ -97,6 +97,14 @@ export function useForecast(
   });
 }
 
+export function useMyPhotos(eventId: string | undefined, guestId: string | undefined) {
+  return useQuery({
+    queryKey: ["myPhotos", eventId, guestId],
+    queryFn: () => data.listMyPhotos(eventId!, guestId!),
+    enabled: !!eventId && !!guestId,
+  });
+}
+
 export function useCreatePlusOne() {
   const qc = useQueryClient();
   return useMutation({

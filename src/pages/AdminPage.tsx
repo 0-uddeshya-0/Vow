@@ -4,6 +4,7 @@ import { adminAuth, SEED_DEMO_PASSPHRASE, type AdminUser } from "../services/adm
 import { useEvent } from "../hooks/queries";
 import { AdminButton, Input, Labeled } from "../features/admin/kit";
 import { DashboardPanel } from "../features/admin/DashboardPanel";
+import { PhotosPanel } from "../features/admin/PhotosPanel";
 import { GuestsPanel } from "../features/admin/GuestsPanel";
 import {
   FaqPanel,
@@ -24,6 +25,7 @@ const TABS = [
   "Guests",
   "Schedule",
   "Hotels",
+  "Photos",
   "Gallery",
   "Messages",
   "FAQ",
@@ -99,6 +101,7 @@ export default function AdminPage() {
           {tab === "Guests" ? <GuestsPanel event={event} /> : null}
           {tab === "Schedule" ? <SchedulePanel event={event} /> : null}
           {tab === "Hotels" ? <HotelsPanel event={event} /> : null}
+          {tab === "Photos" ? <PhotosPanel event={event} /> : null}
           {tab === "Gallery" ? <GalleryPanel event={event} /> : null}
           {tab === "Messages" ? <MessagesPanel event={event} /> : null}
           {tab === "FAQ" ? <FaqPanel event={event} /> : null}

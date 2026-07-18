@@ -7,6 +7,7 @@ import type {
   Guest,
   Hotel,
   Message,
+  Photo,
   PlusOneRequest,
   ScheduleItem,
   Settings,
@@ -75,6 +76,10 @@ export const useDeleteFaq = () =>
 export const useSaveGalleryImage = () => useAdminMutation<GalleryImage>((g) => data.adminSaveGalleryImage(g));
 export const useDeleteGalleryImage = () =>
   useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeleteGalleryImage(v.eventId, v.id));
+
+export const useSavePhoto = () => useAdminMutation<Photo>((p) => data.adminSavePhoto(p));
+export const useDeletePhoto = () =>
+  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeletePhoto(v.eventId, v.id));
 
 export const useSaveMessage = () => useAdminMutation<Message>((m) => data.adminSaveMessage(m));
 export const useDeleteMessage = () =>

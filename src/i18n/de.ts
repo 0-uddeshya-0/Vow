@@ -141,6 +141,15 @@ export const de: Dict = {
 
   faq: { title: "Gut zu wissen" },
 
+  photos: {
+    title: "Eure Fotos",
+    lead: "Teilt jedes Foto mit uns — direkt vom Handy, ohne App.",
+    upload: "Fotos hinzufügen",
+    uploadHint: "Tippen zum Auswählen oder Bilder hierher ziehen. Sie werden vor dem Upload komprimiert.",
+    yours: "Von euch hochgeladen",
+    reviewNote: "das Paar prüft Fotos, bevor sie in der Galerie erscheinen.",
+  },
+
   admin: {
     title: "Admin-CMS",
     stub: "Der Admin-Bereich kommt in Phase 3 — mit Gästeverwaltung, Programm-Editor, Hotel-Editor, Design-Einstellungen, RSVP-Übersicht und Erinnerungen. Er nutzt Firebase-Login und ist bis dahin deaktiviert.",

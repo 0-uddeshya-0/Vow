@@ -171,6 +171,19 @@ export const zPlusOneRequest = z.object({
 });
 export type PlusOneRequest = z.infer<typeof zPlusOneRequest>;
 
+export const zPhoto = z.object({
+  id: zId,
+  eventId: zId,
+  guestId: zId,
+  guestName: z.string().default(""),
+  /** Storage object path (firebase) or "" (seed/data-url mode) */
+  storagePath: z.string().default(""),
+  url: z.string(),
+  status: z.enum(["uploaded", "approved", "synced"]).default("uploaded"),
+  createdAt: z.string(),
+});
+export type Photo = z.infer<typeof zPhoto>;
+
 export const zSettings = z.object({
   eventId: zId,
   contact: z

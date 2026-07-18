@@ -4,6 +4,7 @@ import type {
   GalleryImage,
   Hotel,
   Message,
+  Photo,
   PlusOneRequest,
   Rsvp,
   ScheduleItem,
@@ -23,6 +24,7 @@ import { defaultDb, type SeedDb } from "./seedData";
 const DB_KEY = "vow.seed.db.v1";
 const RSVP_KEY = "vow.seed.rsvps.v1";
 const PLUSONE_KEY = "vow.seed.plusones.v1";
+const PHOTOS_KEY = "vow.seed.photos.v1";
 
 function read<T>(key: string, fallback: T): T {
   try {
@@ -56,9 +58,18 @@ let plusOnes: PlusOneRequest[] = (() => {
   }
 })();
 
+let photos: Photo[] = (() => {
+  try {
+    return JSON.parse(localStorage.getItem(PHOTOS_KEY) ?? "[]") as Photo[];
+  } catch {
+    return [];
+  }
+})();
+
 const saveDb = () => write(DB_KEY, db);
 const saveRsvps = () => write(RSVP_KEY, rsvps);
 const savePlusOnes = () => write(PLUSONE_KEY, plusOnes);
+const savePhotos = () => write(PHOTOS_KEY, photos);
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 const LATENCY = 320; // lets skeleton loaders actually appear in the demo
@@ -164,6 +175,37 @@ export const seedDataSource: DataSource = {
     return plusOnes.filter((r) => r.eventId === eventId && r.guestId === guestId);
   },
 
+  /**
+   * Seed mode keeps the photo as a data-URL (no Storage exists). Progress is
+   * simulated so the UI path is identical to the Firebase implementation.
+   */
+  async uploadPhoto(eventId, guest, blob, onProgress) {
+    const { blobToDataUrl } = await import("../../lib/image");
+    for (let p = 0.15; p < 1; p += 0.28) {
+      onProgress(Math.min(p, 0.95));
+      await wait(180);
+    }
+    const photo: Photo = {
+      id: `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`,
+      eventId,
+      guestId: guest.id,
+      guestName: guest.fullName,
+      storagePath: "",
+      url: await blobToDataUrl(blob),
+      status: "uploaded",
+      createdAt: new Date().toISOString(),
+    };
+    photos.push(photo);
+    savePhotos();
+    onProgress(1);
+    return photo;
+  },
+
+  async listMyPhotos(eventId, guestId) {
+    await wait(120);
+    return photos.filter((p) => p.eventId === eventId && p.guestId === guestId);
+  },
+
   /* ——— admin ——— */
 
   async adminListGuests(eventId) {
@@ -256,5 +298,22 @@ export const seedDataSource: DataSource = {
   async adminDeleteMessage(_eventId, id) {
     await wait(160);
     remove(db.messages, id);
+  },
+
+  async adminListPhotos(eventId) {
+    await wait(150);
+    return photos.filter((p) => p.eventId === eventId);
+  },
+  async adminSavePhoto(photo) {
+    await wait(120);
+    const i = photos.findIndex((p) => p.id === photo.id);
+    if (i >= 0) photos[i] = photo;
+    else photos.push(photo);
+    savePhotos();
+  },
+  async adminDeletePhoto(_eventId, id) {
+    await wait(120);
+    photos = photos.filter((p) => p.id !== id);
+    savePhotos();
   },
 };

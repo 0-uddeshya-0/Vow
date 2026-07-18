@@ -20,6 +20,7 @@ import { LiveEventMode } from "../features/live/LiveEventMode";
 import { HotelsSection } from "../features/hotels/HotelsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
 import { GallerySection } from "../features/gallery/GallerySection";
+import { PhotoUpload } from "../features/photos/PhotoUpload";
 import { MessagesSection } from "../features/messages/MessagesSection";
 import {
   ContactSection,
@@ -134,6 +135,12 @@ export default function EventPage() {
           <Section id="gallery" title={t.gallery.title} lead={t.gallery.lead}>
             <GallerySection images={galleryQuery.data} loading={galleryQuery.isLoading} />
           </Section>
+
+          {guest ? (
+            <Section id="photos" title={t.photos.title} lead={t.photos.lead}>
+              <PhotoUpload event={event} guest={guest} />
+            </Section>
+          ) : null}
 
           <Section id="parking" title={t.parking.title} lead={t.parking.lead}>
             <ParkingSection settings={settingsQuery.data} />
