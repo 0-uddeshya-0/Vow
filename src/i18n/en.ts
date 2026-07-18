@@ -1,117 +1,104 @@
+/**
+ * UI chrome strings only. Event CONTENT (welcome text, schedule items, FAQ …)
+ * is data, localized per-document as LocalizedText and edited in the Admin
+ * CMS — never hardcoded here.
+ */
 export const en = {
   langName: "English",
 
-  topbar: { rsvp: "RSVP" },
-
-  hero: {
-    markSub: "we are getting married",
-    dateLine: "Friday, 18 September 2026",
-    timeLine: "11:30 · Standesamt Neu-Ulm",
-    intro:
-      "We would love nothing more than to celebrate this day with you — from our morning vows to the last dance by the Danube.",
-    cta: "Reply by 30 August",
-    calendar: "Save the date to your calendar",
+  common: {
+    demoRibbon: "Demo content — everything here is edited in the Admin CMS",
+    loading: "Loading",
+    back: "Back",
+    save: "Save",
+    cancel: "Cancel",
+    signOut: "Not you? Switch guest",
   },
 
-  day: {
-    title: "Our day",
-    lead: "One Friday, six little chapters. Tap any place for directions.",
-    directions: "Directions",
-    moments: {
-      ceremony: { title: "The ceremony", desc: "We say yes at the registry office." },
-      photosMinster: { title: "Photos at the Minster", desc: "A quiet hour beneath the tallest church spire in the world." },
-      photosPark: { title: "Photos in the Friedrichsau", desc: "Green light, old trees, the two of us — and you nearby." },
-      parade: { title: "Car parade & lunch", desc: "We meet at the Friedrichsau car park and roll through town, horns and ribbons and all — then lunch together." },
-      reception: { title: "Reception", desc: "Glasses up at Henrichs 161, right by the water." },
-      dinner: { title: "Dinner", desc: "A long table, good food, and the evening taking its time — until ten." },
-    },
+  nav: { home: "Home", event: "Event", rsvp: "RSVP", admin: "Admin" },
+
+  landing: {
+    viewEvent: "View event",
+    until: "until we celebrate",
+    days: "days",
+    hours: "hours",
+    minutes: "min",
+    seconds: "sec",
+    eventDayTitle: "Today is the day",
+    eventDayLead: "Live overview coming with the next phase.",
   },
 
-  stay: {
-    title: "Where to stay",
-    lead: "We are holding two rooms in each of these hotels until 30 August. Book by phone and mention our booking code.",
-    bookingCodeLabel: "Booking code",
-    bookingCodePending: "shared with your invitation",
-    visit: "Hotel website",
+  identify: {
+    title: "Find your invitation",
+    lead: "Enter the email address or phone number your invitation was sent to.",
+    placeholder: "Email or phone number",
+    cta: "Find me",
+    notFound: "We couldn't find that — try the other contact detail, or ask the couple directly.",
+    demoHint: "Demo guests: demo@vow.app · witness@vow.app",
+    welcome: "Welcome",
+    switch: "Switch guest",
   },
 
-  travel: {
-    title: "Getting around",
-    lead: "Everyone organises their own way between places — everything is close, and taxis know the route well.",
-    taxiSearch: "Find a taxi nearby",
-  },
-
-  asks: {
-    title: "A few loving asks",
-    items: [
-      { title: "Be here, not on your phone", desc: "Take a photo when your heart insists — then pocket the phone and be with us. The day goes by once." },
-      { title: "Easy on the glitter", desc: "Formal dress, and please leave the heavy sparkle at home." },
-      { title: "Invited guests only", desc: "Our celebration is small on purpose — only approved guests can join." },
-      { title: "Clear heads", desc: "No drugs, please. The bar will take good care of everyone." },
-    ],
-    emergency: "If anything comes up on the day, call Michael:",
-    emergencyPending: "number shared with your invitation",
-  },
-
-  faq: {
-    title: "Good to know",
-    items: [
-      { q: "What do I wear?", a: "Formal. Suits, dresses, elegance — and comfortable shoes for the evening." },
-      { q: "Can I bring my children?", a: "We love your little ones, but this day is adults only." },
-      { q: "Until when can I reply?", a: "Please reply by 30 August 2026. You can change your answer any time before then through the same link." },
-      { q: "What will we eat?", a: "The menu is being finalised — tell us about allergies and preferences when you RSVP and we will take care of the rest." },
-    ],
+  schedule: {
+    title: "Schedule",
+    lead: "Your personal programme — items only you can see are marked.",
+    onlyForYou: "Visible to you",
+    notes: "Notes",
+    google: "Google Maps",
+    apple: "Apple Maps",
+    osm: "OpenStreetMap",
+    navigate: "Navigate",
   },
 
   rsvp: {
     title: "Will you join us?",
-    lead: "It takes a minute, and it makes our planning a world easier.",
-    name: "Your name",
-    namePlaceholder: "First and last name",
-    attending: "Will you be there?",
+    lead: "It takes a minute — and helps more than you know.",
+    attending: "Your answer",
     yes: "With joy",
+    maybe: "Maybe",
     no: "Sadly not",
-    plusOne: "Bring someone?",
-    plusOneToggle: "I would like to bring a plus one",
-    plusOneName: "Their name",
     dietTitle: "Food that works for you",
-    dietLead: "Choose anything that applies — and tell us about allergies in your own words.",
-    diet: { vegan: "Vegan", vegetarian: "Vegetarian", glutenFree: "Gluten-free", lactoseFree: "Lactose-free" },
+    diet: {
+      vegetarian: "Vegetarian",
+      vegan: "Vegan",
+      gluten_free: "Gluten-free",
+      lactose_free: "Lactose-free",
+    },
     allergies: "Allergies & notes",
-    allergiesPlaceholder: "e.g. severe nut allergy, no alcohol …",
-    message: "A line for us (optional)",
-    messagePlaceholder: "We will read every word.",
-    send: "Send our answer",
-    thanksYes: "Wonderful — we can't wait to see you!",
-    thanksNo: "We will miss you — thank you for telling us.",
-    editHint: "You can come back and change your answer until 30 August.",
-    previewBadge: "Preview — answers are not saved yet",
+    allergiesPh: "e.g. severe nut allergy …",
+    message: "A line for the couple (optional)",
+    messagePh: "We read every word.",
+    email: "Email",
+    phone: "Phone",
+    save: "Send my answer",
+    saving: "Sending…",
+    savedYes: "Wonderful — we can't wait to see you!",
+    savedMaybe: "Thank you — tell us for sure when you know.",
+    savedNo: "You'll be missed — thank you for telling us.",
+    edit: "Change my answer",
+    deadlineNote: "You can change your answer until",
+    closed: "The RSVP deadline has passed — reach out to the couple directly.",
+    identifyFirst: "Find your invitation first to reply.",
+    plusOneTitle: "Bring someone?",
+    plusOneLead: "Tell us who — the couple confirms every plus one personally.",
+    plusOneName: "Their full name",
+    plusOneContact: "Their email or phone",
+    plusOneCta: "Request plus one",
+    plusOnePending: "Requested — waiting for the couple",
+    plusOneApproved: "Approved",
+    plusOneRejected: "Not possible this time",
   },
 
-  photos: {
-    title: "Photos",
-    lead: "After the wedding, this is where you can share every photo you took with us — straight from your phone, no app, no account.",
-    soon: "Opens on the wedding day",
-  },
-
-  gate: {
-    title: "This celebration is by invitation",
-    lead: "Open the personal link from your invitation, or enter your invite code.",
-    placeholder: "Invite code",
-    enter: "Enter",
-    wrong: "That code doesn't match — check your invitation, or ask us directly.",
-  },
-
-  footer: {
-    line: "Made with love, for one Friday in September.",
-    monogramAria: "Michael and Dina monogram",
+  admin: {
+    title: "Admin CMS",
+    stub: "The admin area arrives in Phase 3 — with guest management, schedule editor, hotel editor, theme settings, RSVP dashboard and reminders. It authenticates with Firebase and is disabled until then.",
   },
 
   a11y: {
     themeToLight: "Switch to light theme",
     themeToDark: "Switch to dark theme",
     langSwitch: "Sprache: Deutsch",
-    skip: "Skip to content",
+    menu: "Menu",
   },
 };
 

@@ -1,12 +1,18 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import type { LocalizedText } from "../types";
 import { en, type Dict } from "./en";
 import { de } from "./de";
 
 export type Lang = "en" | "de";
-
 const dicts: Record<Lang, Dict> = { en, de };
 
-type I18n = { lang: Lang; t: Dict; setLang: (l: Lang) => void };
+type I18n = {
+  lang: Lang;
+  t: Dict;
+  setLang: (l: Lang) => void;
+  /** localized event content (data-driven text) */
+  lt: (text: LocalizedText | null | undefined) => string;
+};
 
 const Ctx = createContext<I18n | null>(null);
 
@@ -17,7 +23,7 @@ function initialLang(): Lang {
   } catch {
     /* private mode */
   }
-  return "en"; // English default per the couple's decision
+  return "en";
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
@@ -33,7 +39,15 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  const value = useMemo<I18n>(() => ({ lang, t: dicts[lang], setLang }), [lang, setLang]);
+  const value = useMemo<I18n>(
+    () => ({
+      lang,
+      t: dicts[lang],
+      setLang,
+      lt: (text) => (text ? text[lang] || text.en : ""),
+    }),
+    [lang, setLang],
+  );
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 

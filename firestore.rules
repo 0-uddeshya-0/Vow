@@ -1,0 +1,41 @@
+rules_version = '2';
+
+// ————————————————————————————————————————————————————————————————
+// DRAFT — not deployed (no Firebase project yet). Hardened in Phase 3
+// together with the Admin CMS; reviewed before ANY real guest data exists.
+//
+// Known tension, documented in docs/SCHEMA.md: guests identify by email/phone
+// WITHOUT auth, but security rules cannot filter unauthenticated queries by
+// their where-clause. Resolution planned for Phase 2/3: Firebase Anonymous
+// Auth at identify time + a lookup via Cloud Function (or custom claims),
+// so `guests` never becomes publicly listable.
+// ————————————————————————————————————————————————————————————————
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'ADMIN_EMAIL_SET_IN_PHASE_3';
+    }
+
+    match /events/{eventId} {
+      allow read: if true;                 // public shell content
+      allow write: if isAdmin();
+
+      match /schedule/{id}  { allow read: if true; allow write: if isAdmin(); }
+      match /hotels/{id}    { allow read: if true; allow write: if isAdmin(); }
+      match /faq/{id}       { allow read: if true; allow write: if isAdmin(); }
+      match /gallery/{id}   { allow read: if true; allow write: if isAdmin(); }
+      match /messages/{id}  { allow read: if true; allow write: if isAdmin(); }
+      match /settings/{id}  { allow read: if true; allow write: if isAdmin(); }
+
+      // Locked down until the anonymous-auth identify flow lands (see header).
+      match /guests/{guestId}          { allow read, write: if isAdmin(); }
+      match /rsvps/{guestId}           { allow read, write: if isAdmin(); }
+      match /plusOneRequests/{id}      { allow read, write: if isAdmin(); }
+      match /photos/{id}               { allow read, write: if isAdmin(); }
+      match /weatherSettings/{id}      { allow read: if true; allow write: if isAdmin(); }
+    }
+  }
+}

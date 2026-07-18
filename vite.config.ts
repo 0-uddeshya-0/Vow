@@ -1,10 +1,12 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
 
 // base: "/" for the custom domain; the Pages workflow overrides with
 // VITE_BASE=/Vow/ while the site is served from the project subpath.
+// HashRouter keeps SPA routing safe on GitHub Pages either way.
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), tailwindcss()],
   base: process.env.VITE_BASE ?? "/",
   server: { port: 4974, strictPort: true },
   build: { target: "es2022" },

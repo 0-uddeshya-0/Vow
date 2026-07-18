@@ -4,6 +4,7 @@ dist
 *.local
 .env
 .env.*
+!.env.example
 
 # Real values live in Supabase site_content; this file is only for local dev
 # and must never be committed (emergency phone, booking code).
