@@ -26,6 +26,11 @@ export const hasFirebase: boolean = Boolean(
 let app: FirebaseApp | null = null;
 let db: Firestore | null = null;
 
+export function getFirebaseApp(): FirebaseApp {
+  getDb(); // initializes `app` if needed
+  return app!;
+}
+
 export function getDb(): Firestore {
   if (!hasFirebase) throw new Error("Firebase env not configured");
   if (!app) {

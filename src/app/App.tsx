@@ -4,6 +4,7 @@ import { I18nProvider } from "../i18n";
 import { TopBar } from "../features/shell/TopBar";
 import { Footer } from "../features/shell/Footer";
 import { PageTransition } from "../features/shell/PageTransition";
+import { ThemeVars } from "../features/shell/ThemeVars";
 import Landing from "../pages/Landing";
 import EventPage from "../pages/EventPage";
 import RsvpPage from "../pages/RsvpPage";
@@ -19,6 +20,7 @@ export default function App() {
       <I18nProvider>
         {/* HashRouter: SPA routing that survives GitHub Pages (no 404 hacks) */}
         <HashRouter>
+          <ThemeVars />
           <TopBar />
           <PageTransition>
             <Routes>

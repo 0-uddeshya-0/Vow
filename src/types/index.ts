@@ -38,8 +38,19 @@ export const zEvent = z.object({
   /** hero illustration (couple art) — url into Storage/assets; empty = monogram fallback */
   heroIllustrationUrl: z.string().default(""),
   theme: z
-    .object({ defaultMode: z.enum(["light", "dark"]).default("light") })
-    .default({ defaultMode: "light" }),
+    .object({
+      defaultMode: z.enum(["light", "dark"]).default("light"),
+      /**
+       * Optional CSS-color overrides applied at runtime as custom properties.
+       * Deliberately only four knobs: enough to rebrand a new event from the
+       * CMS, too few to wreck contrast. Empty string = keep the design system.
+       */
+      sage: z.string().default(""),
+      gold: z.string().default(""),
+      bgLight: z.string().default(""),
+      bgDark: z.string().default(""),
+    })
+    .default({ defaultMode: "light", sage: "", gold: "", bgLight: "", bgDark: "" }),
   placeholder: z.boolean().default(false), // seed/demo content flag, shown in UI
 });
 export type EventDoc = z.infer<typeof zEvent>;

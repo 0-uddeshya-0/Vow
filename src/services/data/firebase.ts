@@ -1,5 +1,6 @@
 import {
   collection,
+  deleteDoc,
   doc,
   getDoc,
   getDocs,
@@ -125,5 +126,75 @@ export const firebaseDataSource: DataSource = {
       query(sub(eventId, "plusOneRequests"), where("guestId", "==", guestId)),
     );
     return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
+  },
+
+  /* ——— admin (security enforced by firestore.rules, not by this file) ——— */
+
+  async adminListGuests(eventId) {
+    const snap = await getDocs(sub(eventId, "guests"));
+    return parseAll(zGuest, snap.docs).map((g) => ({ ...g, eventId }));
+  },
+  async adminSaveGuest(guest) {
+    await setDoc(doc(getDb(), "events", guest.eventId, "guests", guest.id), guest);
+  },
+  async adminDeleteGuest(eventId, guestId) {
+    await deleteDoc(doc(getDb(), "events", eventId, "guests", guestId));
+  },
+
+  async adminListRsvps(eventId) {
+    const snap = await getDocs(sub(eventId, "rsvps"));
+    return snap.docs.map((d) => zRsvp.parse({ ...d.data(), eventId, guestId: d.id }));
+  },
+  async adminListPlusOnes(eventId) {
+    const snap = await getDocs(sub(eventId, "plusOneRequests"));
+    return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
+  },
+  async adminSavePlusOne(req) {
+    await setDoc(doc(getDb(), "events", req.eventId, "plusOneRequests", req.id), req);
+  },
+
+  async adminSaveEvent(event) {
+    await setDoc(doc(getDb(), "events", event.id), event);
+  },
+  async adminSaveSettings(settings) {
+    await setDoc(doc(getDb(), "events", settings.eventId, "settings", "settings"), settings);
+  },
+  async adminSaveWeatherSettings(w) {
+    await setDoc(doc(getDb(), "events", w.eventId, "weatherSettings", "settings"), w);
+  },
+
+  async adminSaveScheduleItem(item) {
+    await setDoc(doc(getDb(), "events", item.eventId, "schedule", item.id), item);
+  },
+  async adminDeleteScheduleItem(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "schedule", id));
+  },
+
+  async adminSaveHotel(hotel) {
+    await setDoc(doc(getDb(), "events", hotel.eventId, "hotels", hotel.id), hotel);
+  },
+  async adminDeleteHotel(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "hotels", id));
+  },
+
+  async adminSaveFaq(item) {
+    await setDoc(doc(getDb(), "events", item.eventId, "faq", item.id), item);
+  },
+  async adminDeleteFaq(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "faq", id));
+  },
+
+  async adminSaveGalleryImage(image) {
+    await setDoc(doc(getDb(), "events", image.eventId, "gallery", image.id), image);
+  },
+  async adminDeleteGalleryImage(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "gallery", id));
+  },
+
+  async adminSaveMessage(message) {
+    await setDoc(doc(getDb(), "events", message.eventId, "messages", message.id), message);
+  },
+  async adminDeleteMessage(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "messages", id));
   },
 };

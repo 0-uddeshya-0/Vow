@@ -21,9 +21,9 @@ Two themes mapped to the day itself: **Morning Garden** (light, default) and **C
 | Data layer: `DataSource` seam, seed demo event, Firestore impl + Zod parsing | ✅ P1 — Firestore impl **not yet exercised** (no project) |
 | Couple illustration | 🟡 slot + float built — art extracted from the couple's Canva in P2 |
 | Hotels, weather, gallery, messages, live event mode, calendar, contact/parking/emergency, PWA | ⏳ P2 |
-| Admin CMS (all editors, dashboards, reminders, plus-one approvals, theme settings) | ⏳ P3 |
+| Admin CMS: dashboard, guests (search/filter/sort/CRUD, exports, reminders), schedule/hotels/FAQ/gallery/messages editors, theme & content settings, plus-one approvals | ✅ P3 |
 | Photos → Firebase Storage → Cloud Function → OneDrive | ⏳ P4 (needs Blaze + Azure app) |
-| `firestore.rules` | 🟡 draft, deny-by-default for guest data — hardened in P3 (see SCHEMA.md) |
+| `firestore.rules` | ✅ hardened — content public-read, all personal data admin-only. Set `REPLACE_WITH_ADMIN_UID` before deploying |
 | Deploy | ⏸ manual `workflow_dispatch` after the couple's audit |
 
 **Content is placeholder by design** — the demo event (`event.placeholder: true`) shows a visible ribbon; the couple's real schedule/venues/texts are entered in the Admin CMS once confirmed. Nothing event-specific is hardcoded.
@@ -37,6 +37,7 @@ npm run dev        # http://localhost:4974
 
 No setup needed — without Firebase env the app runs on the built-in seed event.
 Demo guests for identify: `demo@vow.app` (Guest) · `witness@vow.app` (Witness — sees a role-gated schedule item).
+Admin CMS at `#/admin` — in demo mode any email with passphrase `demo` (this is **not** security; there is no backend, and the UI says so). Admin edits persist to `localStorage` under `vow.seed.db.v1`; clear it to restore the factory demo event.
 Debug: append `?noanim=1` to render all motion settled (used for headless screenshots).
 
 ## Connect Firebase (owner setup, ~10 min)

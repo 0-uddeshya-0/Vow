@@ -1,14 +1,22 @@
 rules_version = '2';
 
 // ————————————————————————————————————————————————————————————————
-// DRAFT — not deployed (no Firebase project yet). Hardened in Phase 3
-// together with the Admin CMS; reviewed before ANY real guest data exists.
+// Vow — Firestore security rules
 //
-// Known tension, documented in docs/SCHEMA.md: guests identify by email/phone
-// WITHOUT auth, but security rules cannot filter unauthenticated queries by
-// their where-clause. Resolution planned for Phase 2/3: Firebase Anonymous
-// Auth at identify time + a lookup via Cloud Function (or custom claims),
-// so `guests` never becomes publicly listable.
+// Model: public event *content* is world-readable (the site is a static SPA
+// with no server, so content must be readable by the anon key). Everything
+// that identifies a person — guests, RSVPs, plus-one requests, photos — is
+// NOT publicly readable and is writable only by the admin.
+//
+// Deploy:  firebase deploy --only firestore:rules
+// Set ADMIN_UIDS to the Authentication → Users UID of the admin account.
+//
+// KNOWN GAP (documented in docs/SCHEMA.md): guests identify by email/phone
+// with no account, and rules cannot constrain an unauthenticated query by
+// its where-clause. Until the anonymous-auth identify flow ships (P4), the
+// guest app reads `guests`/`rsvps` only in seed mode; against a real project
+// those collections stay admin-only and guest identification will require
+// the Cloud Function. Do NOT loosen this to make the demo work.
 // ————————————————————————————————————————————————————————————————
 
 service cloud.firestore {
@@ -16,26 +24,38 @@ service cloud.firestore {
 
     function isAdmin() {
       return request.auth != null
-        && request.auth.token.email == 'ADMIN_EMAIL_SET_IN_PHASE_3';
+        && request.auth.uid in [
+             'REPLACE_WITH_ADMIN_UID'
+           ];
+    }
+
+    // Content collections: read-only to everyone, writable only by admin.
+    function publicContent() {
+      return true;
     }
 
     match /events/{eventId} {
-      allow read: if true;                 // public shell content
+      allow read:  if publicContent();
       allow write: if isAdmin();
 
-      match /schedule/{id}  { allow read: if true; allow write: if isAdmin(); }
-      match /hotels/{id}    { allow read: if true; allow write: if isAdmin(); }
-      match /faq/{id}       { allow read: if true; allow write: if isAdmin(); }
-      match /gallery/{id}   { allow read: if true; allow write: if isAdmin(); }
-      match /messages/{id}  { allow read: if true; allow write: if isAdmin(); }
-      match /settings/{id}  { allow read: if true; allow write: if isAdmin(); }
+      match /schedule/{id}        { allow read: if publicContent(); allow write: if isAdmin(); }
+      match /hotels/{id}          { allow read: if publicContent(); allow write: if isAdmin(); }
+      match /faq/{id}             { allow read: if publicContent(); allow write: if isAdmin(); }
+      match /gallery/{id}         { allow read: if publicContent(); allow write: if isAdmin(); }
+      match /messages/{id}        { allow read: if publicContent(); allow write: if isAdmin(); }
+      match /settings/{id}        { allow read: if publicContent(); allow write: if isAdmin(); }
+      match /weatherSettings/{id} { allow read: if publicContent(); allow write: if isAdmin(); }
 
-      // Locked down until the anonymous-auth identify flow lands (see header).
-      match /guests/{guestId}          { allow read, write: if isAdmin(); }
-      match /rsvps/{guestId}           { allow read, write: if isAdmin(); }
-      match /plusOneRequests/{id}      { allow read, write: if isAdmin(); }
-      match /photos/{id}               { allow read, write: if isAdmin(); }
-      match /weatherSettings/{id}      { allow read: if true; allow write: if isAdmin(); }
+      // Personal data — never publicly listable or readable.
+      match /guests/{guestId}     { allow read, write: if isAdmin(); }
+      match /rsvps/{guestId}      { allow read, write: if isAdmin(); }
+      match /plusOneRequests/{id} { allow read, write: if isAdmin(); }
+      match /photos/{id}          { allow read, write: if isAdmin(); }
+    }
+
+    // Anything not matched above is denied.
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }
