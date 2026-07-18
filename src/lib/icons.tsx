@@ -6,11 +6,13 @@ import {
 } from "lucide-react";
 
 /**
- * Curated, statically-bundled icon set for schedule items — the admin picks a
- * name (with live preview) or pastes ANY emoji, which renders as-is. This is
- * the free/no-CDN answer to "any icon": lucide's DynamicIcon would code-split
- * ~1500 chunks and an icon CDN (Iconify) would add a third-party request for
- * guests — both rejected; emoji already covers the arbitrary case for 0 bytes.
+ * A schedule icon can be any of four things, resolved in this order:
+ *   1. an image URL — from an online icon library, or uploaded from the
+ *      admin's device (see useImageUpload; uploaded icons live on the
+ *      couple's own storage, pasted URLs are fetched from that third party)
+ *   2. one of the curated lucide names below (statically bundled)
+ *   3. any pasted emoji
+ *   4. nothing → a Clock, so a card is never iconless
  */
 export const SCHEDULE_ICONS: Record<string, LucideIcon> = {
   church: Church, rings: Gem, heart: Heart, sparkles: Sparkles, flower: Flower2,
@@ -24,17 +26,40 @@ export const SCHEDULE_ICONS: Record<string, LucideIcon> = {
 
 export const SCHEDULE_ICON_NAMES = Object.keys(SCHEDULE_ICONS).sort();
 
-/** Renders a curated icon, a pasted emoji, or the Clock fallback. */
-export function ScheduleIcon({ name, size = 18 }: { name: string; size?: number }) {
-  const key = name.trim().toLowerCase();
-  const Ico = SCHEDULE_ICONS[key];
-  if (Ico) return <Ico size={size} aria-hidden />;
-  if (name.trim()) {
+export const isIconUrl = (v: string) => /^(https?:\/\/|data:image\/|blob:)/i.test(v.trim());
+
+/**
+ * `size` is the optical box in px. Icons are sized to sit with the text
+ * they head — roughly the cap height of the title — rather than floating
+ * as an oversized ornament.
+ */
+export function ScheduleIcon({ name, size = 24 }: { name: string; size?: number }) {
+  const value = name.trim();
+
+  if (isIconUrl(value)) {
     return (
-      <span aria-hidden style={{ fontSize: size, lineHeight: 1 }}>
-        {name.trim()}
+      <img
+        src={value}
+        alt=""
+        loading="lazy"
+        width={size}
+        height={size}
+        style={{ width: size, height: size }}
+        className="object-contain"
+      />
+    );
+  }
+
+  const Ico = SCHEDULE_ICONS[value.toLowerCase()];
+  if (Ico) return <Ico size={size} strokeWidth={1.75} aria-hidden />;
+
+  if (value) {
+    return (
+      <span aria-hidden style={{ fontSize: size * 0.92, lineHeight: 1 }}>
+        {value}
       </span>
     );
   }
-  return <Clock size={size} aria-hidden />;
+
+  return <Clock size={size} strokeWidth={1.75} aria-hidden />;
 }

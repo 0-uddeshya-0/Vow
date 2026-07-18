@@ -1,15 +1,13 @@
-import { useRef, useState } from "react";
+import { useRef } from "react";
 import { ImageUp, Link2, X } from "lucide-react";
 import { AdminButton, Input, Labeled } from "./kit";
-import { compressImage } from "../../lib/image";
-import { data } from "../../services/data";
-import type { EventDoc, Guest } from "../../types";
+import { useImageUpload } from "./useImageUpload";
+import type { EventDoc } from "../../types";
 
 /**
  * Image input that accepts BOTH a public URL and a file from the device.
- * Browsing uploads through the same photo pipeline as guests (compressed,
- * then Storage in Firebase mode / data-URL in demo mode) and writes the
- * resulting URL back, so admins never need to find hosting for an image.
+ * Browsing uploads through the guest photo pipeline and writes the resulting
+ * URL back, so admins never need to find hosting for an image first.
  */
 export function ImageField({
   label,
@@ -17,37 +15,21 @@ export function ImageField({
   value,
   onChange,
   event,
+  compact = false,
 }: {
   label: string;
   hint?: string;
   value: string;
   onChange: (url: string) => void;
   event: EventDoc;
+  compact?: boolean;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [busy, setBusy] = useState(false);
-  const [progress, setProgress] = useState(0);
-  const [error, setError] = useState("");
+  const { upload, busy, progress, error } = useImageUpload(event, compact ? 256 : 1600);
 
   const pick = async (file: File) => {
-    setBusy(true);
-    setError("");
-    setProgress(0);
-    try {
-      const blob = await compressImage(file, 1600, 0.82);
-      // Admin uploads are attributed to a synthetic "admin" guest so the
-      // photo pipeline contract (guestId/guestName) stays satisfied.
-      const asGuest = {
-        id: "admin",
-        fullName: "Admin upload",
-      } as Guest;
-      const photo = await data.uploadPhoto(event.id, asGuest, blob, setProgress);
-      onChange(photo.url);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "upload failed");
-    } finally {
-      setBusy(false);
-    }
+    const url = await upload(file);
+    if (url) onChange(url);
   };
 
   return (
@@ -100,7 +82,7 @@ export function ImageField({
             <img
               src={value}
               alt=""
-              className="h-24 rounded-xl border border-hairline-soft object-cover"
+              className={`rounded-xl border border-hairline-soft object-cover ${compact ? "size-12 p-1" : "h-24"}`}
             />
             <button
               type="button"

@@ -54,8 +54,10 @@ function MomentCard({ item, personal }: { item: ScheduleItem; personal: boolean 
             </div>
             <h3 className="mt-1.5 font-display text-2xl text-ink">{lt(item.title)}</h3>
           </div>
-          <span className="shrink-0 text-gold-ink">
-            <ScheduleIcon name={item.icon} size={38} />
+          {/* Sized to the title's optical weight (24px heading) so it reads
+              as part of the header, not as an oversized floating ornament. */}
+          <span className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-xl border border-hairline-soft bg-surface/50 text-gold-ink">
+            <ScheduleIcon name={item.icon} size={24} />
           </span>
         </div>
 

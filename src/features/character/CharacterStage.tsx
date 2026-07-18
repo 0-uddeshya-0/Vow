@@ -2,14 +2,15 @@ import { motion, useReducedMotion } from "motion/react";
 import { ANIM_OFF } from "../../animations/motionSafe";
 
 /**
- * The couple's illustration, presented as a framed card.
+ * The couple's illustration, presented as a framed card that quietly breathes.
  *
- * Why framed and not cut out: the art has a white dress on a white ground
- * with no separating outline, so every automated background removal eats the
- * dress. A warm mat + gold hairline reads as a deliberate framed illustration
- * in both themes and keeps the artwork exactly as the couple drew it.
- * Swap-ready: when a transparent PNG / Lottie / Rive file arrives, only this
- * component changes — callers pass a URL either way.
+ * The artwork is a flat PNG (white dress on white ground, no separating
+ * outline — every automated cut-out eats the dress), so it is framed rather
+ * than floated. Life comes from layered motion on the frame instead of from
+ * the pixels: a slow bob, an even slower breath, a periodic light sweep
+ * across the glass, and a soft glow behind. Every layer animates only
+ * transform/opacity, so it composites on the GPU and stays smooth on a phone.
+ * Free, no runtime, no subscription — and fully static under reduced motion.
  */
 export function CharacterStage({
   illustrationUrl,
@@ -20,13 +21,7 @@ export function CharacterStage({
   coupleNames: string;
   className?: string;
 }) {
-  const reduce = useReducedMotion() || ANIM_OFF;
-  const float = reduce
-    ? {}
-    : {
-        animate: { y: [0, -10, 0] },
-        transition: { duration: 5, repeat: Infinity, ease: "easeInOut" as const },
-      };
+  const still = useReducedMotion() || ANIM_OFF;
 
   const initials = coupleNames
     .split(/[^\p{L}]+/u)
@@ -35,26 +30,67 @@ export function CharacterStage({
     .slice(0, 2)
     .join(" & ");
 
+  const bob = still
+    ? {}
+    : {
+        animate: { y: [0, -9, 0] },
+        transition: { duration: 5.2, repeat: Infinity, ease: "easeInOut" as const },
+      };
+
   return (
-    <motion.div className={`mx-auto w-fit ${className}`} {...float}>
-      {illustrationUrl ? (
-        <div className="rounded-[28px] border border-hairline bg-[oklch(0.995_0.004_95)] p-2.5 shadow-[0_20px_45px_-22px_oklch(0.35_0.04_110/0.55)]">
-          <img
-            src={illustrationUrl}
-            alt={coupleNames}
-            width={396}
-            height={452}
-            className="w-44 rounded-[20px] sm:w-52"
-          />
-        </div>
-      ) : (
-        <div
-          aria-hidden="true"
-          className="flex size-36 items-center justify-center rounded-full border border-hairline bg-surface/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-md sm:size-44"
-        >
-          <span className="script text-4xl sm:text-5xl">{initials}</span>
-        </div>
-      )}
-    </motion.div>
+    <div className={`relative mx-auto w-fit ${className}`}>
+      {/* ambient glow — sits behind, never intercepts taps */}
+      {!still && illustrationUrl ? (
+        <motion.div
+          aria-hidden
+          className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-gold/25 blur-2xl"
+          animate={{ opacity: [0.35, 0.6, 0.35], scale: [0.92, 1.06, 0.92] }}
+          transition={{ duration: 7.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+      ) : null}
+
+      <motion.div {...bob}>
+        {illustrationUrl ? (
+          <div className="relative overflow-hidden rounded-[28px] border border-hairline bg-[oklch(0.995_0.004_95)] p-2.5 shadow-[0_20px_45px_-22px_oklch(0.35_0.04_110/0.55)]">
+            <motion.img
+              src={illustrationUrl}
+              alt={coupleNames}
+              width={396}
+              height={452}
+              className="w-44 rounded-[20px] sm:w-52"
+              animate={still ? undefined : { scale: [1, 1.028, 1] }}
+              transition={
+                still
+                  ? undefined
+                  : { duration: 8.5, repeat: Infinity, ease: "easeInOut", delay: 0.6 }
+              }
+            />
+
+            {/* light sweep — the "alive" beat, ~7s apart */}
+            {!still ? (
+              <motion.div
+                aria-hidden
+                className="pointer-events-none absolute inset-y-0 -left-1/2 w-1/2 skew-x-12
+                           bg-gradient-to-r from-transparent via-white/45 to-transparent"
+                animate={{ x: ["0%", "420%"] }}
+                transition={{
+                  duration: 1.5,
+                  repeat: Infinity,
+                  repeatDelay: 5.5,
+                  ease: "easeInOut",
+                }}
+              />
+            ) : null}
+          </div>
+        ) : (
+          <div
+            aria-hidden="true"
+            className="flex size-36 items-center justify-center rounded-full border border-hairline bg-surface/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-md sm:size-44"
+          >
+            <span className="script text-4xl sm:text-5xl">{initials}</span>
+          </div>
+        )}
+      </motion.div>
+    </div>
   );
 }

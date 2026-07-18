@@ -27,8 +27,8 @@ import {
 } from "../../hooks/adminQueries";
 import { useAdminGuests } from "../../hooks/adminQueries";
 import { useFaq, useGallery, useHotels, useMessages, useSchedule } from "../../hooks/queries";
-import { SCHEDULE_ICON_NAMES, ScheduleIcon } from "../../lib/icons";
 import { ImageField } from "./ImageField";
+import { IconField } from "./IconField";
 import type {
   EventDoc,
   FaqItem,
@@ -288,26 +288,8 @@ function ScheduleModal({
           />
         </Labeled>
       </div>
-      <div className="grid gap-3 sm:grid-cols-[auto_1fr]">
-        <Labeled label="Icon" hint="pick a name or paste any emoji">
-          <div className="flex items-center gap-2">
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface/60 text-gold-ink">
-              <ScheduleIcon name={d.icon} />
-            </span>
-            <Input
-              list="vow-schedule-icons"
-              value={d.icon}
-              placeholder="e.g. church, dinner, 🎉"
-              onChange={(e) => set({ icon: e.target.value })}
-              className="w-40"
-            />
-            <datalist id="vow-schedule-icons">
-              {SCHEDULE_ICON_NAMES.map((n) => (
-                <option key={n} value={n} />
-              ))}
-            </datalist>
-          </div>
-        </Labeled>
+      <div className="flex flex-col gap-3">
+        <IconField value={d.icon} onChange={(v) => set({ icon: v })} event={event} />
         <ImageField
           label="Banner image"
           hint="optional — shown across the top of the card"
