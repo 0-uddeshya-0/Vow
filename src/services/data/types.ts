@@ -9,6 +9,7 @@ import type {
   Rsvp,
   ScheduleItem,
   Settings,
+  WeatherSettings,
 } from "../../types";
 
 /**
@@ -33,6 +34,7 @@ export interface DataSource {
   listGallery(eventId: string): Promise<GalleryImage[]>;
   listMessages(eventId: string): Promise<Message[]>;
   getSettings(eventId: string): Promise<Settings | null>;
+  getWeatherSettings(eventId: string): Promise<WeatherSettings | null>;
 
   getRsvp(eventId: string, guestId: string): Promise<Rsvp | null>;
   saveRsvp(rsvp: Rsvp): Promise<void>;

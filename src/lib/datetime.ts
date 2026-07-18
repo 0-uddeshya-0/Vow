@@ -43,6 +43,18 @@ export function isEventDay(event: EventDoc, now = new Date()): boolean {
   return today === event.date;
 }
 
+/** True inside the final `days` before (and on) the event date. */
+export function withinDaysBefore(
+  date: string,
+  timezone: string,
+  days: number,
+  now = new Date(),
+): boolean {
+  const today = new Intl.DateTimeFormat("en-CA", { timeZone: timezone }).format(now);
+  const diffDays = (Date.parse(date) - Date.parse(today)) / 86_400_000;
+  return diffDays >= 0 && diffDays <= days;
+}
+
 export function beforeDeadline(event: EventDoc, now = Date.now()): boolean {
   return now <= eventStartMs({ ...event, date: event.rsvpDeadline }, "23:59");
 }

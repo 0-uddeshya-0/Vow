@@ -23,7 +23,7 @@ export const de: Dict = {
     minutes: "Min.",
     seconds: "Sek.",
     eventDayTitle: "Heute ist es so weit",
-    eventDayLead: "Die Live-Übersicht kommt mit der nächsten Phase.",
+    eventDayLive: "Im Event seht ihr, wo ihr gerade sein solltet.",
   },
 
   identify: {
@@ -86,6 +86,60 @@ export const de: Dict = {
     plusOneApproved: "Bestätigt",
     plusOneRejected: "Diesmal leider nicht möglich",
   },
+
+  live: {
+    now: "Gerade jetzt",
+    next: "Als Nächstes",
+    in: "in",
+    remaining: "noch",
+    betweenEvents: "Eine kleine Pause — bis gleich.",
+    allDone: "Das war's. Danke, dass ihr mit uns gefeiert habt.",
+    title: "Heute",
+  },
+
+  stay: {
+    title: "Übernachten",
+    lead: "Unsere Empfehlungen in der Nähe.",
+    recommended: "Empfohlen",
+    call: "Anrufen",
+    book: "Buchen",
+    website: "Website",
+    min: "Min.",
+  },
+
+  weather: {
+    title: "Wetter am Tag",
+    lead: "Aus der Vorhersage für den Veranstaltungsort.",
+    rain: "Regen",
+    clear: "Klarer Himmel",
+    cloudy: "Teils bewölkt",
+    rainy: "Regen wahrscheinlich",
+    snow: "Schnee",
+    storm: "Gewitter",
+  },
+
+  gallery: {
+    title: "Galerie",
+    lead: "Momente, die wir bisher gesammelt haben.",
+    empty: "Noch keine Fotos — sie erscheinen hier.",
+  },
+
+  messages: { title: "Nachrichten", lead: "Notizen des Paares an euch." },
+
+  contact: { title: "Kontakt", lead: "Meldet euch jederzeit.", call: "Anrufen", email: "E-Mail" },
+
+  parking: { title: "Parken", lead: "Wo ihr das Auto lasst." },
+
+  emergency: { title: "Notfall", lead: "Für alle Fälle — griffbereit." },
+
+  calendar: {
+    add: "Zum Kalender hinzufügen",
+    google: "Google Kalender",
+    outlook: "Outlook",
+    apple: "Apple / .ics-Datei",
+  },
+
+  faq: { title: "Gut zu wissen" },
 
   admin: {
     title: "Admin-CMS",

@@ -21,6 +21,7 @@ import {
   zRsvp,
   zScheduleItem,
   zSettings,
+  zWeatherSettings,
 } from "../../types";
 import { getDb } from "../firebase/app";
 import type { DataSource } from "./types";
@@ -99,6 +100,11 @@ export const firebaseDataSource: DataSource = {
   async getSettings(eventId) {
     const d = await getDoc(doc(getDb(), "events", eventId, "settings", "settings"));
     return d.exists() ? zSettings.parse({ ...d.data(), eventId }) : null;
+  },
+
+  async getWeatherSettings(eventId) {
+    const d = await getDoc(doc(getDb(), "events", eventId, "weatherSettings", "settings"));
+    return d.exists() ? zWeatherSettings.parse({ ...d.data(), eventId }) : null;
   },
 
   async getRsvp(eventId, guestId) {

@@ -2,14 +2,14 @@ import { motion, useReducedMotion } from "motion/react";
 import { ANIM_OFF } from "../../animations/motionSafe";
 
 /**
- * The floating couple illustration slot. Renders the event's real art
- * (heroIllustrationUrl — the couple's Canva illustrations, added via the CMS)
- * inside a gentle idle float. Until the art is uploaded it shows an elegant
- * monogram medallion — deliberately NOT generic stand-in people.
+ * The couple's illustration, presented as a framed card.
  *
- * Rig-ready: when the art arrives as layered SVG (named groups per limb/eyes),
- * this component is where blink/wave loops attach. Lottie/Rive can slot in
- * behind the same props without touching callers.
+ * Why framed and not cut out: the art has a white dress on a white ground
+ * with no separating outline, so every automated background removal eats the
+ * dress. A warm mat + gold hairline reads as a deliberate framed illustration
+ * in both themes and keeps the artwork exactly as the couple drew it.
+ * Swap-ready: when a transparent PNG / Lottie / Rive file arrives, only this
+ * component changes — callers pass a URL either way.
  */
 export function CharacterStage({
   illustrationUrl,
@@ -24,8 +24,8 @@ export function CharacterStage({
   const float = reduce
     ? {}
     : {
-        animate: { y: [0, -12, 0] },
-        transition: { duration: 4.5, repeat: Infinity, ease: "easeInOut" as const },
+        animate: { y: [0, -10, 0] },
+        transition: { duration: 5, repeat: Infinity, ease: "easeInOut" as const },
       };
 
   const initials = coupleNames
@@ -36,15 +36,22 @@ export function CharacterStage({
     .join(" & ");
 
   return (
-    <motion.div className={`pointer-events-none select-none ${className}`} {...float} aria-hidden="true">
+    <motion.div className={`mx-auto w-fit ${className}`} {...float}>
       {illustrationUrl ? (
-        <img
-          src={illustrationUrl}
-          alt=""
-          className="mx-auto max-h-56 w-auto drop-shadow-[0_18px_30px_rgba(70,60,30,0.25)]"
-        />
+        <div className="rounded-[28px] border border-hairline bg-[oklch(0.995_0.004_95)] p-2.5 shadow-[0_20px_45px_-22px_oklch(0.35_0.04_110/0.55)]">
+          <img
+            src={illustrationUrl}
+            alt={coupleNames}
+            width={396}
+            height={452}
+            className="w-44 rounded-[20px] sm:w-52"
+          />
+        </div>
       ) : (
-        <div className="mx-auto flex size-36 items-center justify-center rounded-full border border-hairline bg-surface/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-md sm:size-44">
+        <div
+          aria-hidden="true"
+          className="flex size-36 items-center justify-center rounded-full border border-hairline bg-surface/50 shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] backdrop-blur-md sm:size-44"
+        >
           <span className="script text-4xl sm:text-5xl">{initials}</span>
         </div>
       )}

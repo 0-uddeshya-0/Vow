@@ -73,7 +73,7 @@ export default function Landing() {
               {isEventDay(event) ? (
                 <div>
                   <p className="font-display text-2xl text-gold-ink">{t.landing.eventDayTitle}</p>
-                  <p className="mt-1 text-sm text-ink-soft">{t.landing.eventDayLead}</p>
+                  <p className="mt-1 text-sm text-ink-soft">{t.landing.eventDayLive}</p>
                 </div>
               ) : (
                 <Countdown targetMs={eventStartMs(event)} />

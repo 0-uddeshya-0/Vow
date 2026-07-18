@@ -168,6 +168,10 @@ export const zSettings = z.object({
   emergency: z
     .array(z.object({ label: zLocalizedText, phone: z.string() }))
     .default([]),
+  parking: z
+    .object({ text: zLocalizedText, location: zLocation })
+    .nullable()
+    .default(null),
   footerText: zLocalizedText.nullable().default(null),
 });
 export type Settings = z.infer<typeof zSettings>;

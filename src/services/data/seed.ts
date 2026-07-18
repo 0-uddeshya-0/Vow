@@ -11,6 +11,10 @@ import type {
   Settings,
 } from "../../types";
 import type { DataSource } from "./types";
+import type { WeatherSettings } from "../../types";
+// The couple's own illustration (Canva export). In Firestore this is a
+// Storage URL set in the CMS — the seed just resolves it through Vite.
+import coupleArt from "../../assets/couple.png";
 
 /**
  * Seed data source — a complete demo event so the app is never empty and can
@@ -39,7 +43,7 @@ const event: EventDoc = {
     de: "Ein Freitag im September — unser Ja-Wort, ein Anstoßen und ein Abend an der Donau.",
   },
   rsvpDeadline: "2026-08-30",
-  heroIllustrationUrl: "",
+  heroIllustrationUrl: coupleArt,
   theme: { defaultMode: "light" },
   placeholder: true,
 };
@@ -307,11 +311,41 @@ const messages: Message[] = [
   },
 ];
 
+// Demo values only — no real personal numbers live in this public repo.
 const settings: Settings = {
   eventId: EVENT_ID,
-  contact: [],
-  emergency: [],
+  contact: [
+    { label: "Groom", name: "Michael", phone: "+490000000001", email: "" },
+    { label: "Bride", name: "Dina", phone: "+490000000002", email: "" },
+  ],
+  emergency: [
+    { label: ph("Taxi", "Taxi"), phone: "+490000000003" },
+    { label: ph("Emergency (EU)", "Notruf (EU)"), phone: "112" },
+  ],
+  parking: {
+    text: ph(
+      "Placeholder — parking details are added in the Admin CMS.",
+      "Platzhalter — Parkinfos werden im Admin-CMS gepflegt.",
+    ),
+    location: {
+      name: "Parkplatz Friedrichsau",
+      address: "Friedrichsau, 89073 Ulm",
+      lat: null,
+      lng: null,
+      googleMapsUrl: "https://maps.app.goo.gl/S6XAKRDksnCRHgkW8",
+      appleMapsUrl: "",
+      osmUrl: "",
+    },
+  },
   footerText: ph("Made with love, for one Friday in September.", "Mit Liebe gemacht, für einen Freitag im September."),
+};
+
+const weatherSettings: WeatherSettings = {
+  eventId: EVENT_ID,
+  enabled: true,
+  daysBefore: 7,
+  lat: 48.3984, // Ulm — replaced by the venue coordinates in the CMS
+  lng: 9.9916,
 };
 
 /* ——— localStorage persistence for guest-side writes ——— */
@@ -396,6 +430,11 @@ export const seedDataSource: DataSource = {
   async getSettings(eventId) {
     await wait(120);
     return settings.eventId === eventId ? settings : null;
+  },
+
+  async getWeatherSettings(eventId) {
+    await wait(80);
+    return weatherSettings.eventId === eventId ? weatherSettings : null;
   },
 
   async getRsvp(eventId, guestId) {

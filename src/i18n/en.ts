@@ -25,7 +25,7 @@ export const en = {
     minutes: "min",
     seconds: "sec",
     eventDayTitle: "Today is the day",
-    eventDayLead: "Live overview coming with the next phase.",
+    eventDayLive: "Open the event for where to be, right now.",
   },
 
   identify: {
@@ -88,6 +88,60 @@ export const en = {
     plusOneApproved: "Approved",
     plusOneRejected: "Not possible this time",
   },
+
+  live: {
+    now: "Happening now",
+    next: "Up next",
+    in: "in",
+    remaining: "still",
+    betweenEvents: "A little pause — see you at the next one.",
+    allDone: "That's a wrap. Thank you for celebrating with us.",
+    title: "Today",
+  },
+
+  stay: {
+    title: "Where to stay",
+    lead: "Our recommendations near the celebration.",
+    recommended: "Recommended",
+    call: "Call",
+    book: "Book",
+    website: "Website",
+    min: "min",
+  },
+
+  weather: {
+    title: "Weather on the day",
+    lead: "From the forecast for the venue.",
+    rain: "rain",
+    clear: "Clear skies",
+    cloudy: "Partly cloudy",
+    rainy: "Rain likely",
+    snow: "Snow",
+    storm: "Thunderstorms",
+  },
+
+  gallery: {
+    title: "Gallery",
+    lead: "Moments we have collected so far.",
+    empty: "No photos yet — they'll appear here.",
+  },
+
+  messages: { title: "Messages", lead: "Notes from the couple to you." },
+
+  contact: { title: "Contact", lead: "Reach us any time.", call: "Call", email: "Email" },
+
+  parking: { title: "Parking", lead: "Where to leave the car." },
+
+  emergency: { title: "Emergency", lead: "Just in case — keep these handy." },
+
+  calendar: {
+    add: "Add to calendar",
+    google: "Google Calendar",
+    outlook: "Outlook",
+    apple: "Apple / .ics file",
+  },
+
+  faq: { title: "Good to know" },
 
   admin: {
     title: "Admin CMS",
