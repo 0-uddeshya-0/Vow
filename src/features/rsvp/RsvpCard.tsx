@@ -19,7 +19,7 @@ import type { EventDoc, Guest, Rsvp } from "../../types";
 const DIET = ["vegetarian", "vegan", "gluten_free", "lactose_free"] as const;
 
 const zForm = z.object({
-  attending: z.enum(["yes", "no", "maybe"]),
+  attending: z.enum(["yes", "no"]),
   dietary: z.array(z.enum(DIET)),
   allergies: z.string().max(600),
   message: z.string().max(1200),
@@ -158,7 +158,7 @@ export function RsvpCard({ event, guest }: { event: EventDoc; guest: Guest }) {
 
   const attending = form.watch("attending");
   const dietary = form.watch("dietary");
-  const savedCopy = { yes: t.rsvp.savedYes, maybe: t.rsvp.savedMaybe, no: t.rsvp.savedNo } as const;
+  const savedCopy = { yes: t.rsvp.savedYes, no: t.rsvp.savedNo } as const;
 
   return (
     <GlassCard className="p-7" {...entrance()}>
@@ -182,9 +182,9 @@ export function RsvpCard({ event, guest }: { event: EventDoc; guest: Guest }) {
                 {t.rsvp.attending}
               </legend>
               <div className="flex flex-wrap gap-2">
-                {(["yes", "maybe", "no"] as const).map((v) => (
+                {(["yes", "no"] as const).map((v) => (
                   <Chip key={v} pressed={attending === v} onClick={() => form.setValue("attending", v)}>
-                    {t.rsvp[v === "yes" ? "yes" : v === "no" ? "no" : "maybe"]}
+                    {t.rsvp[v]}
                   </Chip>
                 ))}
               </div>

@@ -15,7 +15,7 @@ export const en = {
     signOut: "Not you? Switch guest",
   },
 
-  nav: { home: "Home", event: "Event", rsvp: "RSVP", admin: "Admin" },
+  nav: { home: "Home", event: "Event", rsvp: "RSVP", gallery: "Gallery", admin: "Admin" },
 
   landing: {
     viewEvent: "View event",
@@ -48,6 +48,7 @@ export const en = {
     apple: "Apple Maps",
     osm: "OpenStreetMap",
     navigate: "Navigate",
+    parking: "Parking at this stop",
   },
 
   rsvp: {
@@ -55,7 +56,6 @@ export const en = {
     lead: "It takes a minute — and helps more than you know.",
     attending: "Your answer",
     yes: "With joy",
-    maybe: "Maybe",
     no: "Sadly not",
     dietTitle: "Food that works for you",
     diet: {
@@ -73,7 +73,6 @@ export const en = {
     save: "Send my answer",
     saving: "Sending…",
     savedYes: "Wonderful — we can't wait to see you!",
-    savedMaybe: "Thank you — tell us for sure when you know.",
     savedNo: "You'll be missed — thank you for telling us.",
     edit: "Change my answer",
     deadlineNote: "You can change your answer until",

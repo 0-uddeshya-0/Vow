@@ -27,7 +27,6 @@ export function DashboardPanel({ event }: { event: EventDoc }) {
     <div className="flex flex-col gap-5">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <Stat label="Accepted" value={by("yes")} tone="ok" />
-        <Stat label="Maybe" value={by("maybe")} tone="warn" />
         <Stat label="Declined" value={by("no")} />
         <Stat label="No reply" value={Math.max(pending, 0)} tone="warn" />
         <Stat label="Guests" value={guests.length} />

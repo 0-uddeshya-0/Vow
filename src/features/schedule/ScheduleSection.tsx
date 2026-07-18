@@ -1,20 +1,21 @@
 import { motion } from "motion/react";
-import { Clock, MapPin, Navigation, StickyNote } from "lucide-react";
+import { CircleParking, MapPin, Navigation, StickyNote } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { mapLinks } from "../../lib/maps";
-import { visibleTo, type Guest, type ScheduleItem } from "../../types";
+import { ScheduleIcon } from "../../lib/icons";
+import { visibleTo, type Guest, type Location, type ScheduleItem } from "../../types";
 import { fadeUp, reveal } from "../../animations/variants";
 import { CardSkeleton } from "../../components/ui/Skeleton";
 
-function MapButtons({ item }: { item: ScheduleItem }) {
+function MapButtons({ location }: { location: Location }) {
   const { t } = useI18n();
-  const links = mapLinks(item.location);
+  const links = mapLinks(location);
   if (!links) return null;
   const cls =
     "inline-flex min-h-10 items-center gap-1.5 rounded-full border border-hairline-soft " +
     "px-3.5 text-sm text-ink-soft transition-colors hover:border-hairline hover:text-gold-ink";
   return (
-    <div className="mt-4 flex flex-wrap gap-2">
+    <div className="mt-3 flex flex-wrap gap-2">
       <a className={cls} href={links.google} target="_blank" rel="noreferrer noopener">
         <Navigation size={13} aria-hidden /> {t.schedule.google}
       </a>
@@ -31,37 +32,65 @@ function MapButtons({ item }: { item: ScheduleItem }) {
 function MomentCard({ item, personal }: { item: ScheduleItem; personal: boolean }) {
   const { t, lt } = useI18n();
   return (
-    <motion.li variants={fadeUp} className="glass relative rounded-[var(--radius-card)] p-6">
-      <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
-        <span className="tnum inline-flex items-center gap-1.5 font-display text-xl text-gold-ink">
-          <Clock size={15} aria-hidden />
-          {item.start}
-          {item.end ? <span className="text-ink-soft"> – {item.end}</span> : null}
-        </span>
-        {personal ? (
-          <span className="rounded-full border border-hairline bg-surface/60 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.14em] text-gold-ink">
-            {t.schedule.onlyForYou}
+    <motion.li variants={fadeUp} className="glass overflow-hidden rounded-[var(--radius-card)]">
+      {item.imageUrl ? (
+        <img src={item.imageUrl} alt="" loading="lazy" className="h-44 w-full object-cover" />
+      ) : null}
+
+      <div className="p-6">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1">
+          <span className="flex size-10 items-center justify-center rounded-full border border-hairline bg-surface/60 text-gold-ink">
+            <ScheduleIcon name={item.icon} />
           </span>
+          <span className="tnum font-display text-xl text-gold-ink">
+            {item.start}
+            {item.end ? <span className="text-ink-soft"> – {item.end}</span> : null}
+          </span>
+          {personal ? (
+            <span className="rounded-full border border-hairline bg-surface/60 px-2.5 py-0.5 text-[11px] uppercase tracking-[0.14em] text-gold-ink">
+              {t.schedule.onlyForYou}
+            </span>
+          ) : null}
+        </div>
+
+        <h3 className="mt-2 font-display text-2xl text-ink">{lt(item.title)}</h3>
+        <p className="mt-1.5 max-w-[52ch] text-ink-soft">{lt(item.description)}</p>
+
+        {item.location.name ? (
+          <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-ink">
+            <MapPin size={14} className="text-sage-deep" aria-hidden />
+            {item.location.name}
+            {item.location.address ? (
+              <span className="text-ink-soft"> · {item.location.address}</span>
+            ) : null}
+          </p>
+        ) : null}
+
+        {item.notes ? (
+          <p className="mt-2 inline-flex items-start gap-1.5 text-sm text-ink-soft">
+            <StickyNote size={14} className="mt-0.5 shrink-0" aria-hidden />
+            {lt(item.notes)}
+          </p>
+        ) : null}
+
+        <MapButtons location={item.location} />
+
+        {item.parkingNote || item.parkingLocation?.name ? (
+          <div className="mt-4 rounded-2xl border border-hairline-soft bg-surface/40 p-4">
+            <p className="inline-flex items-center gap-1.5 text-sm font-medium text-ink">
+              <CircleParking size={15} className="text-gold-ink" aria-hidden />
+              {t.schedule.parking}
+              {item.parkingLocation?.name ? (
+                <span className="text-ink-soft">· {item.parkingLocation.name}</span>
+              ) : null}
+            </p>
+            {item.parkingNote ? (
+              <p className="mt-1 max-w-[50ch] text-sm text-ink-soft">{lt(item.parkingNote)}</p>
+            ) : null}
+            {item.parkingLocation ? <MapButtons location={item.parkingLocation} /> : null}
+          </div>
         ) : null}
       </div>
-      <h3 className="mt-2 font-display text-2xl text-ink">{lt(item.title)}</h3>
-      <p className="mt-1.5 max-w-[52ch] text-ink-soft">{lt(item.description)}</p>
-      {item.location.name ? (
-        <p className="mt-3 inline-flex items-center gap-1.5 text-sm text-ink">
-          <MapPin size={14} className="text-sage-deep" aria-hidden />
-          {item.location.name}
-          {item.location.address ? (
-            <span className="text-ink-soft"> · {item.location.address}</span>
-          ) : null}
-        </p>
-      ) : null}
-      {item.notes ? (
-        <p className="mt-2 inline-flex items-start gap-1.5 text-sm text-ink-soft">
-          <StickyNote size={14} className="mt-0.5 shrink-0" aria-hidden />
-          {lt(item.notes)}
-        </p>
-      ) : null}
-      <MapButtons item={item} />
     </motion.li>
   );
 }

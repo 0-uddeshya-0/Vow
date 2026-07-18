@@ -4,11 +4,13 @@ import { I18nProvider } from "../i18n";
 import { TopBar } from "../features/shell/TopBar";
 import { Footer } from "../features/shell/Footer";
 import { PageTransition } from "../features/shell/PageTransition";
+import { FloatingDock } from "../features/shell/FloatingDock";
 import { ThemeVars } from "../features/shell/ThemeVars";
 import Landing from "../pages/Landing";
 import EventPage from "../pages/EventPage";
 import RsvpPage from "../pages/RsvpPage";
 import AdminPage from "../pages/AdminPage";
+import GalleryPage from "../pages/GalleryPage";
 
 const queryClient = new QueryClient({
   defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
@@ -27,11 +29,13 @@ export default function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/event" element={<EventPage />} />
               <Route path="/rsvp" element={<RsvpPage />} />
+              <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/admin" element={<AdminPage />} />
               <Route path="*" element={<Landing />} />
             </Routes>
           </PageTransition>
           <Footer />
+          <FloatingDock />
         </HashRouter>
       </I18nProvider>
     </QueryClientProvider>

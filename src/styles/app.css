@@ -69,6 +69,7 @@
   --font-script: "Pinyon Script", "Snell Roundhand", cursive;
   --font-body: "Jost Variable", "Jost", "Avenir Next", system-ui, sans-serif;
 
+  --dock-space: 8.5rem; /* floating dock clearance (dock ~5rem + breathing room) */
   --radius-card: 1.4rem;
   --radius-panel: 1.75rem;
   --shadow-soft: var(--shadow-soft);

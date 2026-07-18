@@ -20,7 +20,6 @@ const STATUSES: Guest["invitationStatus"][] = [
   "reminder_sent",
   "accepted",
   "declined",
-  "maybe",
   "cancelled",
 ];
 
@@ -30,7 +29,6 @@ const statusTone: Record<Guest["invitationStatus"], string> = {
   reminder_sent: "text-gold-ink",
   accepted: "text-sage-deep",
   declined: "text-ink-soft",
-  maybe: "text-gold-ink",
   cancelled: "text-err",
 };
 

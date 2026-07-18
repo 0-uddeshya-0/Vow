@@ -5,7 +5,6 @@ import {
   useEvent,
   useFaq,
   useForecast,
-  useGallery,
   useGuest,
   useHotels,
   useMessages,
@@ -16,11 +15,8 @@ import {
 import { useGuestSession } from "../features/guest/useGuestSession";
 import { IdentifyCard } from "../features/guest/IdentifyCard";
 import { ScheduleSection } from "../features/schedule/ScheduleSection";
-import { LiveEventMode } from "../features/live/LiveEventMode";
 import { HotelsSection } from "../features/hotels/HotelsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
-import { GallerySection } from "../features/gallery/GallerySection";
-import { PhotoUpload } from "../features/photos/PhotoUpload";
 import { MessagesSection } from "../features/messages/MessagesSection";
 import {
   ContactSection,
@@ -32,7 +28,7 @@ import { AddToCalendar } from "../features/calendar/AddToCalendar";
 import { Section, DemoRibbon } from "../components/ui/Section";
 import { Button } from "../components/ui/Button";
 import { CardSkeleton } from "../components/ui/Skeleton";
-import { isEventDay, withinDaysBefore } from "../lib/datetime";
+import { withinDaysBefore } from "../lib/datetime";
 
 export default function EventPage() {
   const { t } = useI18n();
@@ -41,7 +37,6 @@ export default function EventPage() {
   const guestQuery = useGuest(event?.id, session?.guestId);
   const scheduleQuery = useSchedule(event?.id);
   const hotelsQuery = useHotels(event?.id);
-  const galleryQuery = useGallery(event?.id);
   const messagesQuery = useMessages(event?.id);
   const settingsQuery = useSettings(event?.id);
   const faqQuery = useFaq(event?.id);
@@ -69,10 +64,9 @@ export default function EventPage() {
   }
 
   const guest = guestQuery.data ?? null;
-  const live = isEventDay(event);
 
   return (
-    <div className="mx-auto max-w-2xl px-5 pb-10 pt-28">
+    <div className="mx-auto max-w-2xl px-5 pb-[var(--dock-space)] pt-24">
       {event.placeholder ? <DemoRibbon text={t.common.demoRibbon} /> : null}
 
       {!session ? (
@@ -93,12 +87,6 @@ export default function EventPage() {
                 {t.identify.switch}
               </button>
             </div>
-          ) : null}
-
-          {live && scheduleQuery.data ? (
-            <Section id="live" title={t.live.title}>
-              <LiveEventMode event={event} items={scheduleQuery.data} guest={guest} />
-            </Section>
           ) : null}
 
           <MessagesSection
@@ -131,16 +119,6 @@ export default function EventPage() {
           <Section id="stay" title={t.stay.title} lead={t.stay.lead}>
             <HotelsSection hotels={hotelsQuery.data} loading={hotelsQuery.isLoading} />
           </Section>
-
-          <Section id="gallery" title={t.gallery.title} lead={t.gallery.lead}>
-            <GallerySection images={galleryQuery.data} loading={galleryQuery.isLoading} />
-          </Section>
-
-          {guest ? (
-            <Section id="photos" title={t.photos.title} lead={t.photos.lead}>
-              <PhotoUpload event={event} guest={guest} />
-            </Section>
-          ) : null}
 
           <Section id="parking" title={t.parking.title} lead={t.parking.lead}>
             <ParkingSection settings={settingsQuery.data} />

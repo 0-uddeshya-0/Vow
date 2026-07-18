@@ -13,7 +13,7 @@ export const de: Dict = {
     signOut: "Nicht ihr? Gast wechseln",
   },
 
-  nav: { home: "Start", event: "Event", rsvp: "Rückmeldung", admin: "Admin" },
+  nav: { home: "Start", event: "Event", rsvp: "Rückmeldung", gallery: "Galerie", admin: "Admin" },
 
   landing: {
     viewEvent: "Zum Event",
@@ -46,6 +46,7 @@ export const de: Dict = {
     apple: "Apple Karten",
     osm: "OpenStreetMap",
     navigate: "Route",
+    parking: "Parken an diesem Ort",
   },
 
   rsvp: {
@@ -53,7 +54,6 @@ export const de: Dict = {
     lead: "Eine Minute für euch — eine große Hilfe für uns.",
     attending: "Eure Antwort",
     yes: "Mit Freude",
-    maybe: "Vielleicht",
     no: "Leider nicht",
     dietTitle: "Essen, das für euch passt",
     diet: {
@@ -71,7 +71,6 @@ export const de: Dict = {
     save: "Antwort senden",
     saving: "Wird gesendet…",
     savedYes: "Wie schön — wir freuen uns auf euch!",
-    savedMaybe: "Danke — sagt fest Bescheid, sobald ihr es wisst.",
     savedNo: "Ihr werdet fehlen — danke fürs Bescheidgeben.",
     edit: "Antwort ändern",
     deadlineNote: "Ihr könnt eure Antwort ändern bis",

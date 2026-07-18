@@ -2,8 +2,10 @@ import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import { useI18n } from "../i18n";
-import { useEvent } from "../hooks/queries";
+import { useEvent, useGuest, useSchedule } from "../hooks/queries";
+import { useGuestSession } from "../features/guest/useGuestSession";
 import { Countdown } from "../features/countdown/Countdown";
+import { LiveEventMode } from "../features/live/LiveEventMode";
 import { CharacterStage } from "../features/character/CharacterStage";
 import { GlassCard } from "../components/ui/GlassCard";
 import { DemoRibbon } from "../components/ui/Section";
@@ -29,9 +31,15 @@ function HeroSkeleton() {
 export default function Landing() {
   const { t, lt, lang } = useI18n();
   const { data: event, isLoading } = useEvent();
+  const { session } = useGuestSession();
+  const guest = useGuest(event?.id, session?.guestId).data ?? null;
+  const schedule = useSchedule(event?.id).data;
+  const live = !!event && isEventDay(event);
 
   return (
-    <div className="wash-garden flex min-h-svh flex-col justify-center px-4 pb-14 pt-28">
+    // min-h-dvh minus the fixed chrome, so centring never hides content behind
+    // the dock on short phone viewports.
+    <div className="wash-garden flex min-h-svh flex-col justify-center px-4 pb-[var(--dock-space)] pt-24 sm:pt-28">
       {isLoading || !event ? (
         <HeroSkeleton />
       ) : (
@@ -70,11 +78,8 @@ export default function Landing() {
             </motion.p>
 
             <motion.div {...entrance(0.42)} className="mt-8">
-              {isEventDay(event) ? (
-                <div>
-                  <p className="font-display text-2xl text-gold-ink">{t.landing.eventDayTitle}</p>
-                  <p className="mt-1 text-sm text-ink-soft">{t.landing.eventDayLive}</p>
-                </div>
+              {live ? (
+                <p className="font-display text-2xl text-gold-ink">{t.landing.eventDayTitle}</p>
               ) : (
                 <Countdown targetMs={eventStartMs(event)} />
               )}
@@ -90,9 +95,15 @@ export default function Landing() {
             </motion.div>
           </GlassCard>
 
-          <motion.p {...entrance(0.6)} className="mt-6 text-center text-sm text-ink-soft">
-            {lt(event.intro)}
-          </motion.p>
+          {live && schedule ? (
+            <div className="mt-5">
+              <LiveEventMode event={event} items={schedule} guest={guest} />
+            </div>
+          ) : (
+            <motion.p {...entrance(0.6)} className="mt-6 text-center text-sm text-ink-soft">
+              {lt(event.intro)}
+            </motion.p>
+          )}
         </div>
       )}
     </div>

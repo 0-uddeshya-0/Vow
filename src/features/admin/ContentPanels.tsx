@@ -27,6 +27,7 @@ import {
 } from "../../hooks/adminQueries";
 import { useAdminGuests } from "../../hooks/adminQueries";
 import { useFaq, useGallery, useHotels, useMessages, useSchedule } from "../../hooks/queries";
+import { SCHEDULE_ICON_NAMES, ScheduleIcon } from "../../lib/icons";
 import type {
   EventDoc,
   FaqItem,
@@ -169,6 +170,9 @@ export function SchedulePanel({ event }: { event: EventDoc }) {
     end: null,
     location: { ...EMPTY_LOCATION },
     notes: null,
+    icon: "",
+    parkingNote: null,
+    parkingLocation: null,
     visibility: { allowedRoles: [], allowedGuests: [] },
   });
 
@@ -280,15 +284,69 @@ function ScheduleModal({
           />
         </Labeled>
       </div>
-      <Labeled label="Image URL" hint="optional">
-        <Input value={d.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} />
-      </Labeled>
+      <div className="grid gap-3 sm:grid-cols-[auto_1fr]">
+        <Labeled label="Icon" hint="pick a name or paste any emoji">
+          <div className="flex items-center gap-2">
+            <span className="flex size-10 shrink-0 items-center justify-center rounded-full border border-hairline bg-surface/60 text-gold-ink">
+              <ScheduleIcon name={d.icon} />
+            </span>
+            <Input
+              list="vow-schedule-icons"
+              value={d.icon}
+              placeholder="e.g. church, dinner, 🎉"
+              onChange={(e) => set({ icon: e.target.value })}
+              className="w-40"
+            />
+            <datalist id="vow-schedule-icons">
+              {SCHEDULE_ICON_NAMES.map((n) => (
+                <option key={n} value={n} />
+              ))}
+            </datalist>
+          </div>
+        </Labeled>
+        <Labeled label="Image URL" hint="optional banner shown on the card — paste any public image link (or a gallery photo URL)">
+          <Input value={d.imageUrl} onChange={(e) => set({ imageUrl: e.target.value })} />
+        </Labeled>
+      </div>
       <LocationEditor value={d.location} onChange={(v) => set({ location: v })} />
       <LocalizedInput
         label="Notes"
         value={d.notes ?? emptyText()}
         onChange={(v) => set({ notes: v.en || v.de ? v : null })}
       />
+      <div className="rounded-xl border border-hairline-soft p-4">
+        <p className="mb-3 text-xs uppercase tracking-[0.12em] text-ink-soft">Parking (optional)</p>
+        <LocalizedInput
+          label="Parking note"
+          value={d.parkingNote ?? emptyText()}
+          onChange={(v) => set({ parkingNote: v.en || v.de ? v : null })}
+        />
+        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+          <Labeled label="Parking place name">
+            <Input
+              value={d.parkingLocation?.name ?? ""}
+              onChange={(e) =>
+                set({
+                  parkingLocation: { ...(d.parkingLocation ?? { ...EMPTY_LOCATION }), name: e.target.value },
+                })
+              }
+            />
+          </Labeled>
+          <Labeled label="Parking Google Maps URL">
+            <Input
+              value={d.parkingLocation?.googleMapsUrl ?? ""}
+              onChange={(e) =>
+                set({
+                  parkingLocation: {
+                    ...(d.parkingLocation ?? { ...EMPTY_LOCATION }),
+                    googleMapsUrl: e.target.value,
+                  },
+                })
+              }
+            />
+          </Labeled>
+        </div>
+      </div>
       <VisibilityEditor
         eventId={d.eventId}
         value={d.visibility}

@@ -63,9 +63,13 @@ export const zGuest = z.object({
   phone: z.string().default(""), // normalized +49…
   roles: z.array(zRole).default(["Guest"]),
   language: z.enum(["en", "de"]).default("en"),
-  invitationStatus: z
-    .enum(["not_invited", "invited", "reminder_sent", "accepted", "declined", "maybe", "cancelled"])
-    .default("invited"),
+  // "maybe" removed by decision 2026-07-18; preprocess migrates any stale doc.
+  invitationStatus: z.preprocess(
+    (v) => (v === "maybe" ? "invited" : v),
+    z
+      .enum(["not_invited", "invited", "reminder_sent", "accepted", "declined", "cancelled"])
+      .default("invited"),
+  ),
   reminderCount: z.number().int().default(0),
   lastReminderAt: z.string().default(""),
   createdVia: z.enum(["admin", "plus_one"]).default("admin"),
@@ -96,6 +100,11 @@ export const zScheduleItem = z.object({
   end: zTime.nullable().default(null),
   location: zLocation,
   notes: zLocalizedText.nullable().default(null),
+  /** curated lucide name (see lib/icons) OR any pasted emoji; "" = default clock */
+  icon: z.string().default(""),
+  /** optional per-stop parking info, shown on the card with its own maps links */
+  parkingNote: zLocalizedText.nullable().default(null),
+  parkingLocation: zLocation.nullable().default(null),
   visibility: zVisibility.default({ allowedRoles: [], allowedGuests: [] }),
 });
 export type ScheduleItem = z.infer<typeof zScheduleItem>;
@@ -149,7 +158,8 @@ export type Message = z.infer<typeof zMessage>;
 export const zRsvp = z.object({
   guestId: zId,
   eventId: zId,
-  attending: z.enum(["yes", "no", "maybe"]),
+  // Two answers only ("maybe" removed by decision); stale docs migrate to "no".
+  attending: z.preprocess((v) => (v === "maybe" ? "no" : v), z.enum(["yes", "no"])),
   dietary: z.array(z.enum(["vegetarian", "vegan", "gluten_free", "lactose_free"])).default([]),
   allergies: z.string().default(""),
   message: z.string().default(""),
