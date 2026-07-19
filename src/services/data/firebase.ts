@@ -205,10 +205,15 @@ export const firebaseDataSource: DataSource = {
   async adminSaveGuest(guest) {
     const db = getDb();
     const path = (h: string) => doc(db, "events", guest.eventId, "guestLookup", h);
-    const previous = await getDoc(doc(db, "events", guest.eventId, "guests", guest.id));
-    const before = previous.exists() ? zGuest.parse({ ...previous.data(), id: guest.id, eventId: guest.eventId }) : null;
-
-    await setDoc(doc(db, "events", guest.eventId, "guests", guest.id), guest);
+    // Read-for-cleanup and the write itself are independent, so they go out
+    // together rather than costing two sequential round trips.
+    const [previous] = await Promise.all([
+      getDoc(doc(db, "events", guest.eventId, "guests", guest.id)),
+      setDoc(doc(db, "events", guest.eventId, "guests", guest.id), guest),
+    ]);
+    const before = previous.exists()
+      ? zGuest.parse({ ...previous.data(), id: guest.id, eventId: guest.eventId })
+      : null;
 
     const nextHashes = new Set(
       await Promise.all([guest.email, guest.phone].filter(Boolean).map((c) => contactHash(c))),

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import { ANIM_OFF } from "../../animations/motionSafe";
 
@@ -12,6 +13,21 @@ import { ANIM_OFF } from "../../animations/motionSafe";
  * transform/opacity, so it composites on the GPU and stays smooth on a phone.
  * Free, no runtime, no subscription — and fully static under reduced motion.
  */
+/** Packaged art, always reachable at one stable path in dev and production. */
+const DEFAULT_ART = `${import.meta.env.BASE_URL}couple.png`;
+
+/**
+ * Self-healing source: a stored "/src/…" path (written into the database by
+ * an import run against the dev server) or any URL that fails to load falls
+ * back to the packaged illustration, so a bad value in the CMS can never
+ * leave the landing page with a broken image.
+ */
+function usableArt(url: string): string {
+  const v = url.trim();
+  if (!v || v.startsWith("/src/") || v.startsWith("/@fs/")) return DEFAULT_ART;
+  return v;
+}
+
 export function CharacterStage({
   illustrationUrl,
   coupleNames,
@@ -22,6 +38,8 @@ export function CharacterStage({
   className?: string;
 }) {
   const still = useReducedMotion() || ANIM_OFF;
+  const [failed, setFailed] = useState(false);
+  const src = failed ? DEFAULT_ART : usableArt(illustrationUrl);
 
   const initials = coupleNames
     .split(/[^\p{L}]+/u)
@@ -40,7 +58,7 @@ export function CharacterStage({
   return (
     <div className={`relative mx-auto w-fit ${className}`}>
       {/* ambient glow — sits behind, never intercepts taps */}
-      {!still && illustrationUrl ? (
+      {!still && src ? (
         <motion.div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10 rounded-full bg-gold/25 blur-2xl"
@@ -50,10 +68,11 @@ export function CharacterStage({
       ) : null}
 
       <motion.div {...bob}>
-        {illustrationUrl ? (
+        {src ? (
           <div className="relative overflow-hidden rounded-[28px] border border-hairline bg-[oklch(0.995_0.004_95)] p-2.5 shadow-[0_20px_45px_-22px_oklch(0.35_0.04_110/0.55)]">
             <motion.img
-              src={illustrationUrl}
+              src={src}
+              onError={() => setFailed(true)}
               alt={coupleNames}
               width={396}
               height={452}

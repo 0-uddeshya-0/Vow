@@ -9,9 +9,13 @@ import type {
   Settings,
   WeatherSettings,
 } from "../../types";
-// The couple's own illustration (Canva export). In Firestore this is a
-// Storage URL set in the CMS — the seed just resolves it through Vite.
-import coupleArt from "../../assets/couple.png";
+/**
+ * The couple's illustration lives in public/ deliberately. A bundled import
+ * resolves to "/src/assets/…" under the dev server and to a hashed filename
+ * after a build, so importing starter content from a dev session persisted a
+ * URL that 404s in production. A public asset has one stable path in both.
+ */
+const coupleArt = `${import.meta.env.BASE_URL}couple.png`;
 
 /**
  * Factory defaults for the demo event. Everything content-shaped is

@@ -72,7 +72,10 @@ const savePlusOnes = () => write(PLUSONE_KEY, plusOnes);
 const savePhotos = () => write(PHOTOS_KEY, photos);
 
 const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
-const LATENCY = 320; // lets skeleton loaders actually appear in the demo
+const LATENCY = 320; // guest-facing reads: lets skeleton loaders actually appear
+// Admin writes get no artificial delay — the skeleton rationale is about the
+// guest site, and a fake 180ms on every CMS save just makes the tool feel slow.
+const ADMIN = 0;
 
 function normalizeContact(c: string): string {
   const t = c.trim().toLowerCase();
@@ -209,30 +212,30 @@ export const seedDataSource: DataSource = {
   /* ——— admin ——— */
 
   async adminListGuests(eventId) {
-    await wait(200);
+    await wait(ADMIN);
     return db.guests.filter((g) => g.eventId === eventId);
   },
   async adminSaveGuest(guest) {
-    await wait(180);
+    await wait(ADMIN);
     upsert(db.guests, guest);
   },
   async adminDeleteGuest(_eventId, guestId) {
-    await wait(180);
+    await wait(ADMIN);
     remove(db.guests, guestId);
     rsvps = rsvps.filter((r) => r.guestId !== guestId);
     saveRsvps();
   },
 
   async adminListRsvps(eventId) {
-    await wait(200);
+    await wait(ADMIN);
     return rsvps.filter((r) => r.eventId === eventId);
   },
   async adminListPlusOnes(eventId) {
-    await wait(160);
+    await wait(ADMIN);
     return plusOnes.filter((p) => p.eventId === eventId);
   },
   async adminSavePlusOne(req) {
-    await wait(160);
+    await wait(ADMIN);
     const i = plusOnes.findIndex((p) => p.id === req.id);
     if (i >= 0) plusOnes[i] = req;
     else plusOnes.push(req);
@@ -240,79 +243,79 @@ export const seedDataSource: DataSource = {
   },
 
   async adminSaveEvent(event: EventDoc) {
-    await wait(180);
+    await wait(ADMIN);
     db.event = event;
     saveDb();
   },
   async adminSaveSettings(settings: Settings) {
-    await wait(180);
+    await wait(ADMIN);
     db.settings = settings;
     saveDb();
   },
   async adminSaveWeatherSettings(w: WeatherSettings) {
-    await wait(150);
+    await wait(ADMIN);
     db.weatherSettings = w;
     saveDb();
   },
 
   async adminSaveScheduleItem(item: ScheduleItem) {
-    await wait(160);
+    await wait(ADMIN);
     upsert(db.schedule, item);
   },
   async adminDeleteScheduleItem(_eventId, id) {
-    await wait(160);
+    await wait(ADMIN);
     remove(db.schedule, id);
   },
 
   async adminSaveHotel(hotel: Hotel) {
-    await wait(160);
+    await wait(ADMIN);
     upsert(db.hotels, hotel);
   },
   async adminDeleteHotel(_eventId, id) {
-    await wait(160);
+    await wait(ADMIN);
     remove(db.hotels, id);
   },
 
   async adminSaveFaq(item: FaqItem) {
-    await wait(160);
+    await wait(ADMIN);
     upsert(db.faq, item);
   },
   async adminDeleteFaq(_eventId, id) {
-    await wait(160);
+    await wait(ADMIN);
     remove(db.faq, id);
   },
 
   async adminSaveGalleryImage(image: GalleryImage) {
-    await wait(160);
+    await wait(ADMIN);
     upsert(db.gallery, image);
   },
   async adminDeleteGalleryImage(_eventId, id) {
-    await wait(160);
+    await wait(ADMIN);
     remove(db.gallery, id);
   },
 
   async adminSaveMessage(message: Message) {
-    await wait(160);
+    await wait(ADMIN);
     upsert(db.messages, message);
   },
   async adminDeleteMessage(_eventId, id) {
-    await wait(160);
+    await wait(ADMIN);
     remove(db.messages, id);
   },
 
   async adminListPhotos(eventId) {
-    await wait(150);
+    await wait(ADMIN);
     return photos.filter((p) => p.eventId === eventId);
   },
   async adminSavePhoto(photo) {
-    await wait(120);
+    await wait(ADMIN);
     const i = photos.findIndex((p) => p.id === photo.id);
     if (i >= 0) photos[i] = photo;
     else photos.push(photo);
     savePhotos();
   },
   async adminDeletePhoto(_eventId, id) {
-    await wait(120);
+    await wait(ADMIN);
     photos = photos.filter((p) => p.id !== id);
     savePhotos();
   },

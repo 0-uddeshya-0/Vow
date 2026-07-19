@@ -14,12 +14,6 @@ import type {
   WeatherSettings,
 } from "../types";
 
-/** Everything the CMS touches is invalidated together — one small event's worth of data. */
-function useInvalidateAll() {
-  const qc = useQueryClient();
-  return () => void qc.invalidateQueries();
-}
-
 export function useAdminGuests(eventId: string | undefined) {
   return useQuery({
     queryKey: ["admin", "guests", eventId],
@@ -44,43 +38,89 @@ export function useAdminPlusOnes(eventId: string | undefined) {
   });
 }
 
-/** Named as a hook because it is only ever called from the hooks below. */
-function useAdminMutation<T>(fn: (v: T) => Promise<void>) {
-  const invalidate = useInvalidateAll();
-  return useMutation({ mutationFn: fn, onSuccess: invalidate });
+/**
+ * Invalidate ONLY what a mutation actually changed.
+ *
+ * This previously called `invalidateQueries()` with no key, which marks every
+ * query in the cache stale — so saving one guest refetched the event,
+ * schedule, hotels, FAQ, gallery, messages, settings, weather, guests, RSVPs
+ * and plus-ones, a dozen round trips for a one-document write. Keys are
+ * matched by prefix, so ["admin","guests"] covers ["admin","guests",eventId].
+ */
+function useAdminMutation<T>(fn: (v: T) => Promise<void>, keys: string[][]) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: fn,
+    onSuccess: () => {
+      for (const key of keys) void qc.invalidateQueries({ queryKey: key });
+    },
+  });
 }
 
-export const useSaveGuest = () => useAdminMutation<Guest>((g) => data.adminSaveGuest(g));
+type Ref = { eventId: string; id: string };
+
+/* guests — the guest list, the per-guest detail the site reads, and (on
+   delete) the RSVP that goes with them */
+export const useSaveGuest = () =>
+  useAdminMutation<Guest>((g) => data.adminSaveGuest(g), [["admin", "guests"], ["guest"]]);
 export const useDeleteGuest = () =>
-  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeleteGuest(v.eventId, v.id));
+  useAdminMutation<Ref>((v) => data.adminDeleteGuest(v.eventId, v.id), [
+    ["admin", "guests"],
+    ["guest"],
+    ["admin", "rsvps"],
+  ]);
 
-export const useSavePlusOne = () => useAdminMutation<PlusOneRequest>((p) => data.adminSavePlusOne(p));
+/* plus-ones — approving also mints a guest, so refresh both lists */
+export const useSavePlusOne = () =>
+  useAdminMutation<PlusOneRequest>((p) => data.adminSavePlusOne(p), [
+    ["admin", "plusOnes"],
+    ["plusOnes"],
+    ["admin", "guests"],
+  ]);
 
-export const useSaveEvent = () => useAdminMutation<EventDoc>((e) => data.adminSaveEvent(e));
-export const useSaveSettings = () => useAdminMutation<Settings>((s) => data.adminSaveSettings(s));
+export const useSaveEvent = () =>
+  useAdminMutation<EventDoc>((e) => data.adminSaveEvent(e), [["event"]]);
+export const useSaveSettings = () =>
+  useAdminMutation<Settings>((s) => data.adminSaveSettings(s), [["settings"]]);
 export const useSaveWeatherSettings = () =>
-  useAdminMutation<WeatherSettings>((w) => data.adminSaveWeatherSettings(w));
+  useAdminMutation<WeatherSettings>((w) => data.adminSaveWeatherSettings(w), [
+    ["weatherSettings"],
+    ["forecast"],
+  ]);
 
-export const useSaveScheduleItem = () => useAdminMutation<ScheduleItem>((i) => data.adminSaveScheduleItem(i));
+export const useSaveScheduleItem = () =>
+  useAdminMutation<ScheduleItem>((i) => data.adminSaveScheduleItem(i), [["schedule"]]);
 export const useDeleteScheduleItem = () =>
-  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeleteScheduleItem(v.eventId, v.id));
+  useAdminMutation<Ref>((v) => data.adminDeleteScheduleItem(v.eventId, v.id), [["schedule"]]);
 
-export const useSaveHotel = () => useAdminMutation<Hotel>((h) => data.adminSaveHotel(h));
+export const useSaveHotel = () =>
+  useAdminMutation<Hotel>((h) => data.adminSaveHotel(h), [["hotels"]]);
 export const useDeleteHotel = () =>
-  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeleteHotel(v.eventId, v.id));
+  useAdminMutation<Ref>((v) => data.adminDeleteHotel(v.eventId, v.id), [["hotels"]]);
 
-export const useSaveFaq = () => useAdminMutation<FaqItem>((f) => data.adminSaveFaq(f));
+export const useSaveFaq = () => useAdminMutation<FaqItem>((f) => data.adminSaveFaq(f), [["faq"]]);
 export const useDeleteFaq = () =>
-  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeleteFaq(v.eventId, v.id));
+  useAdminMutation<Ref>((v) => data.adminDeleteFaq(v.eventId, v.id), [["faq"]]);
 
-export const useSaveGalleryImage = () => useAdminMutation<GalleryImage>((g) => data.adminSaveGalleryImage(g));
+export const useSaveGalleryImage = () =>
+  useAdminMutation<GalleryImage>((g) => data.adminSaveGalleryImage(g), [["gallery"]]);
 export const useDeleteGalleryImage = () =>
-  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeleteGalleryImage(v.eventId, v.id));
+  useAdminMutation<Ref>((v) => data.adminDeleteGalleryImage(v.eventId, v.id), [["gallery"]]);
 
-export const useSavePhoto = () => useAdminMutation<Photo>((p) => data.adminSavePhoto(p));
-export const useDeletePhoto = () =>
-  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeletePhoto(v.eventId, v.id));
-
-export const useSaveMessage = () => useAdminMutation<Message>((m) => data.adminSaveMessage(m));
+export const useSaveMessage = () =>
+  useAdminMutation<Message>((m) => data.adminSaveMessage(m), [["messages"]]);
 export const useDeleteMessage = () =>
-  useAdminMutation<{ eventId: string; id: string }>((v) => data.adminDeleteMessage(v.eventId, v.id));
+  useAdminMutation<Ref>((v) => data.adminDeleteMessage(v.eventId, v.id), [["messages"]]);
+
+/* photos — approving one copies it into the public gallery */
+export const useSavePhoto = () =>
+  useAdminMutation<Photo>((p) => data.adminSavePhoto(p), [
+    ["admin", "photos"],
+    ["gallery"],
+    ["myPhotos"],
+  ]);
+export const useDeletePhoto = () =>
+  useAdminMutation<Ref>((v) => data.adminDeletePhoto(v.eventId, v.id), [
+    ["admin", "photos"],
+    ["myPhotos"],
+  ]);
