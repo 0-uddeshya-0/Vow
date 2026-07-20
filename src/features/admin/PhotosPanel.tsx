@@ -14,11 +14,11 @@ const statusTone: Record<Photo["status"], string> = {
 
 /** Guest uploads → approve into the public gallery (and later OneDrive sync marks `synced`). */
 export function PhotosPanel({ event }: { event: EventDoc }) {
-  const photos =
-    useQuery({
-      queryKey: ["admin", "photos", event.id],
-      queryFn: () => data.adminListPhotos(event.id),
-    }).data ?? [];
+  const photosQuery = useQuery({
+    queryKey: ["admin", "photos", event.id],
+    queryFn: () => data.adminListPhotos(event.id),
+  });
+  const photos = photosQuery.data ?? [];
   const gallery = useGallery(event.id).data ?? [];
   const savePhoto = useSavePhoto();
   const saveGallery = useSaveGalleryImage();
@@ -39,6 +39,12 @@ export function PhotosPanel({ event }: { event: EventDoc }) {
 
   return (
     <Panel title={`Guest photos (${photos.length} · ${pending} pending)`}>
+      {photosQuery.isError ? (
+        <p role="alert" className="py-4 text-sm text-err">
+          Could not load photos — check that Firestore rules are deployed and ADMIN_EMAIL in{" "}
+          <code className="font-mono text-xs">firestore.rules</code> matches your admin account.
+        </p>
+      ) : null}
       {photos.length === 0 ? (
         <p className="py-6 text-center text-sm text-ink-soft">No uploads yet.</p>
       ) : (
