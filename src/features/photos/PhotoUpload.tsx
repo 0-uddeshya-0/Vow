@@ -15,6 +15,7 @@ type UploadItem = {
   name: string;
   progress: number;
   status: "compressing" | "uploading" | "done" | "error";
+  error?: string;
 };
 
 const MAX_FILES_PER_BATCH = 20;
@@ -42,8 +43,11 @@ export function PhotoUpload({ event, guest }: { event: EventDoc; guest: Guest })
           patch(key, { status: "uploading" });
           await data.uploadPhoto(event.id, guest, blob, (f) => patch(key, { progress: f }));
           patch(key, { status: "done", progress: 1 });
-        } catch {
-          patch(key, { status: "error" });
+        } catch (err) {
+          patch(key, {
+            status: "error",
+            error: err instanceof Error ? err.message : "Upload failed",
+          });
         }
       }
       void qc.invalidateQueries({ queryKey: ["myPhotos", event.id, guest.id] });
@@ -113,6 +117,9 @@ export function PhotoUpload({ event, guest }: { event: EventDoc; guest: Guest })
                   transition={{ duration: 0.2 }}
                 />
               </div>
+              {i.status === "error" && i.error ? (
+                <p className="mt-1 text-xs text-err">{i.error}</p>
+              ) : null}
             </li>
           ))}
         </ul>
