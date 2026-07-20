@@ -169,7 +169,14 @@ export const firebaseDataSource: DataSource = {
         () => resolve(),
       );
     });
-    const url = await getDownloadURL(task.snapshot.ref);
+    // Needs storage.rules `read` for guests (no Firebase Auth). Admin can
+    // backfill from storagePath in adminListPhotos if this ever fails.
+    let url = "";
+    try {
+      url = await getDownloadURL(task.snapshot.ref);
+    } catch {
+      /* doc still written — admin resolves URL when signed in */
+    }
     const photo: Photo = {
       id,
       eventId,
@@ -307,7 +314,24 @@ export const firebaseDataSource: DataSource = {
 
   async adminListPhotos(eventId) {
     const snap = await getDocs(sub(eventId, "photos"));
-    return snap.docs.map((d) => zPhoto.parse({ ...d.data(), id: d.id, eventId }));
+    const photos = snap.docs.map((d) => zPhoto.parse({ ...d.data(), id: d.id, eventId }));
+    const missing = photos.filter((p) => !p.url && p.storagePath);
+    if (!missing.length) return photos;
+
+    const { getStorage, ref, getDownloadURL } = await import("firebase/storage");
+    const { getFirebaseApp } = await import("../firebase/app");
+    const storage = getStorage(getFirebaseApp());
+    const resolved = await Promise.all(
+      missing.map(async (p) => {
+        try {
+          return { id: p.id, url: await getDownloadURL(ref(storage, p.storagePath)) };
+        } catch {
+          return null;
+        }
+      }),
+    );
+    const byId = new Map(resolved.filter(Boolean).map((r) => [r!.id, r!.url]));
+    return photos.map((p) => (p.url ? p : { ...p, url: byId.get(p.id) ?? p.url }));
   },
   async adminSavePhoto(photo) {
     await setDoc(doc(getDb(), "events", photo.eventId, "photos", photo.id), photo);
