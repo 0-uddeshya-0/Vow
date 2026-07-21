@@ -1,30 +1,16 @@
 import { motion } from "motion/react";
-import { CircleParking, MapPin, Navigation, StickyNote } from "lucide-react";
+import { CircleParking, MapPin, StickyNote } from "lucide-react";
 import { useI18n } from "../../i18n";
-import { mapLinks } from "../../lib/maps";
 import { ScheduleIcon } from "../../lib/icons";
 import { visibleTo, type Guest, type Location, type ScheduleItem } from "../../types";
 import { fadeUp, reveal } from "../../animations/variants";
 import { CardSkeleton } from "../../components/ui/Skeleton";
+import { MapsButton } from "../../components/ui/MapsButton";
 
 function MapButtons({ location }: { location: Location }) {
-  const { t } = useI18n();
-  const links = mapLinks(location);
-  if (!links) return null;
-  const cls =
-    "inline-flex min-h-10 items-center gap-1.5 rounded-full border border-hairline-soft " +
-    "px-3.5 text-sm text-ink-soft transition-colors hover:border-hairline hover:text-gold-ink";
   return (
-    <div className="mt-3 flex flex-wrap gap-2">
-      <a className={cls} href={links.google} target="_blank" rel="noreferrer noopener">
-        <Navigation size={13} aria-hidden /> {t.schedule.google}
-      </a>
-      <a className={cls} href={links.apple} target="_blank" rel="noreferrer noopener">
-        {t.schedule.apple}
-      </a>
-      <a className={cls} href={links.osm} target="_blank" rel="noreferrer noopener">
-        {t.schedule.osm}
-      </a>
+    <div className="mt-3">
+      <MapsButton location={location} />
     </div>
   );
 }

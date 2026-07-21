@@ -1,8 +1,8 @@
 import { motion } from "motion/react";
 import { CircleParking, LifeBuoy, Mail, MessageCircle, Phone } from "lucide-react";
 import { useI18n } from "../../i18n";
-import { mapLinks } from "../../lib/maps";
 import { fadeUp, reveal } from "../../animations/variants";
+import { MapsButton } from "../../components/ui/MapsButton";
 import type { FaqItem, Settings } from "../../types";
 
 const linkCls =
@@ -59,12 +59,11 @@ export function hasParking(settings: Settings | null | undefined): boolean {
 }
 
 export function ParkingSection({ settings }: { settings: Settings | null | undefined }) {
-  const { t, lt } = useI18n();
+  const { lt } = useI18n();
   const parking = settings?.parking;
   // Big weddings often have one shared parking area, so the feature stays —
   // but an empty block must never appear on the guest page.
   if (!parking || !hasParking(settings)) return null;
-  const links = mapLinks(parking.location);
   return (
     <motion.div {...reveal(0.15)} className="glass rounded-[var(--radius-card)] p-6">
       <motion.h3 variants={fadeUp} className="inline-flex items-center gap-2 font-display text-xl text-ink">
@@ -73,17 +72,9 @@ export function ParkingSection({ settings }: { settings: Settings | null | undef
       <motion.p variants={fadeUp} className="mt-2 max-w-[52ch] text-ink-soft">
         {lt(parking.text)}
       </motion.p>
-      {links ? (
-        <motion.div variants={fadeUp} className="mt-4 flex flex-wrap gap-2">
-          <a className={linkCls} href={links.google} target="_blank" rel="noreferrer noopener">
-            {t.schedule.google}
-          </a>
-          <a className={linkCls} href={links.apple} target="_blank" rel="noreferrer noopener">
-            {t.schedule.apple}
-          </a>
-          <a className={linkCls} href={links.osm} target="_blank" rel="noreferrer noopener">
-            {t.schedule.osm}
-          </a>
+      {parking.location.name || parking.location.address ? (
+        <motion.div variants={fadeUp} className="mt-4">
+          <MapsButton location={parking.location} />
         </motion.div>
       ) : null}
     </motion.div>

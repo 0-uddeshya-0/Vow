@@ -18,6 +18,7 @@ import { ScheduleSection } from "../features/schedule/ScheduleSection";
 import { HotelsSection } from "../features/hotels/HotelsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
 import { MessagesSection } from "../features/messages/MessagesSection";
+import { RsvpBanner } from "../features/rsvp/RsvpBanner";
 import {
   ContactSection,
   EmergencySection,
@@ -89,6 +90,8 @@ export default function EventPage() {
               </button>
             </div>
           ) : null}
+
+          {guest ? <RsvpBanner event={event} guest={guest} /> : null}
 
           <MessagesSection
             messages={messagesQuery.data}

@@ -1,9 +1,9 @@
 import { motion } from "motion/react";
 import { BedDouble, Car, Footprints, Globe, Phone, Star } from "lucide-react";
 import { useI18n } from "../../i18n";
-import { mapLinks } from "../../lib/maps";
 import { fadeUp, reveal } from "../../animations/variants";
 import { CardSkeleton } from "../../components/ui/Skeleton";
+import { MapsButton } from "../../components/ui/MapsButton";
 import type { Hotel } from "../../types";
 
 const linkCls =
@@ -12,7 +12,6 @@ const linkCls =
 
 function HotelCard({ hotel }: { hotel: Hotel }) {
   const { t, lt } = useI18n();
-  const links = mapLinks(hotel.location);
 
   return (
     <motion.li variants={fadeUp} className="glass overflow-hidden rounded-[var(--radius-card)]">
@@ -67,10 +66,8 @@ function HotelCard({ hotel }: { hotel: Hotel }) {
               <Globe size={13} aria-hidden /> {t.stay.website}
             </a>
           ) : null}
-          {links ? (
-            <a className={linkCls} href={links.google} target="_blank" rel="noreferrer noopener">
-              {t.schedule.google}
-            </a>
+          {hotel.location.name || hotel.location.address ? (
+            <MapsButton location={hotel.location} />
           ) : null}
         </div>
       </div>
