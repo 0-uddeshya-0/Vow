@@ -13,7 +13,15 @@ import AdminPage from "../pages/AdminPage";
 import GalleryPage from "../pages/GalleryPage";
 
 const queryClient = new QueryClient({
-  defaultOptions: { queries: { retry: 1, refetchOnWindowFocus: false } },
+  defaultOptions: {
+    queries: {
+      // Self-heal transient backend failures (the "works after a few
+      // refreshes" symptom): three retries with capped exponential backoff.
+      retry: 3,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 8000),
+      refetchOnWindowFocus: false,
+    },
+  },
 });
 
 export default function App() {

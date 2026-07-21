@@ -1,5 +1,5 @@
 import { initializeApp, type FirebaseApp } from "firebase/app";
-import { getFirestore, type Firestore } from "firebase/firestore";
+import { initializeFirestore, type Firestore } from "firebase/firestore";
 
 /**
  * Firebase is configured entirely through VITE_ env vars (documented in
@@ -41,7 +41,13 @@ export function getDb(): Firestore {
       storageBucket: firebaseConfig.storageBucket,
       appId: firebaseConfig.appId!,
     });
-    db = getFirestore(app);
+    // THE forever-loading fix. Firestore's default WebChannel streaming
+    // transport stalls behind many proxies, on some mobile networks, and in
+    // non-Safari browsers — the request never resolves, so every read hangs.
+    // Auto-detect probes the connection and transparently falls back to
+    // long-polling, which works everywhere. This is the documented remedy for
+    // "Firestore queries never return / only work after several refreshes".
+    db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
   }
   return db!;
 }

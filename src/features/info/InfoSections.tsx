@@ -52,10 +52,18 @@ export function ContactSection({ settings }: { settings: Settings | null | undef
   );
 }
 
+/** True when a general parking area has actually been filled in. */
+export function hasParking(settings: Settings | null | undefined): boolean {
+  const p = settings?.parking;
+  return !!p && !!(p.text.en.trim() || p.text.de.trim() || p.location.name.trim());
+}
+
 export function ParkingSection({ settings }: { settings: Settings | null | undefined }) {
   const { t, lt } = useI18n();
   const parking = settings?.parking;
-  if (!parking) return null;
+  // Big weddings often have one shared parking area, so the feature stays —
+  // but an empty block must never appear on the guest page.
+  if (!parking || !hasParking(settings)) return null;
   const links = mapLinks(parking.location);
   return (
     <motion.div {...reveal(0.15)} className="glass rounded-[var(--radius-card)] p-6">

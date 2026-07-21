@@ -23,6 +23,7 @@ import {
   EmergencySection,
   FaqSection,
   ParkingSection,
+  hasParking,
 } from "../features/info/InfoSections";
 import { AddToCalendar } from "../features/calendar/AddToCalendar";
 import { Section, DemoRibbon } from "../components/ui/Section";
@@ -120,21 +121,31 @@ export default function EventPage() {
             <HotelsSection hotels={hotelsQuery.data} loading={hotelsQuery.isLoading} />
           </Section>
 
-          <Section id="parking" title={t.parking.title} lead={t.parking.lead}>
-            <ParkingSection settings={settingsQuery.data} />
-          </Section>
+          {/* Info sections render only when they actually have content, so an
+              empty header never shows on the guest page. */}
+          {hasParking(settingsQuery.data) ? (
+            <Section id="parking" title={t.parking.title} lead={t.parking.lead}>
+              <ParkingSection settings={settingsQuery.data} />
+            </Section>
+          ) : null}
 
-          <Section id="contact" title={t.contact.title} lead={t.contact.lead}>
-            <ContactSection settings={settingsQuery.data} />
-          </Section>
+          {settingsQuery.data?.contact.length ? (
+            <Section id="contact" title={t.contact.title} lead={t.contact.lead}>
+              <ContactSection settings={settingsQuery.data} />
+            </Section>
+          ) : null}
 
-          <Section id="emergency" title={t.emergency.title} lead={t.emergency.lead}>
-            <EmergencySection settings={settingsQuery.data} />
-          </Section>
+          {settingsQuery.data?.emergency.length ? (
+            <Section id="emergency" title={t.emergency.title} lead={t.emergency.lead}>
+              <EmergencySection settings={settingsQuery.data} />
+            </Section>
+          ) : null}
 
-          <Section id="faq" title={t.faq.title}>
-            <FaqSection items={faqQuery.data} />
-          </Section>
+          {faqQuery.data?.length ? (
+            <Section id="faq" title={t.faq.title}>
+              <FaqSection items={faqQuery.data} />
+            </Section>
+          ) : null}
 
           <div className="mt-4 flex justify-center">
             <Link to="/rsvp">

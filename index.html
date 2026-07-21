@@ -10,6 +10,7 @@
     <title>Vow</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="apple-touch-icon" href="./icon.svg" />
+    <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-title" content="Vow" />
     <script>
@@ -18,7 +19,8 @@
         var t = localStorage.getItem("vow.theme");
         if (t === "dark" || t === "light") document.documentElement.dataset.theme = t;
         var l = localStorage.getItem("vow.lang");
-        if (l === "de" || l === "en") document.documentElement.lang = l;
+        if (l !== "de" && l !== "en") l = (navigator.language || "en").toLowerCase().slice(0, 2) === "de" ? "de" : "en";
+        document.documentElement.lang = l;
       } catch (e) {}
     </script>
   </head>

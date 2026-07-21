@@ -35,13 +35,19 @@ export function DashboardPanel({ event }: { event: EventDoc }) {
         <Stat label="Days to go" value={days} />
       </div>
 
-      <DietaryPanel rsvps={rsvps} />
+      <DietaryPanel rsvps={rsvps} guests={guests} />
+      <GuestMessagesPanel rsvps={rsvps} guests={guests} />
       <PlusOnePanel event={event} requests={plusOnes} guests={guests} />
     </div>
   );
 }
 
-function DietaryPanel({ rsvps }: { rsvps: Rsvp[] }) {
+/** guestId → the guest's real name, falling back to the id if unknown. */
+function nameFor(guests: Guest[], guestId: string): string {
+  return guests.find((g) => g.id === guestId)?.fullName || guestId;
+}
+
+function DietaryPanel({ rsvps, guests }: { rsvps: Rsvp[]; guests: Guest[] }) {
   const attending = rsvps.filter((r) => r.attending !== "no");
   const counts = DIET.map((d) => ({
     key: d,
@@ -65,8 +71,29 @@ function DietaryPanel({ rsvps }: { rsvps: Rsvp[] }) {
         <ul className="flex flex-col gap-2">
           {allergies.map((r) => (
             <li key={r.guestId} className="rounded-xl border border-hairline-soft px-4 py-2.5 text-sm">
-              <span className="text-ink-soft">{r.guestId}: </span>
+              <span className="text-ink-soft">{nameFor(guests, r.guestId)}: </span>
               <span className="text-ink">{r.allergies}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+    </Panel>
+  );
+}
+
+/** The notes guests write to the couple during RSVP, gathered in one place. */
+function GuestMessagesPanel({ rsvps, guests }: { rsvps: Rsvp[]; guests: Guest[] }) {
+  const withMessages = rsvps.filter((r) => r.message.trim());
+  return (
+    <Panel title={`Messages from guests (${withMessages.length})`}>
+      {withMessages.length === 0 ? (
+        <p className="text-sm text-ink-soft">No notes yet.</p>
+      ) : (
+        <ul className="flex flex-col gap-2">
+          {withMessages.map((r) => (
+            <li key={r.guestId} className="rounded-xl border border-hairline-soft px-4 py-3">
+              <p className="text-sm font-medium text-ink">{nameFor(guests, r.guestId)}</p>
+              <p className="mt-0.5 text-sm text-ink-soft">“{r.message}”</p>
             </li>
           ))}
         </ul>

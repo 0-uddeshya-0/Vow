@@ -23,6 +23,10 @@ function initialLang(): Lang {
   } catch {
     /* private mode */
   }
+  // No stored choice yet → follow the device/OS language (German or English).
+  if (typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("de")) {
+    return "de";
+  }
   return "en";
 }
 
