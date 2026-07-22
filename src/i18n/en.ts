@@ -15,7 +15,7 @@ export const en = {
     signOut: "Not you? Switch guest",
   },
 
-  nav: { home: "Home", event: "Event", rsvp: "RSVP", gallery: "Gallery", admin: "Admin" },
+  nav: { home: "Home", event: "Event", info: "Info", rsvp: "RSVP", gallery: "Gallery", admin: "Admin" },
 
   landing: {
     viewEvent: "View event",

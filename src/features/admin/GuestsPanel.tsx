@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Download, Mail, MessageCircle, Plus, Printer, Search, UserPen } from "lucide-react";
+import { Download, Mail, MessageCircle, Plus, Printer, Search, Upload, UserPen } from "lucide-react";
 import {
   AdminButton,
   Input,
@@ -10,6 +10,7 @@ import {
   newId,
 } from "./kit";
 import { useAdminGuests, useAdminRsvps, useDeleteGuest, useSaveGuest } from "../../hooks/adminQueries";
+import { ImportGuestsModal } from "./ImportGuestsModal";
 import { exportCsv, exportExcel, printTable, type Column } from "../../lib/export";
 import { mailtoUrl, whatsappUrl } from "../../lib/reminders";
 import type { EventDoc, Guest, Rsvp } from "../../types";
@@ -58,6 +59,7 @@ export function GuestsPanel({ event }: { event: EventDoc }) {
   const [status, setStatus] = useState<"all" | Guest["invitationStatus"]>("all");
   const [sort, setSort] = useState<"name" | "status" | "role">("name");
   const [editing, setEditing] = useState<Guest | null>(null);
+  const [importing, setImporting] = useState(false);
 
   const rsvpOf = (id: string) => rsvps.find((r) => r.guestId === id) ?? null;
 
@@ -114,6 +116,9 @@ export function GuestsPanel({ event }: { event: EventDoc }) {
           </AdminButton>
           <AdminButton variant="quiet" onClick={() => printTable(rows, columns, "Guest list")}>
             <Printer size={14} /> Print
+          </AdminButton>
+          <AdminButton variant="quiet" onClick={() => setImporting(true)}>
+            <Upload size={14} /> Import
           </AdminButton>
           <AdminButton onClick={() => setEditing(blankGuest(event.id))}>
             <Plus size={14} /> Add guest
@@ -227,6 +232,14 @@ export function GuestsPanel({ event }: { event: EventDoc }) {
           })}
         </ul>
       )}
+
+      {importing ? (
+        <ImportGuestsModal
+          eventId={event.id}
+          existing={guests.map((g) => ({ email: g.email, phone: g.phone }))}
+          onClose={() => setImporting(false)}
+        />
+      ) : null}
 
       {editing ? (
         <GuestModal

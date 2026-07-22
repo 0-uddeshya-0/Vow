@@ -13,7 +13,7 @@ export const de: Dict = {
     signOut: "Nicht ihr? Gast wechseln",
   },
 
-  nav: { home: "Start", event: "Event", rsvp: "Rückmeldung", gallery: "Galerie", admin: "Admin" },
+  nav: { home: "Start", event: "Event", info: "Infos", rsvp: "Rückmeldung", gallery: "Galerie", admin: "Admin" },
 
   landing: {
     viewEvent: "Zum Event",

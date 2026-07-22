@@ -1,7 +1,7 @@
 import { motion } from "motion/react";
 import { CircleParking, MapPin, StickyNote } from "lucide-react";
 import { useI18n } from "../../i18n";
-import { ScheduleIcon } from "../../lib/icons";
+import { ScheduleIcon, isIconUrl } from "../../lib/icons";
 import { visibleTo, type Guest, type Location, type ScheduleItem } from "../../types";
 import { fadeUp, reveal } from "../../animations/variants";
 import { CardSkeleton } from "../../components/ui/Skeleton";
@@ -41,9 +41,17 @@ function MomentCard({ item, personal }: { item: ScheduleItem; personal: boolean 
             <h3 className="mt-1.5 font-display text-2xl text-ink">{lt(item.title)}</h3>
           </div>
           {/* Sized to the title's optical weight (24px heading) so it reads
-              as part of the header, not as an oversized floating ornament. */}
-          <span className="mt-0.5 flex size-11 shrink-0 items-center justify-center rounded-xl border border-hairline-soft bg-surface/50 text-gold-ink">
-            <ScheduleIcon name={item.icon} size={24} />
+              as part of the header, not as an oversized floating ornament.
+              Image icons (often a JPEG with a white background) get a light
+              tile in BOTH themes so they never float as a white square on the
+              dark card; lucide/emoji icons keep the gold-on-surface chip. */}
+          <span
+            className={
+              "mt-0.5 flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-hairline-soft " +
+              (isIconUrl(item.icon) ? "bg-white" : "bg-surface/50 text-gold-ink")
+            }
+          >
+            <ScheduleIcon name={item.icon} size={isIconUrl(item.icon) ? 34 : 24} />
           </span>
         </div>
 

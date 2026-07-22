@@ -2,43 +2,33 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useI18n } from "../i18n";
 import {
-  useEmbeds,
   useEvent,
-  useFaq,
   useForecast,
-  useGifts,
   useGuest,
   useHotels,
-  useMessages,
-  usePromos,
   useSchedule,
   useSettings,
   useWeatherSettings,
 } from "../hooks/queries";
 import { useGuestSession } from "../features/guest/useGuestSession";
 import { IdentifyCard } from "../features/guest/IdentifyCard";
+import { GuestHeader } from "../features/guest/GuestHeader";
 import { ScheduleSection } from "../features/schedule/ScheduleSection";
 import { HotelsSection } from "../features/hotels/HotelsSection";
-import { GiftsSection } from "../features/gifts/GiftsSection";
-import { PromosSection } from "../features/promos/PromosSection";
-import { EmbedsSection } from "../features/embeds/EmbedsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
-import { MessagesSection } from "../features/messages/MessagesSection";
 import { RsvpBanner } from "../features/rsvp/RsvpBanner";
-import { PushOptIn } from "../features/push/PushOptIn";
-import {
-  ContactSection,
-  EmergencySection,
-  FaqSection,
-  ParkingSection,
-  hasParking,
-} from "../features/info/InfoSections";
+import { ParkingSection, hasParking } from "../features/info/InfoSections";
 import { AddToCalendar } from "../features/calendar/AddToCalendar";
 import { Section, DemoRibbon } from "../components/ui/Section";
 import { Button } from "../components/ui/Button";
 import { CardSkeleton } from "../components/ui/Skeleton";
 import { withinDaysBefore } from "../lib/datetime";
 
+/**
+ * The day itself: schedule, weather, where to stay, parking, and the RSVP
+ * nudge. Everything else (messages, FAQ, gifts, recommendations, embeds,
+ * contact) lives on the Info tab so this page stays focused.
+ */
 export default function EventPage() {
   const { t } = useI18n();
   const { data: event, isLoading: eventLoading } = useEvent();
@@ -46,12 +36,7 @@ export default function EventPage() {
   const guestQuery = useGuest(event?.id, session?.guestId);
   const scheduleQuery = useSchedule(event?.id);
   const hotelsQuery = useHotels(event?.id);
-  const messagesQuery = useMessages(event?.id);
   const settingsQuery = useSettings(event?.id);
-  const faqQuery = useFaq(event?.id);
-  const giftsQuery = useGifts(event?.id);
-  const promosQuery = usePromos(event?.id);
-  const embedsQuery = useEmbeds(event?.id);
   const weatherSettings = useWeatherSettings(event?.id).data;
 
   // Forecast only inside the CMS-configured window (default: final week).
@@ -90,29 +75,9 @@ export default function EventPage() {
       ) : (
         // One uniform vertical rhythm for every block on the page.
         <div className="flex flex-col gap-10">
-          {guest ? (
-            <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="font-display text-2xl text-ink">
-                {t.identify.welcome}, <span className="text-gold-ink">{guest.fullName}</span>
-              </p>
-              <button
-                onClick={signOut}
-                className="cursor-pointer text-sm text-ink-soft underline decoration-hairline underline-offset-4 hover:text-gold-ink"
-              >
-                {t.identify.switch}
-              </button>
-            </div>
-          ) : null}
+          {guest ? <GuestHeader guest={guest} onSwitch={signOut} /> : null}
 
           {guest ? <RsvpBanner event={event} guest={guest} /> : null}
-
-          <MessagesSection
-            messages={messagesQuery.data}
-            guest={guest}
-            loading={messagesQuery.isLoading}
-          />
-
-          <PushOptIn event={event} guest={guest} />
 
           <Section id="schedule" title={t.schedule.title} lead={t.schedule.lead}>
             <ScheduleSection
@@ -139,45 +104,11 @@ export default function EventPage() {
             <HotelsSection hotels={hotelsQuery.data} loading={hotelsQuery.isLoading} />
           </Section>
 
-          {/* Info sections render only when they actually have content, so an
-              empty header never shows on the guest page. */}
           {hasParking(settingsQuery.data) ? (
             <Section id="parking" title={t.parking.title} lead={t.parking.lead}>
               <ParkingSection settings={settingsQuery.data} />
             </Section>
           ) : null}
-
-          {settingsQuery.data?.contact.length ? (
-            <Section id="contact" title={t.contact.title} lead={t.contact.lead}>
-              <ContactSection settings={settingsQuery.data} />
-            </Section>
-          ) : null}
-
-          {settingsQuery.data?.emergency.length ? (
-            <Section id="emergency" title={t.emergency.title} lead={t.emergency.lead}>
-              <EmergencySection settings={settingsQuery.data} />
-            </Section>
-          ) : null}
-
-          {faqQuery.data?.length ? (
-            <Section id="faq" title={t.faq.title}>
-              <FaqSection items={faqQuery.data} />
-            </Section>
-          ) : null}
-
-          {giftsQuery.data?.length ? (
-            <Section id="gifts" title={t.gifts.title} lead={t.gifts.lead}>
-              <GiftsSection gifts={giftsQuery.data} loading={giftsQuery.isLoading} />
-            </Section>
-          ) : null}
-
-          {promosQuery.data?.length ? (
-            <Section id="recommendations" title={t.recommendations.title} lead={t.recommendations.lead}>
-              <PromosSection promos={promosQuery.data} loading={promosQuery.isLoading} />
-            </Section>
-          ) : null}
-
-          <EmbedsSection embeds={embedsQuery.data} />
 
           <div className="flex justify-center">
             <Link to="/rsvp">

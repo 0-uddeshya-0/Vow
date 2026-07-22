@@ -8,6 +8,7 @@ import { FloatingDock } from "../features/shell/FloatingDock";
 import { ThemeVars } from "../features/shell/ThemeVars";
 import Landing from "../pages/Landing";
 import EventPage from "../pages/EventPage";
+import InfoPage from "../pages/InfoPage";
 import RsvpPage from "../pages/RsvpPage";
 import AdminPage from "../pages/AdminPage";
 import GalleryPage from "../pages/GalleryPage";
@@ -36,6 +37,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Landing />} />
               <Route path="/event" element={<EventPage />} />
+              <Route path="/info" element={<InfoPage />} />
               <Route path="/rsvp" element={<RsvpPage />} />
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/admin" element={<AdminPage />} />
