@@ -143,6 +143,23 @@ export const zGift = z.object({
 });
 export type Gift = z.infer<typeof zGift>;
 
+/**
+ * A recommendation / promo the couple curates for guests — a florist,
+ * photographer, taxi firm, favourite café. Admin-managed, clearly labelled as
+ * a recommendation on the guest page. `label` is the small category chip.
+ */
+export const zPromo = z.object({
+  id: zId,
+  eventId: zId,
+  order: z.number(),
+  label: zLocalizedText.nullable().default(null),
+  title: zLocalizedText,
+  body: zLocalizedText.nullable().default(null),
+  url: z.string().default(""),
+  imageUrl: z.string().default(""),
+});
+export type Promo = z.infer<typeof zPromo>;
+
 export const zFaqItem = z.object({
   id: zId,
   eventId: zId,

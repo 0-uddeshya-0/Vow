@@ -5,6 +5,7 @@ import type {
   Gift,
   Hotel,
   Message,
+  Promo,
   Photo,
   PlusOneRequest,
   Rsvp,
@@ -143,6 +144,11 @@ export const seedDataSource: DataSource = {
   async listGifts(eventId) {
     await wait(LATENCY);
     return db.gifts.filter((g) => g.eventId === eventId).sort(byOrder);
+  },
+
+  async listPromos(eventId) {
+    await wait(LATENCY);
+    return db.promos.filter((p) => p.eventId === eventId).sort(byOrder);
   },
 
   async listMessages(eventId) {
@@ -316,6 +322,15 @@ export const seedDataSource: DataSource = {
   async adminDeleteGift(_eventId, id) {
     await wait(ADMIN);
     remove(db.gifts, id);
+  },
+
+  async adminSavePromo(promo: Promo) {
+    await wait(ADMIN);
+    upsert(db.promos, promo);
+  },
+  async adminDeletePromo(_eventId, id) {
+    await wait(ADMIN);
+    remove(db.promos, id);
   },
 
   async adminListPhotos(eventId) {

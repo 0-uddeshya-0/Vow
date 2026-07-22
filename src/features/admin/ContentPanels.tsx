@@ -19,16 +19,18 @@ import {
   useDeleteGift,
   useDeleteHotel,
   useDeleteMessage,
+  useDeletePromo,
   useDeleteScheduleItem,
   useSaveFaq,
   useSaveGalleryImage,
   useSaveGift,
   useSaveHotel,
   useSaveMessage,
+  useSavePromo,
   useSaveScheduleItem,
 } from "../../hooks/adminQueries";
 import { useAdminGuests } from "../../hooks/adminQueries";
-import { useFaq, useGallery, useGifts, useHotels, useMessages, useSchedule } from "../../hooks/queries";
+import { useFaq, useGallery, useGifts, useHotels, useMessages, usePromos, useSchedule } from "../../hooks/queries";
 import { ImageField } from "./ImageField";
 import { IconField } from "./IconField";
 import type {
@@ -39,6 +41,7 @@ import type {
   Hotel,
   Location,
   Message,
+  Promo,
   ScheduleItem,
   Visibility,
 } from "../../types";
@@ -709,6 +712,120 @@ export function GiftsPanel({ event }: { event: EventDoc }) {
             />
           </Labeled>
           <Labeled label="Image URL (optional)" hint="A public image link, or leave blank for the gift icon.">
+            <Input
+              value={editing.imageUrl}
+              inputMode="url"
+              placeholder="https://…"
+              onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })}
+            />
+          </Labeled>
+        </Modal>
+      ) : null}
+    </Panel>
+  );
+}
+
+/* ——— Recommendations / promos ——— */
+
+export function PromosPanel({ event }: { event: EventDoc }) {
+  const items = usePromos(event.id).data ?? [];
+  const save = useSavePromo();
+  const del = useDeletePromo();
+  const move = useReorder<Promo>((p) => save.mutate(p));
+  const [editing, setEditing] = useState<Promo | null>(null);
+
+  const blank = (): Promo => ({
+    id: `pr-${newId()}`,
+    eventId: event.id,
+    order: (items.at(-1)?.order ?? 0) + 1,
+    label: emptyText(),
+    title: emptyText(),
+    body: emptyText(),
+    url: "",
+    imageUrl: "",
+  });
+
+  return (
+    <Panel
+      title={`Recommendations (${items.length})`}
+      action={
+        <AdminButton onClick={() => setEditing(blank())}>
+          <Plus size={14} /> Add recommendation
+        </AdminButton>
+      }
+    >
+      <p className="mb-3 text-sm text-ink-soft">
+        Places and people you recommend to guests — a photographer, a taxi firm, a favourite café.
+        Shown to guests as your recommendations.
+      </p>
+      <ul className="flex flex-col gap-2">
+        {items.map((p, i) => (
+          <li
+            key={p.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline-soft px-4 py-3"
+          >
+            <p className="min-w-0 truncate text-ink">{p.title.en || p.title.de || "(untitled)"}</p>
+            <div className="flex items-center gap-2">
+              <AdminButton variant="quiet" onClick={() => setEditing(p)}>
+                Edit
+              </AdminButton>
+              <ReorderControls
+                onUp={() => move(items, i, -1)}
+                onDown={() => move(items, i, 1)}
+                onDelete={() => confirm("Delete this recommendation?") && del.mutate({ eventId: event.id, id: p.id })}
+                disableUp={i === 0}
+                disableDown={i === items.length - 1}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {editing ? (
+        <Modal
+          title="Recommendation"
+          onClose={() => setEditing(null)}
+          footer={
+            <>
+              <AdminButton variant="quiet" onClick={() => setEditing(null)}>
+                Cancel
+              </AdminButton>
+              <AdminButton
+                onClick={() => {
+                  save.mutate(editing);
+                  setEditing(null);
+                }}
+              >
+                Save
+              </AdminButton>
+            </>
+          }
+        >
+          <LocalizedInput
+            label="Category chip (optional)"
+            value={editing.label ?? emptyText()}
+            onChange={(v) => setEditing({ ...editing, label: v })}
+          />
+          <LocalizedInput
+            label="Name"
+            value={editing.title}
+            onChange={(v) => setEditing({ ...editing, title: v })}
+          />
+          <LocalizedInput
+            label="Description"
+            value={editing.body ?? emptyText()}
+            onChange={(v) => setEditing({ ...editing, body: v })}
+            multiline
+          />
+          <Labeled label="Link URL" hint="Their website or booking page.">
+            <Input
+              value={editing.url}
+              inputMode="url"
+              placeholder="https://…"
+              onChange={(e) => setEditing({ ...editing, url: e.target.value })}
+            />
+          </Labeled>
+          <Labeled label="Image URL (optional)" hint="A public image link, or leave blank.">
             <Input
               value={editing.imageUrl}
               inputMode="url"

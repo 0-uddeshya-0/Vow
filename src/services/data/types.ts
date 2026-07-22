@@ -8,6 +8,7 @@ import type {
   Message,
   Photo,
   PlusOneRequest,
+  Promo,
   Rsvp,
   ScheduleItem,
   Settings,
@@ -39,6 +40,7 @@ export interface DataSource {
   listGallery(eventId: string): Promise<GalleryImage[]>;
   listMessages(eventId: string): Promise<Message[]>;
   listGifts(eventId: string): Promise<Gift[]>;
+  listPromos(eventId: string): Promise<Promo[]>;
   getSettings(eventId: string): Promise<Settings | null>;
   getWeatherSettings(eventId: string): Promise<WeatherSettings | null>;
 
@@ -88,6 +90,9 @@ export interface DataSource {
 
   adminSaveGift(gift: Gift): Promise<void>;
   adminDeleteGift(eventId: string, id: string): Promise<void>;
+
+  adminSavePromo(promo: Promo): Promise<void>;
+  adminDeletePromo(eventId: string, id: string): Promise<void>;
 
   adminListPhotos(eventId: string): Promise<Photo[]>;
   adminSavePhoto(photo: Photo): Promise<void>;

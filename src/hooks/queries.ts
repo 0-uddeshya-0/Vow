@@ -76,6 +76,9 @@ export function useMessages(eventId: string | undefined) {
 export function useGifts(eventId: string | undefined) {
   return useQuery(list("gifts", eventId, (id) => data.listGifts(id)));
 }
+export function usePromos(eventId: string | undefined) {
+  return useQuery(list("promos", eventId, (id) => data.listPromos(id)));
+}
 export function useSettings(eventId: string | undefined) {
   return useQuery(list("settings", eventId, (id) => data.getSettings(id)));
 }

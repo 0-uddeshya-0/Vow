@@ -10,6 +10,7 @@ import type {
   Message,
   Photo,
   PlusOneRequest,
+  Promo,
   ScheduleItem,
   Settings,
   WeatherSettings,
@@ -117,6 +118,11 @@ export const useSaveGift = () =>
   useAdminMutation<Gift>((g) => data.adminSaveGift(g), [["gifts"]]);
 export const useDeleteGift = () =>
   useAdminMutation<Ref>((v) => data.adminDeleteGift(v.eventId, v.id), [["gifts"]]);
+
+export const useSavePromo = () =>
+  useAdminMutation<Promo>((p) => data.adminSavePromo(p), [["promos"]]);
+export const useDeletePromo = () =>
+  useAdminMutation<Ref>((v) => data.adminDeletePromo(v.eventId, v.id), [["promos"]]);
 
 /* photos — approving one copies it into the public gallery */
 export const useSavePhoto = () =>

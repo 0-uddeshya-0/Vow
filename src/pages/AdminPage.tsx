@@ -12,6 +12,7 @@ import {
   GiftsPanel,
   HotelsPanel,
   MessagesPanel,
+  PromosPanel,
   SchedulePanel,
 } from "../features/admin/ContentPanels";
 import {
@@ -31,6 +32,7 @@ const TABS = [
   "Messages",
   "FAQ",
   "Gifts",
+  "Tips",
   "Settings",
 ] as const;
 type Tab = (typeof TABS)[number];
@@ -108,6 +110,7 @@ export default function AdminPage() {
           {tab === "Messages" ? <MessagesPanel event={event} /> : null}
           {tab === "FAQ" ? <FaqPanel event={event} /> : null}
           {tab === "Gifts" ? <GiftsPanel event={event} /> : null}
+          {tab === "Tips" ? <PromosPanel event={event} /> : null}
           {tab === "Settings" ? (
             <>
               <EventSettingsPanel event={event} />

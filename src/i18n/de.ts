@@ -149,6 +149,12 @@ export const de: Dict = {
     view: "Link öffnen",
   },
 
+  recommendations: {
+    title: "Empfehlungen",
+    lead: "Ein paar Orte und Menschen, die wir mögen — für euch ausgewählt.",
+    visit: "Ansehen",
+  },
+
   photos: {
     title: "Eure Fotos",
     lead: "Teilt jedes Foto mit uns — direkt vom Handy, ohne App.",

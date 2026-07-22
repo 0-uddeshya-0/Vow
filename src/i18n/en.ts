@@ -151,6 +151,12 @@ export const en = {
     view: "Open link",
   },
 
+  recommendations: {
+    title: "Recommendations",
+    lead: "A few places and people we love, hand-picked for you.",
+    visit: "Visit",
+  },
+
   photos: {
     title: "Your photos",
     lead: "Share every photo you take with us — straight from your phone, no app.",

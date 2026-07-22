@@ -5,6 +5,7 @@ import type {
   Guest,
   Gift,
   Hotel,
+  Promo,
   Message,
   ScheduleItem,
   Settings,
@@ -47,6 +48,7 @@ export type SeedDb = {
   gallery: GalleryImage[];
   messages: Message[];
   gifts: Gift[];
+  promos: Promo[];
   settings: Settings;
   weatherSettings: WeatherSettings;
 };
@@ -369,6 +371,35 @@ export function defaultDb(): SeedDb {
           "Ein paar Dinge für unser Zuhause, falls ihr ein klassisches Geschenk bevorzugt. (Demo-Inhalt.)",
         ),
         url: "https://example.com/registry",
+        imageUrl: "",
+      },
+    ],
+
+    promos: [
+      {
+        id: "pr1",
+        eventId: EVENT_ID,
+        order: 1,
+        label: ph("Photographer", "Fotograf"),
+        title: ph("Studio Lichtblick", "Studio Lichtblick"),
+        body: ph(
+          "The photographer we love — ask about guest sessions. (Demo content.)",
+          "Unser Lieblingsfotograf — fragt nach Gäste-Shootings. (Demo-Inhalt.)",
+        ),
+        url: "https://example.com/photographer",
+        imageUrl: "",
+      },
+      {
+        id: "pr2",
+        eventId: EVENT_ID,
+        order: 2,
+        label: ph("Taxi", "Taxi"),
+        title: ph("Donau Taxi Ulm", "Donau Taxi Ulm"),
+        body: ph(
+          "Reliable late-night rides back to your hotel. (Demo content.)",
+          "Zuverlässig auch spätabends zurück zum Hotel. (Demo-Inhalt.)",
+        ),
+        url: "https://example.com/taxi",
         imageUrl: "",
       },
     ],

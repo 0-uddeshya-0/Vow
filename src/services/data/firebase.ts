@@ -22,6 +22,7 @@ import {
   zHotel,
   zMessage,
   zPhoto,
+  zPromo,
   zPlusOneRequest,
   zRsvp,
   zScheduleItem,
@@ -138,6 +139,11 @@ export const firebaseDataSource: DataSource = {
   async listGifts(eventId) {
     const snap = await getDocs(query(sub(eventId, "gifts"), orderBy("order")));
     return parseAll(zGift, snap.docs).map((g) => ({ ...g, eventId }));
+  },
+
+  async listPromos(eventId) {
+    const snap = await getDocs(query(sub(eventId, "promos"), orderBy("order")));
+    return parseAll(zPromo, snap.docs).map((p) => ({ ...p, eventId }));
   },
 
   async getSettings(eventId) {
@@ -335,6 +341,13 @@ export const firebaseDataSource: DataSource = {
   },
   async adminDeleteGift(eventId, id) {
     await deleteDoc(doc(getDb(), "events", eventId, "gifts", id));
+  },
+
+  async adminSavePromo(promo) {
+    await setDoc(doc(getDb(), "events", promo.eventId, "promos", promo.id), promo);
+  },
+  async adminDeletePromo(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "promos", id));
   },
 
   async adminListPhotos(eventId) {
