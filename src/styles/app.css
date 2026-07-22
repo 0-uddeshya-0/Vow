@@ -77,22 +77,17 @@
 
 /* ——— base ——— */
 
-/* The gradient is one unified layer on <html>, fixed to the viewport, so it
-   covers the entire screen on every page and route regardless of content
-   height — no white gaps on short pages or when overscrolling. */
+/* A flat base color on <html>/<body> so any iOS rubber-band overscroll or
+   safe-area (notch, home indicator) shows a tone that matches the gradient —
+   never a bare white band. The gradient itself is the fixed pseudo below. */
 html {
   min-height: 100%;
-  background: var(--bg);
+  background-color: var(--bg);
 }
 
 body {
   min-height: 100dvh;
-  background:
-    radial-gradient(75% 55% at 4% -4%, oklch(0.80 0.075 135 / 0.30), transparent 66%),
-    radial-gradient(68% 50% at 104% 8%, oklch(0.85 0.075 85 / 0.26), transparent 68%),
-    radial-gradient(70% 55% at 96% 98%, oklch(0.86 0.05 40 / 0.24), transparent 70%),
-    var(--bg);
-  background-attachment: fixed;
+  background-color: var(--bg);
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 1.0625rem;
@@ -100,6 +95,34 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* ONE unified gradient for the whole app: a fixed, full-viewport pseudo-element
+   painted behind ALL content on every route — footer and dock included, and it
+   bleeds into the overscroll / safe-area regions (viewport-fit=cover). A fixed
+   pseudo-element is used instead of `background-attachment: fixed` (which janks
+   badly on iOS Safari). Because it is global there is never a per-page
+   rectangle or a seam between the content and the footer. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(75% 60% at 4% -6%, oklch(0.80 0.075 135 / 0.42), transparent 68%),
+    radial-gradient(68% 55% at 104% 10%, oklch(0.85 0.075 85 / 0.38), transparent 70%),
+    radial-gradient(72% 60% at 92% 96%, oklch(0.86 0.05 40 / 0.34), transparent 70%),
+    radial-gradient(64% 55% at -8% 88%, oklch(0.82 0.055 165 / 0.30), transparent 72%),
+    var(--bg);
+}
+:root[data-theme="dark"] body::before {
+  background:
+    radial-gradient(75% 60% at 4% -6%, oklch(0.46 0.075 150 / 0.48), transparent 68%),
+    radial-gradient(68% 55% at 104% 10%, oklch(0.56 0.085 85 / 0.40), transparent 70%),
+    radial-gradient(72% 60% at 92% 96%, oklch(0.42 0.07 40 / 0.34), transparent 70%),
+    radial-gradient(64% 55% at -8% 88%, oklch(0.44 0.07 200 / 0.30), transparent 72%),
+    var(--bg);
 }
 
 h1, h2, h3 {
@@ -151,24 +174,15 @@ h1, h2, h3 {
     var(--shadow-soft);
 }
 
-/* colorful washes that live BEHIND glass so the blur reads clearly */
+/* Kept as a semantic layout marker only. The colorful wash now lives once,
+   globally, on `body::before` (see top of file) so every page — not just the
+   few that used this class — shares the exact same gradient with no seam.
+   Painting a second gradient here would recreate the per-page rectangle. */
 @utility wash-garden {
-  background:
-    radial-gradient(75% 60% at 4% -6%, oklch(0.80 0.075 135 / 0.42), transparent 68%),
-    radial-gradient(68% 55% at 104% 10%, oklch(0.85 0.075 85 / 0.38), transparent 70%),
-    radial-gradient(72% 60% at 92% 96%, oklch(0.86 0.05 40 / 0.34), transparent 70%),
-    radial-gradient(64% 55% at -8% 88%, oklch(0.82 0.055 165 / 0.30), transparent 72%),
-    var(--bg);
-  background-attachment: fixed;
+  background: transparent;
 }
 :root[data-theme="dark"] .wash-garden {
-  background:
-    radial-gradient(75% 60% at 4% -6%, oklch(0.46 0.075 150 / 0.48), transparent 68%),
-    radial-gradient(68% 55% at 104% 10%, oklch(0.56 0.085 85 / 0.40), transparent 70%),
-    radial-gradient(72% 60% at 92% 96%, oklch(0.42 0.07 40 / 0.34), transparent 70%),
-    radial-gradient(64% 55% at -8% 88%, oklch(0.44 0.07 200 / 0.30), transparent 72%),
-    var(--bg);
-  background-attachment: fixed;
+  background: transparent;
 }
 
 /* ——— skeletons (never spinners) ——— */

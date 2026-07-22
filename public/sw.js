@@ -7,7 +7,10 @@
  * content-hashed assets (whose URLs change on every build, so they can never
  * go stale). No API responses are cached: guest data must always be live.
  */
-const CACHE = "vow-v1";
+// Bump this on any deploy that must evict previously cached assets. v2 purges
+// the broken pre-fix bundle (top-level-await deadlock) that some devices had
+// cached and were intermittently serving as a blank page.
+const CACHE = "vow-v2";
 
 self.addEventListener("install", (event) => {
   self.skipWaiting();
