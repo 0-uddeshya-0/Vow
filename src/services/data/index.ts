@@ -1,5 +1,6 @@
 import { hasFirebase } from "../firebase/app";
 import { seedDataSource } from "./seed";
+import { firebaseDataSource } from "./firebase";
 import type { DataSource } from "./types";
 
 /** The active event — later selectable; for now the platform's first event. */
@@ -76,6 +77,12 @@ function withSeedFallback(primary: DataSource): DataSource {
   }) as DataSource;
 }
 
+// NOTE: firebaseDataSource is imported statically (not `await import()`).
+// A top-level await here deadlocked the Rollup production build — the entry
+// chunk awaited the firebase chunk while that chunk was still initializing,
+// so module evaluation never finished and React never mounted (blank page for
+// any fresh visitor; masked only by the service-worker cache). Dev's native
+// ESM tolerated it, the bundle did not. Keep this synchronous.
 export const data: DataSource = hasFirebase
-  ? withSeedFallback((await import("./firebase")).firebaseDataSource)
+  ? withSeedFallback(firebaseDataSource)
   : seedDataSource;
