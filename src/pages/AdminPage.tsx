@@ -5,7 +5,6 @@ import { useEvent } from "../hooks/queries";
 import { AdminButton, Input, Labeled } from "../features/admin/kit";
 import { DashboardPanel } from "../features/admin/DashboardPanel";
 import { PhotosPanel } from "../features/admin/PhotosPanel";
-import { NotifyPanel } from "../features/admin/NotifyPanel";
 import { GuestsPanel } from "../features/admin/GuestsPanel";
 import {
   EmbedsPanel,
@@ -36,7 +35,6 @@ const TABS = [
   "Gifts",
   "Tips",
   "Embeds",
-  "Notify",
   "Settings",
 ] as const;
 type Tab = (typeof TABS)[number];
@@ -116,7 +114,6 @@ export default function AdminPage() {
           {tab === "Gifts" ? <GiftsPanel event={event} /> : null}
           {tab === "Tips" ? <PromosPanel event={event} /> : null}
           {tab === "Embeds" ? <EmbedsPanel event={event} /> : null}
-          {tab === "Notify" ? <NotifyPanel event={event} /> : null}
           {tab === "Settings" ? (
             <>
               <EventSettingsPanel event={event} />

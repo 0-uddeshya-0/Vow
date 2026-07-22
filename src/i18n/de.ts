@@ -1,6 +1,6 @@
 import type { Dict } from "./en";
 
-/** du/ihr-Form — proofread by the couple before launch (README checklist). */
+/** du-Form (personal, singular) — proofread by the couple before launch. */
 export const de: Dict = {
   langName: "Deutsch",
 
@@ -10,10 +10,10 @@ export const de: Dict = {
     back: "Zurück",
     save: "Speichern",
     cancel: "Abbrechen",
-    signOut: "Nicht ihr? Gast wechseln",
+    signOut: "Nicht du? Gast wechseln",
   },
 
-  nav: { home: "Start", event: "Event", info: "Infos", rsvp: "RSVP", gallery: "Galerie", admin: "Admin" },
+  nav: { home: "Start", event: "Event", info: "Infos", rsvp: "Antwort", gallery: "Galerie", admin: "Admin" },
 
   landing: {
     viewEvent: "Zum Event",
@@ -23,12 +23,12 @@ export const de: Dict = {
     minutes: "Min.",
     seconds: "Sek.",
     eventDayTitle: "Heute ist es so weit",
-    eventDayLive: "Im Event seht ihr, wo ihr gerade sein solltet.",
+    eventDayLive: "Im Event siehst du, wo du gerade sein solltest.",
   },
 
   identify: {
-    title: "Eure Einladung finden",
-    lead: "Gebt die E-Mail-Adresse oder Telefonnummer ein, an die eure Einladung ging.",
+    title: "Deine Einladung finden",
+    lead: "Gib die E-Mail-Adresse oder Telefonnummer ein, an die deine Einladung ging.",
     placeholder: "E-Mail oder Telefonnummer",
     cta: "Finde mich",
     notFound: "Nicht gefunden — probiert den anderen Kontaktweg oder fragt das Paar direkt.",
@@ -39,8 +39,8 @@ export const de: Dict = {
 
   schedule: {
     title: "Programm",
-    lead: "Euer persönlicher Ablauf — nur für euch sichtbare Punkte sind markiert.",
-    onlyForYou: "Nur für euch",
+    lead: "Dein persönlicher Ablauf — nur für dich sichtbare Punkte sind markiert.",
+    onlyForYou: "Nur für dich",
     notes: "Hinweise",
     google: "Google Maps",
     apple: "Apple Karten",
@@ -50,12 +50,12 @@ export const de: Dict = {
   },
 
   rsvp: {
-    title: "Feiert ihr mit?",
-    lead: "Eine Minute für euch — eine große Hilfe für uns.",
-    attending: "Eure Antwort",
+    title: "Feierst du mit?",
+    lead: "Eine Minute für dich — eine große Hilfe für uns.",
+    attending: "Deine Antwort",
     yes: "Mit Freude",
     no: "Leider nicht",
-    dietTitle: "Essen, das für euch passt",
+    dietTitle: "Unverträglichkeiten? (optional)",
     diet: {
       vegetarian: "Vegetarisch",
       vegan: "Vegan",
@@ -70,19 +70,19 @@ export const de: Dict = {
     phone: "Telefon",
     save: "Antwort senden",
     saving: "Wird gesendet…",
-    savedYes: "Wie schön — wir freuen uns auf euch!",
-    savedNo: "Ihr werdet fehlen — danke fürs Bescheidgeben.",
+    savedYes: "Wie schön — wir freuen uns auf dich!",
+    savedNo: "Du wirst fehlen — danke fürs Bescheidgeben.",
     edit: "Antwort ändern",
-    deadlineNote: "Ihr könnt eure Antwort ändern bis",
-    closed: "Die Frist ist vorbei — meldet euch bitte direkt beim Paar.",
-    bannerTitle: "Ihr habt noch nicht geantwortet",
-    bannerLead: "Wir würden uns freuen zu wissen, ob ihr kommt. Bitte antwortet bis",
+    deadlineNote: "Du kannst deine Antwort ändern bis",
+    closed: "Die Frist ist vorbei — melde dich bitte direkt beim Paar.",
+    bannerTitle: "Du hast noch nicht geantwortet",
+    bannerLead: "Wir würden uns freuen zu wissen, ob du kommst. Bitte antworte bis",
     bannerCta: "Jetzt antworten",
-    identifyFirst: "Findet zuerst eure Einladung, um zu antworten.",
+    identifyFirst: "Finde zuerst deine Einladung, um zu antworten.",
     plusOneTitle: "Begleitung mitbringen?",
-    plusOneLead: "Sagt uns wer — das Paar bestätigt jede Begleitung persönlich.",
-    plusOneName: "Voller Name",
-    plusOneContact: "E-Mail oder Telefon",
+    plusOneLead: "Sag uns wer — das Paar bestätigt jede Begleitung persönlich.",
+    plusOneName: "Voller Name der Begleitung",
+    plusOneContact: "E-Mail oder Telefon der Begleitung",
     plusOneCta: "Begleitung anfragen",
     plusOnePending: "Angefragt — das Paar meldet sich",
     plusOneApproved: "Bestätigt",
@@ -95,7 +95,7 @@ export const de: Dict = {
     in: "in",
     remaining: "noch",
     betweenEvents: "Eine kleine Pause — bis gleich.",
-    allDone: "Das war's. Danke, dass ihr mit uns gefeiert habt.",
+    allDone: "Das war's. Danke, dass du mit uns gefeiert hast.",
     title: "Heute",
   },
 
@@ -126,11 +126,11 @@ export const de: Dict = {
     empty: "Noch keine Fotos — sie erscheinen hier.",
   },
 
-  messages: { title: "Nachrichten", lead: "Notizen des Paares an euch." },
+  messages: { title: "Nachrichten", lead: "Notizen des Paares an dich." },
 
-  contact: { title: "Kontakt", lead: "Meldet euch jederzeit.", call: "Anrufen", email: "E-Mail" },
+  contact: { title: "Kontakt", lead: "Melde dich jederzeit.", call: "Anrufen", email: "E-Mail" },
 
-  parking: { title: "Parken", lead: "Wo ihr das Auto lasst." },
+  parking: { title: "Parken", lead: "Wo du das Auto lässt." },
 
   emergency: { title: "Notfall", lead: "Für alle Fälle — griffbereit." },
 
@@ -145,36 +145,22 @@ export const de: Dict = {
 
   gifts: {
     title: "Geschenke",
-    lead: "Dass ihr da seid, ist genug — wer dennoch schenken mag, findet hier ein paar Wege.",
+    lead: "Dass du da bist, ist genug — wer dennoch schenken mag, findet hier ein paar Wege.",
     view: "Link öffnen",
   },
 
   recommendations: {
     title: "Empfehlungen",
-    lead: "Ein paar Orte und Menschen, die wir mögen — für euch ausgewählt.",
+    lead: "Ein paar Orte und Menschen, die wir mögen — für dich ausgewählt.",
     visit: "Ansehen",
   },
 
-  push: {
-    title: "Updates am Tag",
-    lead: "Erhaltet eine kurze Benachrichtigung zu den wichtigen Momenten — Trauung, Essen, der erste Tanz.",
-    enable: "Benachrichtigungen aktivieren",
-    working: "Wird aktiviert…",
-    enabled: "Benachrichtigungen an — alles bereit.",
-    denied: "Benachrichtigungen sind blockiert. Aktiviert sie in den Browser-Einstellungen.",
-    needsInstall:
-      "Auf dem iPhone zuerst diese Seite zum Home-Bildschirm hinzufügen (Teilen → Zum Home-Bildschirm), dann von dort öffnen und aktivieren.",
-    unsupported: "Dieser Browser unterstützt keine Benachrichtigungen.",
-    saveFailed: "Anmeldung konnte nicht gespeichert werden. Bitte gleich noch einmal versuchen.",
-    error: "Etwas ist schiefgelaufen. Bitte versucht es erneut.",
-  },
-
   photos: {
-    title: "Eure Fotos",
+    title: "Deine Fotos",
     lead: "Teilt jedes Foto mit uns — direkt vom Handy, ohne App.",
     upload: "Fotos hinzufügen",
     uploadHint: "Tippen zum Auswählen oder Bilder hierher ziehen. Sie werden vor dem Upload komprimiert.",
-    yours: "Von euch hochgeladen",
+    yours: "Von dir hochgeladen",
     reviewNote: "das Paar prüft Fotos, bevor sie in der Galerie erscheinen.",
   },
 

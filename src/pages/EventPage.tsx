@@ -18,7 +18,6 @@ import { HotelsSection } from "../features/hotels/HotelsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
 import { RsvpBanner } from "../features/rsvp/RsvpBanner";
 import { ParkingSection, hasParking } from "../features/info/InfoSections";
-import { AddToCalendar } from "../features/calendar/AddToCalendar";
 import { Section, DemoRibbon } from "../components/ui/Section";
 import { Button } from "../components/ui/Button";
 import { CardSkeleton } from "../components/ui/Skeleton";
@@ -81,13 +80,11 @@ export default function EventPage() {
 
           <Section id="schedule" title={t.schedule.title} lead={t.schedule.lead}>
             <ScheduleSection
+              event={event}
               items={scheduleQuery.data}
               guest={guest}
               loading={scheduleQuery.isLoading || guestQuery.isLoading}
             />
-            <div className="mt-5">
-              <AddToCalendar event={event} schedule={scheduleQuery.data} />
-            </div>
           </Section>
 
           {weatherWindow ? (

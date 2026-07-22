@@ -30,7 +30,13 @@ export function FloatingDock() {
       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
       className="fixed inset-x-0 bottom-[max(0.8rem,env(safe-area-inset-bottom))] z-40 flex justify-center px-4"
     >
-      <div className="glass-strong flex items-center gap-0.5 rounded-full px-1.5 py-1.5">
+      {/* A tighter shadow than the default glass-strong drop: the dock sits at
+          the very bottom, so a long shadow bleeds under the browser's URL bar
+          and reads as a hard edge. Keep it short and close. */}
+      <div
+        className="glass-strong flex items-center gap-0.5 rounded-full px-1.5 py-1.5"
+        style={{ boxShadow: "inset 0 1.5px 0 0 oklch(1 0 0 / 0.4), 0 5px 16px -12px oklch(0.3 0.03 110 / 0.4)" }}
+      >
         {items.map(({ to, label, icon: Icon, end }) => (
           <NavLink
             key={to}

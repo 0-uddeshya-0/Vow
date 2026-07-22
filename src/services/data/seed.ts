@@ -9,7 +9,6 @@ import type {
   Promo,
   Photo,
   PlusOneRequest,
-  PushToken,
   Rsvp,
   ScheduleItem,
   Settings,
@@ -69,9 +68,6 @@ let photos: Photo[] = (() => {
     return [];
   }
 })();
-
-// Push tokens are session-only in the demo — real push needs Firebase + FCM.
-let pushTokens: PushToken[] = [];
 
 const saveDb = () => write(DB_KEY, db);
 const saveRsvps = () => write(RSVP_KEY, rsvps);
@@ -198,13 +194,6 @@ export const seedDataSource: DataSource = {
   async listPlusOneRequests(eventId, guestId) {
     await wait(120);
     return plusOnes.filter((r) => r.eventId === eventId && r.guestId === guestId);
-  },
-
-  async savePushToken(token: PushToken) {
-    await wait(ADMIN);
-    const i = pushTokens.findIndex((t) => t.token === token.token);
-    if (i >= 0) pushTokens[i] = token;
-    else pushTokens.push(token);
   },
 
   /**
@@ -357,11 +346,6 @@ export const seedDataSource: DataSource = {
   async adminDeleteEmbed(_eventId, id) {
     await wait(ADMIN);
     remove(db.embeds, id);
-  },
-
-  async adminListPushTokens(eventId) {
-    await wait(ADMIN);
-    return pushTokens.filter((t) => t.eventId === eventId);
   },
 
   async adminListPhotos(eventId) {

@@ -100,16 +100,6 @@ service cloud.firestore {
         allow update, delete: if isAdmin();
       }
 
-      // Web-push device tokens. A guest registers their own device on opt-in
-      // (create/update only their token doc); only the admin can read the
-      // list to broadcast. No personal data beyond the opaque FCM token.
-      match /pushTokens/{token} {
-        allow get: if true;
-        allow list: if isAdmin();
-        allow create, update: if request.resource.data.eventId == eventId
-          && request.resource.data.token is string;
-        allow delete: if isAdmin();
-      }
     }
 
     // Admin dashboard reads plus-ones across all guests.

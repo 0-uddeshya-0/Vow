@@ -25,7 +25,6 @@ import {
   zPhoto,
   zPromo,
   zPlusOneRequest,
-  zPushToken,
   zRsvp,
   zScheduleItem,
   zSettings,
@@ -191,10 +190,6 @@ export const firebaseDataSource: DataSource = {
     return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
   },
 
-  async savePushToken(token) {
-    // FCM token is the doc id — re-registering the same device is idempotent.
-    await setDoc(doc(getDb(), "events", token.eventId, "pushTokens", token.token), token);
-  },
 
   /**
    * NO Firebase Storage. Firebase Storage requires the paid Blaze plan, so
@@ -375,11 +370,6 @@ export const firebaseDataSource: DataSource = {
   },
   async adminDeleteEmbed(eventId, id) {
     await deleteDoc(doc(getDb(), "events", eventId, "embeds", id));
-  },
-
-  async adminListPushTokens(eventId) {
-    const snap = await getDocs(sub(eventId, "pushTokens"));
-    return parseAllSafe(zPushToken, snap.docs, (raw, id) => ({ ...raw, token: raw.token ?? id, eventId }));
   },
 
   async adminListPhotos(eventId) {

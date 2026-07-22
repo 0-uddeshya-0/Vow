@@ -13,7 +13,6 @@ import { useGuestSession } from "../features/guest/useGuestSession";
 import { IdentifyCard } from "../features/guest/IdentifyCard";
 import { GuestHeader } from "../features/guest/GuestHeader";
 import { MessagesSection } from "../features/messages/MessagesSection";
-import { PushOptIn } from "../features/push/PushOptIn";
 import { GiftsSection } from "../features/gifts/GiftsSection";
 import { PromosSection } from "../features/promos/PromosSection";
 import { EmbedsSection } from "../features/embeds/EmbedsSection";
@@ -71,8 +70,6 @@ export default function InfoPage() {
             guest={guest}
             loading={messagesQuery.isLoading}
           />
-
-          <PushOptIn event={event} guest={guest} />
 
           {faqQuery.data?.length ? (
             <Section id="faq" title={t.faq.title}>

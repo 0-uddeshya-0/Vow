@@ -2,7 +2,8 @@ import { motion } from "motion/react";
 import { CircleParking, MapPin, StickyNote } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { ScheduleIcon } from "../../lib/icons";
-import { visibleTo, type Guest, type Location, type ScheduleItem } from "../../types";
+import { ItemCalendarButton } from "../calendar/ItemCalendarButton";
+import { visibleTo, type EventDoc, type Guest, type Location, type ScheduleItem } from "../../types";
 import { fadeUp, reveal } from "../../animations/variants";
 import { CardSkeleton } from "../../components/ui/Skeleton";
 import { MapsButton } from "../../components/ui/MapsButton";
@@ -15,7 +16,7 @@ function MapButtons({ location }: { location: Location }) {
   );
 }
 
-function MomentCard({ item, personal }: { item: ScheduleItem; personal: boolean }) {
+function MomentCard({ event, item, personal }: { event: EventDoc; item: ScheduleItem; personal: boolean }) {
   const { t, lt } = useI18n();
   return (
     <motion.li variants={fadeUp} className="glass overflow-hidden rounded-[var(--radius-card)]">
@@ -67,7 +68,10 @@ function MomentCard({ item, personal }: { item: ScheduleItem; personal: boolean 
           </p>
         ) : null}
 
-        <MapButtons location={item.location} />
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <MapsButton location={item.location} />
+          <ItemCalendarButton event={event} item={item} />
+        </div>
 
         {item.parkingNote || item.parkingLocation?.name ? (
           <div className="mt-4 rounded-2xl border border-hairline-soft bg-surface/40 p-4">
@@ -90,10 +94,12 @@ function MomentCard({ item, personal }: { item: ScheduleItem; personal: boolean 
 }
 
 export function ScheduleSection({
+  event,
   items,
   guest,
   loading,
 }: {
+  event: EventDoc;
   items: ScheduleItem[] | undefined;
   guest: Guest | null;
   loading: boolean;
@@ -114,7 +120,7 @@ export function ScheduleSection({
   return (
     <motion.ol {...reveal(0.15)} className="flex list-none flex-col gap-4 p-0">
       {visible.map((item) => (
-        <MomentCard key={item.id} item={item} personal={restricted(item)} />
+        <MomentCard key={item.id} event={event} item={item} personal={restricted(item)} />
       ))}
     </motion.ol>
   );

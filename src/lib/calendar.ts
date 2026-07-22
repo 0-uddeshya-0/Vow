@@ -45,6 +45,45 @@ export function downloadIcs(event: EventDoc, schedule: ScheduleItem[] | undefine
   URL.revokeObjectURL(url);
 }
 
+/** A single schedule item's window (defaults to +1h when it has no end). */
+function itemWindow(event: EventDoc, item: ScheduleItem) {
+  const start = eventStartMs(event, item.start);
+  const end = item.end ? eventStartMs(event, item.end) : start + 60 * 60 * 1000;
+  return { start, end };
+}
+
+export function itemCalendarUrls(
+  event: EventDoc,
+  item: ScheduleItem,
+  title: string,
+): { google: string; outlook: string } {
+  const { start, end } = itemWindow(event, item);
+  const g = `${stamp(start)}/${stamp(end)}`;
+  return {
+    google:
+      "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+      `&text=${encodeURIComponent(title)}&dates=${g}`,
+    outlook:
+      "https://outlook.live.com/calendar/0/deeplink/compose?path=/calendar/action/compose" +
+      `&subject=${encodeURIComponent(title)}` +
+      `&startdt=${new Date(start).toISOString()}&enddt=${new Date(end).toISOString()}`,
+  };
+}
+
+export function downloadItemIcs(event: EventDoc, item: ScheduleItem, title: string) {
+  const { start, end } = itemWindow(event, item);
+  const where = item.location.name || item.location.address || "";
+  const blob = new Blob([icsBody(event, title, where, start, end)], {
+    type: "text/calendar;charset=utf-8",
+  });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${event.slug}-${item.id}.ics`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 /** Google and Outlook take the same UTC window as query params. */
 export function calendarUrls(
   event: EventDoc,

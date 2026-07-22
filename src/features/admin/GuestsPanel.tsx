@@ -277,6 +277,8 @@ function GuestModal({
 }) {
   const [draft, setDraft] = useState<Guest>(guest);
   const set = (p: Partial<Guest>) => setDraft((d) => ({ ...d, ...p }));
+  const emailOk = !draft.email.trim() || /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(draft.email.trim());
+  const canSave = !!draft.fullName.trim() && emailOk;
 
   return (
     <Modal
@@ -290,7 +292,10 @@ function GuestModal({
           <AdminButton variant="quiet" onClick={onClose}>
             Cancel
           </AdminButton>
-          <AdminButton onClick={() => onSave(draft)} disabled={!draft.fullName.trim()}>
+          <AdminButton
+            onClick={() => onSave({ ...draft, phone: draft.phone.replace(/\s+/g, "") })}
+            disabled={!canSave}
+          >
             Save
           </AdminButton>
         </>
@@ -300,11 +305,21 @@ function GuestModal({
         <Input autoFocus value={draft.fullName} onChange={(e) => set({ fullName: e.target.value })} />
       </Labeled>
       <div className="grid gap-3 sm:grid-cols-2">
-        <Labeled label="Email">
-          <Input type="email" value={draft.email} onChange={(e) => set({ email: e.target.value })} />
+        <Labeled label="Email" hint={emailOk ? undefined : "That doesn't look like a valid email."}>
+          <Input
+            type="email"
+            value={draft.email}
+            className={emailOk ? "" : "border-err focus:border-err"}
+            onChange={(e) => set({ email: e.target.value })}
+          />
         </Labeled>
-        <Labeled label="Phone" hint="International format, e.g. +49…">
-          <Input type="tel" value={draft.phone} onChange={(e) => set({ phone: e.target.value })} />
+        <Labeled label="Phone" hint="International format, no spaces — e.g. +49170…">
+          {/* strip spaces as typed so the stored number never has gaps */}
+          <Input
+            type="tel"
+            value={draft.phone}
+            onChange={(e) => set({ phone: e.target.value.replace(/\s+/g, "") })}
+          />
         </Labeled>
       </div>
       <Labeled label="Roles" hint="Comma separated — drives schedule and message visibility">

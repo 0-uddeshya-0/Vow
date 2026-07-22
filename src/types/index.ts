@@ -242,22 +242,6 @@ export const zPhoto = z.object({
 });
 export type Photo = z.infer<typeof zPhoto>;
 
-/**
- * A registered web-push device token. The FCM token doubles as the doc id.
- * Guests opt in (no account), so the token itself is the only handle; the
- * couple broadcasts to the collected tokens with the local send script
- * (scripts/send-push.mjs) — free, no Cloud Function.
- */
-export const zPushToken = z.object({
-  token: z.string().min(1),
-  eventId: zId,
-  guestId: z.string().default(""),
-  guestName: z.string().default(""),
-  ua: z.string().default(""),
-  createdAt: z.string(),
-});
-export type PushToken = z.infer<typeof zPushToken>;
-
 export const zSettings = z.object({
   eventId: zId,
   contact: z

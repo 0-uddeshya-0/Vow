@@ -77,9 +77,10 @@
 
 /* ——— base ——— */
 
-/* A flat base color on <html>/<body> so any iOS rubber-band overscroll or
-   safe-area (notch, home indicator) shows a tone that matches the gradient —
-   never a bare white band. The gradient itself is the fixed pseudo below. */
+/* The flat base color lives on <html> only (also fills iOS overscroll / the
+   safe areas). <body> MUST stay transparent: it is painted after the
+   negative-z-index .app-bg, so an opaque body background would hide the
+   gradient everywhere except the overscroll band. */
 html {
   min-height: 100%;
   background-color: var(--bg);
@@ -87,14 +88,14 @@ html {
 
 body {
   min-height: 100dvh;
-  background-color: var(--bg);
+  background-color: transparent;
   color: var(--ink);
   font-family: var(--font-body);
   font-size: 1.0625rem;
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
-  transition: background-color 0.4s ease, color 0.4s ease;
+  transition: color 0.4s ease;
 }
 
 /* ONE unified gradient for the whole app, painted by a REAL fixed element

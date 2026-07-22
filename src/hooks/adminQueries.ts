@@ -12,7 +12,6 @@ import type {
   Photo,
   PlusOneRequest,
   Promo,
-  PushToken,
   ScheduleItem,
   Settings,
   WeatherSettings,
@@ -38,14 +37,6 @@ export function useAdminPlusOnes(eventId: string | undefined) {
   return useQuery({
     queryKey: ["admin", "plusOnes", eventId],
     queryFn: () => data.adminListPlusOnes(eventId!),
-    enabled: !!eventId,
-  });
-}
-
-export function useAdminPushTokens(eventId: string | undefined) {
-  return useQuery<PushToken[]>({
-    queryKey: ["admin", "pushTokens", eventId],
-    queryFn: () => data.adminListPushTokens(eventId!),
     enabled: !!eventId,
   });
 }

@@ -57,7 +57,7 @@ export const en = {
     attending: "Your answer",
     yes: "With joy",
     no: "Sadly not",
-    dietTitle: "Food that works for you",
+    dietTitle: "Any dietary restrictions? (optional)",
     diet: {
       vegetarian: "Vegetarian",
       vegan: "Vegan",
@@ -155,20 +155,6 @@ export const en = {
     title: "Recommendations",
     lead: "A few places and people we love, hand-picked for you.",
     visit: "Visit",
-  },
-
-  push: {
-    title: "Day-of updates",
-    lead: "Get a gentle notification for the important moments — ceremony, dinner, the first dance.",
-    enable: "Enable notifications",
-    working: "Enabling…",
-    enabled: "Notifications on — you're all set.",
-    denied: "Notifications are blocked. Turn them on in your browser settings to receive updates.",
-    needsInstall:
-      "On iPhone, add this page to your home screen first (Share → Add to Home Screen), then open it from there to enable notifications.",
-    unsupported: "This browser doesn't support notifications.",
-    saveFailed: "Couldn't save your subscription. Please try again in a moment.",
-    error: "Something went wrong. Please try again.",
   },
 
   photos: {
