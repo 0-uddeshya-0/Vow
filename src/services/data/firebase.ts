@@ -283,12 +283,20 @@ export const firebaseDataSource: DataSource = {
     const snap = await getDocs(sub(eventId, "rsvps"));
     return snap.docs.map((d) => zRsvp.parse({ ...d.data(), eventId, guestId: d.id }));
   },
-  /** Collection-group read across every guest's nested requests (admin only). */
+  /**
+   * Collection-group read across every guest's nested requests (admin only).
+   *
+   * Unfiltered + client-side eventId filter ON PURPOSE: a `where('eventId')`
+   * collection-group query needs a COLLECTION_GROUP_ASC composite index that
+   * has to be created before it works at all — until then Firestore throws
+   * `failed-precondition` and the admin panel shows zero plus-ones even when
+   * requests exist. For a single active event this returns the same result
+   * with no index setup. If the platform ever runs many events at real scale,
+   * add the index and restore the `where()` filter.
+   */
   async adminListPlusOnes(eventId) {
-    const snap = await getDocs(
-      query(collectionGroup(getDb(), "plusOneRequests"), where("eventId", "==", eventId)),
-    );
-    return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
+    const snap = await getDocs(collectionGroup(getDb(), "plusOneRequests"));
+    return parseAll(zPlusOneRequest, snap.docs).filter((r) => r.eventId === eventId);
   },
   async adminSavePlusOne(req) {
     await setDoc(

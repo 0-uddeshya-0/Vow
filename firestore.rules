@@ -6,8 +6,9 @@ rules_version = '2';
 // The site is a static SPA with no server, so guests identify without
 // accounts. The rule that makes that safe is: NOTHING personal is listable.
 //
-//  • Event *content* (schedule, hotels, FAQ, gallery, messages, settings)
-//    is world-readable — it has to be, the anon key is all the site has.
+//  • Event *content* (schedule, hotels, FAQ, gallery, messages, settings,
+//    gifts, recommendations, embeds) is world-readable — it has to be, the
+//    anon key is all the site has.
 //  • Personal data is `get`-only, never `list`. To read a guest you must
 //    already know their unguessable document id, which you can only obtain
 //    by computing SHA-256 of their exact email or phone (see
@@ -36,7 +37,8 @@ service cloud.firestore {
     // lock the real admin out on day one.
     function isAdmin() {
       return request.auth != null
-        && (request.auth.uid == 'ADMIN_UID'
+        && (request.auth.uid == 'YK3KElRGq4Sw9AGtdsIhfp9QBUq1'
+        		|| request.auth.uid == 'EWUgJmo6wDWo0SPjS7U3gKVXXSu2'
             || request.auth.token.email == 'ADMIN_EMAIL');
     }
 
@@ -49,11 +51,11 @@ service cloud.firestore {
       match /faq/{id}             { allow get, list: if true; allow write: if isAdmin(); }
       match /gallery/{id}         { allow get, list: if true; allow write: if isAdmin(); }
       match /messages/{id}        { allow get, list: if true; allow write: if isAdmin(); }
+      match /settings/{id}        { allow get, list: if true; allow write: if isAdmin(); }
+      match /weatherSettings/{id} { allow get, list: if true; allow write: if isAdmin(); }
       match /gifts/{id}           { allow get, list: if true; allow write: if isAdmin(); }
       match /promos/{id}          { allow get, list: if true; allow write: if isAdmin(); }
       match /embeds/{id}          { allow get, list: if true; allow write: if isAdmin(); }
-      match /settings/{id}        { allow get, list: if true; allow write: if isAdmin(); }
-      match /weatherSettings/{id} { allow get, list: if true; allow write: if isAdmin(); }
 
       // contact-hash → guestId. `get` only: the id IS the secret.
       match /guestLookup/{hash} {
@@ -80,15 +82,33 @@ service cloud.firestore {
         allow create, update: if true;       // the guest's own reply
         allow delete: if isAdmin();
       }
-
-      // Photos are stored as data URLs in the doc (no paid Storage). Read is
-      // open so an identified guest sees their own uploads and the shared
-      // gallery; the site is already invite-gated, and celebration photos are
-      // meant to be seen. Only the admin can approve/edit/delete.
+      // Guest uploads (Phase 4). Guests have no Firebase Auth — guestId in a
+      // filtered query is the secret (same model as RSVPs). Admins list all.
       match /photos/{id} {
-        allow get, list: if true;
-        allow create: if true;               // guest uploads
+        allow get: if true;
+        allow list: if isAdmin()
+          || (request.query.limit <= 100
+              && request.query.filters.size() == 1
+              && request.query.filters[0].field == 'guestId'
+              && request.query.filters[0].op == '=='
+              && request.query.filters[0].value is string);
+        allow create: if request.resource.data.eventId == eventId
+          && request.resource.data.status == 'uploaded'
+          && request.resource.data.guestId is string
+          && request.resource.data.storagePath is string
+          && request.resource.data.url is string;
         allow update, delete: if isAdmin();
+      }
+
+      // Web-push device tokens. A guest registers their own device on opt-in
+      // (create/update only their token doc); only the admin can read the
+      // list to broadcast. No personal data beyond the opaque FCM token.
+      match /pushTokens/{token} {
+        allow get: if true;
+        allow list: if isAdmin();
+        allow create, update: if request.resource.data.eventId == eventId
+          && request.resource.data.token is string;
+        allow delete: if isAdmin();
       }
     }
 
