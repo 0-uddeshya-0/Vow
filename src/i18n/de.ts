@@ -155,6 +155,16 @@ export const de: Dict = {
     visit: "Ansehen",
   },
 
+  push: {
+    title: "Updates am Tag",
+    lead: "Erhaltet eine kurze Benachrichtigung zu den wichtigen Momenten — Trauung, Essen, der erste Tanz.",
+    enable: "Benachrichtigungen aktivieren",
+    working: "Wird aktiviert…",
+    enabled: "Benachrichtigungen an — alles bereit.",
+    denied: "Benachrichtigungen sind blockiert. Aktiviert sie in den Browser-Einstellungen.",
+    error: "Etwas ist schiefgelaufen. Bitte versucht es erneut.",
+  },
+
   photos: {
     title: "Eure Fotos",
     lead: "Teilt jedes Foto mit uns — direkt vom Handy, ohne App.",

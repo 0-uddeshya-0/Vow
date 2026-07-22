@@ -25,6 +25,7 @@ import {
   zPhoto,
   zPromo,
   zPlusOneRequest,
+  zPushToken,
   zRsvp,
   zScheduleItem,
   zSettings,
@@ -188,6 +189,11 @@ export const firebaseDataSource: DataSource = {
       collection(getDb(), "events", eventId, "guests", guestId, "plusOneRequests"),
     );
     return parseAll(zPlusOneRequest, snap.docs).map((r) => ({ ...r, eventId }));
+  },
+
+  async savePushToken(token) {
+    // FCM token is the doc id — re-registering the same device is idempotent.
+    await setDoc(doc(getDb(), "events", token.eventId, "pushTokens", token.token), token);
   },
 
   /**
@@ -369,6 +375,11 @@ export const firebaseDataSource: DataSource = {
   },
   async adminDeleteEmbed(eventId, id) {
     await deleteDoc(doc(getDb(), "events", eventId, "embeds", id));
+  },
+
+  async adminListPushTokens(eventId) {
+    const snap = await getDocs(sub(eventId, "pushTokens"));
+    return parseAllSafe(zPushToken, snap.docs, (raw, id) => ({ ...raw, token: raw.token ?? id, eventId }));
   },
 
   async adminListPhotos(eventId) {

@@ -41,6 +41,10 @@ jobs:
           VITE_FIREBASE_PROJECT_ID: vow-1809
           VITE_FIREBASE_STORAGE_BUCKET: vow-1809.firebasestorage.app
           VITE_FIREBASE_APP_ID: 1:696666654769:web:5996e05db90d4d06f0ad10
+          # Web Push VAPID public key (Console → Cloud Messaging → Web Push
+          # certificates). Public by design — it only lets the browser mint a
+          # device token; sending still needs the private service-account key.
+          VITE_FIREBASE_VAPID_KEY: I2dyoGDfMbjB2ozlouAtP_yK74P6cc8II8nppW0hq8w
       # Custom domain: only stamp CNAME into domain-rooted builds.
       - if: ${{ inputs.base == '/' }}
         run: echo "cannonfoundry.com" > dist/CNAME

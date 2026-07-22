@@ -25,3 +25,7 @@ if (import.meta.env.PROD && "serviceWorker" in navigator) {
     void navigator.serviceWorker.register(`${import.meta.env.BASE_URL}sw.js`);
   });
 }
+
+// Show push notifications that arrive while the app is open (no-op unless push
+// is configured + the browser supports it).
+void import("./push-init");

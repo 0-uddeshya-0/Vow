@@ -25,6 +25,7 @@ import { EmbedsSection } from "../features/embeds/EmbedsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
 import { MessagesSection } from "../features/messages/MessagesSection";
 import { RsvpBanner } from "../features/rsvp/RsvpBanner";
+import { PushOptIn } from "../features/push/PushOptIn";
 import {
   ContactSection,
   EmergencySection,
@@ -110,6 +111,8 @@ export default function EventPage() {
             guest={guest}
             loading={messagesQuery.isLoading}
           />
+
+          <PushOptIn event={event} guest={guest} />
 
           <Section id="schedule" title={t.schedule.title} lead={t.schedule.lead}>
             <ScheduleSection

@@ -157,6 +157,16 @@ export const en = {
     visit: "Visit",
   },
 
+  push: {
+    title: "Day-of updates",
+    lead: "Get a gentle notification for the important moments — ceremony, dinner, the first dance.",
+    enable: "Enable notifications",
+    working: "Enabling…",
+    enabled: "Notifications on — you're all set.",
+    denied: "Notifications are blocked. Turn them on in your browser settings to receive updates.",
+    error: "Something went wrong. Please try again.",
+  },
+
   photos: {
     title: "Your photos",
     lead: "Share every photo you take with us — straight from your phone, no app.",

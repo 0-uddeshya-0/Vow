@@ -10,6 +10,7 @@ import type {
   Photo,
   PlusOneRequest,
   Promo,
+  PushToken,
   Rsvp,
   ScheduleItem,
   Settings,
@@ -51,6 +52,9 @@ export interface DataSource {
 
   createPlusOneRequest(req: PlusOneRequest): Promise<void>;
   listPlusOneRequests(eventId: string, guestId: string): Promise<PlusOneRequest[]>;
+
+  /** Register a guest's web-push device token (opt-in). */
+  savePushToken(token: PushToken): Promise<void>;
 
   /** Guest photo upload (already client-compressed). Progress in [0,1]. */
   uploadPhoto(
@@ -98,6 +102,8 @@ export interface DataSource {
 
   adminSaveEmbed(embed: Embed): Promise<void>;
   adminDeleteEmbed(eventId: string, id: string): Promise<void>;
+
+  adminListPushTokens(eventId: string): Promise<PushToken[]>;
 
   adminListPhotos(eventId: string): Promise<Photo[]>;
   adminSavePhoto(photo: Photo): Promise<void>;
