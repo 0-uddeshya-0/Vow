@@ -160,6 +160,21 @@ export const zPromo = z.object({
 });
 export type Promo = z.infer<typeof zPromo>;
 
+/**
+ * A generic embed the admin drops in — a map, a playlist, a Google Form, a
+ * song-request widget. Rendered in a sandboxed iframe on the guest page. Only
+ * the admin can add one, so the URL is trusted; the sandbox is defence in depth.
+ */
+export const zEmbed = z.object({
+  id: zId,
+  eventId: zId,
+  order: z.number(),
+  title: zLocalizedText,
+  url: z.string().default(""),
+  height: z.number().int().min(120).max(900).default(420),
+});
+export type Embed = z.infer<typeof zEmbed>;
+
 export const zFaqItem = z.object({
   id: zId,
   eventId: zId,

@@ -1,4 +1,5 @@
 import type {
+  Embed,
   EventDoc,
   FaqItem,
   GalleryImage,
@@ -149,6 +150,11 @@ export const seedDataSource: DataSource = {
   async listPromos(eventId) {
     await wait(LATENCY);
     return db.promos.filter((p) => p.eventId === eventId).sort(byOrder);
+  },
+
+  async listEmbeds(eventId) {
+    await wait(LATENCY);
+    return db.embeds.filter((e) => e.eventId === eventId).sort(byOrder);
   },
 
   async listMessages(eventId) {
@@ -331,6 +337,15 @@ export const seedDataSource: DataSource = {
   async adminDeletePromo(_eventId, id) {
     await wait(ADMIN);
     remove(db.promos, id);
+  },
+
+  async adminSaveEmbed(embed: Embed) {
+    await wait(ADMIN);
+    upsert(db.embeds, embed);
+  },
+  async adminDeleteEmbed(_eventId, id) {
+    await wait(ADMIN);
+    remove(db.embeds, id);
   },
 
   async adminListPhotos(eventId) {

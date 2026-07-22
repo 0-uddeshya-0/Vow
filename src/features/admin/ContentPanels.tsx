@@ -15,12 +15,14 @@ import {
 } from "./kit";
 import {
   useDeleteFaq,
+  useDeleteEmbed,
   useDeleteGalleryImage,
   useDeleteGift,
   useDeleteHotel,
   useDeleteMessage,
   useDeletePromo,
   useDeleteScheduleItem,
+  useSaveEmbed,
   useSaveFaq,
   useSaveGalleryImage,
   useSaveGift,
@@ -30,10 +32,11 @@ import {
   useSaveScheduleItem,
 } from "../../hooks/adminQueries";
 import { useAdminGuests } from "../../hooks/adminQueries";
-import { useFaq, useGallery, useGifts, useHotels, useMessages, usePromos, useSchedule } from "../../hooks/queries";
+import { useEmbeds, useFaq, useGallery, useGifts, useHotels, useMessages, usePromos, useSchedule } from "../../hooks/queries";
 import { ImageField } from "./ImageField";
 import { IconField } from "./IconField";
 import type {
+  Embed,
   EventDoc,
   FaqItem,
   GalleryImage,
@@ -831,6 +834,118 @@ export function PromosPanel({ event }: { event: EventDoc }) {
               inputMode="url"
               placeholder="https://…"
               onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })}
+            />
+          </Labeled>
+        </Modal>
+      ) : null}
+    </Panel>
+  );
+}
+
+/* ——— Embeds (sandboxed iframes) ——— */
+
+export function EmbedsPanel({ event }: { event: EventDoc }) {
+  const items = useEmbeds(event.id).data ?? [];
+  const save = useSaveEmbed();
+  const del = useDeleteEmbed();
+  const move = useReorder<Embed>((e) => save.mutate(e));
+  const [editing, setEditing] = useState<Embed | null>(null);
+
+  const blank = (): Embed => ({
+    id: `em-${newId()}`,
+    eventId: event.id,
+    order: (items.at(-1)?.order ?? 0) + 1,
+    title: emptyText(),
+    url: "",
+    height: 420,
+  });
+
+  const httpsOk = editing ? /^https:\/\//i.test(editing.url) : true;
+
+  return (
+    <Panel
+      title={`Embeds (${items.length})`}
+      action={
+        <AdminButton onClick={() => setEditing(blank())}>
+          <Plus size={14} /> Add embed
+        </AdminButton>
+      }
+    >
+      <p className="mb-3 text-sm text-ink-soft">
+        Drop in a map, a playlist, a Google Form, a song-request widget. Paste the embed URL (the{" "}
+        <code className="font-mono text-xs">src</code> of the iframe the service gives you). Must be
+        an <strong>https</strong> link; it renders in a locked-down sandbox.
+      </p>
+      <ul className="flex flex-col gap-2">
+        {items.map((em, i) => (
+          <li
+            key={em.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline-soft px-4 py-3"
+          >
+            <p className="min-w-0 truncate text-ink">{em.title.en || em.title.de || "(untitled)"}</p>
+            <div className="flex items-center gap-2">
+              <AdminButton variant="quiet" onClick={() => setEditing(em)}>
+                Edit
+              </AdminButton>
+              <ReorderControls
+                onUp={() => move(items, i, -1)}
+                onDown={() => move(items, i, 1)}
+                onDelete={() => confirm("Delete this embed?") && del.mutate({ eventId: event.id, id: em.id })}
+                disableUp={i === 0}
+                disableDown={i === items.length - 1}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {editing ? (
+        <Modal
+          title="Embed"
+          onClose={() => setEditing(null)}
+          footer={
+            <>
+              <AdminButton variant="quiet" onClick={() => setEditing(null)}>
+                Cancel
+              </AdminButton>
+              <AdminButton
+                disabled={!httpsOk || !editing.url}
+                onClick={() => {
+                  save.mutate(editing);
+                  setEditing(null);
+                }}
+              >
+                Save
+              </AdminButton>
+            </>
+          }
+        >
+          <LocalizedInput
+            label="Title"
+            value={editing.title}
+            onChange={(v) => setEditing({ ...editing, title: v })}
+          />
+          <Labeled
+            label="Embed URL"
+            hint={httpsOk ? "The iframe src from the service (must start with https://)." : "Must start with https://"}
+          >
+            <Input
+              value={editing.url}
+              inputMode="url"
+              placeholder="https://…"
+              className={httpsOk ? "" : "border-err focus:border-err"}
+              onChange={(e) => setEditing({ ...editing, url: e.target.value })}
+            />
+          </Labeled>
+          <Labeled label="Height (px)" hint="120–900. Default 420.">
+            <Input
+              type="number"
+              min={120}
+              max={900}
+              value={editing.height}
+              onChange={(e) =>
+                setEditing({ ...editing, height: Math.min(900, Math.max(120, Number(e.target.value) || 420)) })
+              }
             />
           </Labeled>
         </Modal>

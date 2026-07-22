@@ -79,6 +79,9 @@ export function useGifts(eventId: string | undefined) {
 export function usePromos(eventId: string | undefined) {
   return useQuery(list("promos", eventId, (id) => data.listPromos(id)));
 }
+export function useEmbeds(eventId: string | undefined) {
+  return useQuery(list("embeds", eventId, (id) => data.listEmbeds(id)));
+}
 export function useSettings(eventId: string | undefined) {
   return useQuery(list("settings", eventId, (id) => data.getSettings(id)));
 }

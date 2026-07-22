@@ -2,6 +2,7 @@ import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { useI18n } from "../i18n";
 import {
+  useEmbeds,
   useEvent,
   useFaq,
   useForecast,
@@ -20,6 +21,7 @@ import { ScheduleSection } from "../features/schedule/ScheduleSection";
 import { HotelsSection } from "../features/hotels/HotelsSection";
 import { GiftsSection } from "../features/gifts/GiftsSection";
 import { PromosSection } from "../features/promos/PromosSection";
+import { EmbedsSection } from "../features/embeds/EmbedsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
 import { MessagesSection } from "../features/messages/MessagesSection";
 import { RsvpBanner } from "../features/rsvp/RsvpBanner";
@@ -48,6 +50,7 @@ export default function EventPage() {
   const faqQuery = useFaq(event?.id);
   const giftsQuery = useGifts(event?.id);
   const promosQuery = usePromos(event?.id);
+  const embedsQuery = useEmbeds(event?.id);
   const weatherSettings = useWeatherSettings(event?.id).data;
 
   // Forecast only inside the CMS-configured window (default: final week).
@@ -170,6 +173,8 @@ export default function EventPage() {
               <PromosSection promos={promosQuery.data} loading={promosQuery.isLoading} />
             </Section>
           ) : null}
+
+          <EmbedsSection embeds={embedsQuery.data} />
 
           <div className="flex justify-center">
             <Link to="/rsvp">

@@ -7,6 +7,7 @@ import { DashboardPanel } from "../features/admin/DashboardPanel";
 import { PhotosPanel } from "../features/admin/PhotosPanel";
 import { GuestsPanel } from "../features/admin/GuestsPanel";
 import {
+  EmbedsPanel,
   FaqPanel,
   GalleryPanel,
   GiftsPanel,
@@ -33,6 +34,7 @@ const TABS = [
   "FAQ",
   "Gifts",
   "Tips",
+  "Embeds",
   "Settings",
 ] as const;
 type Tab = (typeof TABS)[number];
@@ -111,6 +113,7 @@ export default function AdminPage() {
           {tab === "FAQ" ? <FaqPanel event={event} /> : null}
           {tab === "Gifts" ? <GiftsPanel event={event} /> : null}
           {tab === "Tips" ? <PromosPanel event={event} /> : null}
+          {tab === "Embeds" ? <EmbedsPanel event={event} /> : null}
           {tab === "Settings" ? (
             <>
               <EventSettingsPanel event={event} />

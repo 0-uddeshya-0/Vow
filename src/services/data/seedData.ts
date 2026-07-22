@@ -3,6 +3,7 @@ import type {
   FaqItem,
   GalleryImage,
   Guest,
+  Embed,
   Gift,
   Hotel,
   Promo,
@@ -49,6 +50,7 @@ export type SeedDb = {
   messages: Message[];
   gifts: Gift[];
   promos: Promo[];
+  embeds: Embed[];
   settings: Settings;
   weatherSettings: WeatherSettings;
 };
@@ -401,6 +403,17 @@ export function defaultDb(): SeedDb {
         ),
         url: "https://example.com/taxi",
         imageUrl: "",
+      },
+    ],
+
+    embeds: [
+      {
+        id: "em1",
+        eventId: EVENT_ID,
+        order: 1,
+        title: ph("Venue map", "Karte"),
+        url: "https://www.openstreetmap.org/export/embed.html?bbox=9.98%2C48.38%2C10.03%2C48.41&layer=mapnik",
+        height: 360,
       },
     ],
 

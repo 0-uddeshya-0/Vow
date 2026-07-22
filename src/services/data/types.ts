@@ -1,4 +1,5 @@
 import type {
+  Embed,
   EventDoc,
   FaqItem,
   GalleryImage,
@@ -41,6 +42,7 @@ export interface DataSource {
   listMessages(eventId: string): Promise<Message[]>;
   listGifts(eventId: string): Promise<Gift[]>;
   listPromos(eventId: string): Promise<Promo[]>;
+  listEmbeds(eventId: string): Promise<Embed[]>;
   getSettings(eventId: string): Promise<Settings | null>;
   getWeatherSettings(eventId: string): Promise<WeatherSettings | null>;
 
@@ -93,6 +95,9 @@ export interface DataSource {
 
   adminSavePromo(promo: Promo): Promise<void>;
   adminDeletePromo(eventId: string, id: string): Promise<void>;
+
+  adminSaveEmbed(embed: Embed): Promise<void>;
+  adminDeleteEmbed(eventId: string, id: string): Promise<void>;
 
   adminListPhotos(eventId: string): Promise<Photo[]>;
   adminSavePhoto(photo: Photo): Promise<void>;

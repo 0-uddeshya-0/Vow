@@ -14,6 +14,7 @@ import {
 import { contactHash } from "../../lib/contact";
 import { z } from "zod";
 import {
+  zEmbed,
   zEvent,
   zFaqItem,
   zGalleryImage,
@@ -144,6 +145,11 @@ export const firebaseDataSource: DataSource = {
   async listPromos(eventId) {
     const snap = await getDocs(query(sub(eventId, "promos"), orderBy("order")));
     return parseAll(zPromo, snap.docs).map((p) => ({ ...p, eventId }));
+  },
+
+  async listEmbeds(eventId) {
+    const snap = await getDocs(query(sub(eventId, "embeds"), orderBy("order")));
+    return parseAll(zEmbed, snap.docs).map((e) => ({ ...e, eventId }));
   },
 
   async getSettings(eventId) {
@@ -348,6 +354,13 @@ export const firebaseDataSource: DataSource = {
   },
   async adminDeletePromo(eventId, id) {
     await deleteDoc(doc(getDb(), "events", eventId, "promos", id));
+  },
+
+  async adminSaveEmbed(embed) {
+    await setDoc(doc(getDb(), "events", embed.eventId, "embeds", embed.id), embed);
+  },
+  async adminDeleteEmbed(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "embeds", id));
   },
 
   async adminListPhotos(eventId) {

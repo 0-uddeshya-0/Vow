@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { data } from "../services/data";
 import type {
+  Embed,
   EventDoc,
   FaqItem,
   GalleryImage,
@@ -123,6 +124,11 @@ export const useSavePromo = () =>
   useAdminMutation<Promo>((p) => data.adminSavePromo(p), [["promos"]]);
 export const useDeletePromo = () =>
   useAdminMutation<Ref>((v) => data.adminDeletePromo(v.eventId, v.id), [["promos"]]);
+
+export const useSaveEmbed = () =>
+  useAdminMutation<Embed>((e) => data.adminSaveEmbed(e), [["embeds"]]);
+export const useDeleteEmbed = () =>
+  useAdminMutation<Ref>((v) => data.adminDeleteEmbed(v.eventId, v.id), [["embeds"]]);
 
 /* photos — approving one copies it into the public gallery */
 export const useSavePhoto = () =>
