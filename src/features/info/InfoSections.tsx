@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { motion } from "motion/react";
 import { CircleParking, LifeBuoy, Mail, MessageCircle, Phone } from "lucide-react";
 import { useI18n } from "../../i18n";
@@ -104,22 +105,37 @@ export function EmergencySection({ settings }: { settings: Settings | null | und
 
 export function FaqSection({ items }: { items: FaqItem[] | undefined }) {
   const { lt } = useI18n();
+  // Accordion: only one question open at a time.
+  const [openId, setOpenId] = useState<string | null>(null);
   if (!items?.length) return null;
   return (
     <motion.div {...reveal(0.1)} className="flex flex-col">
-      {items.map((f) => (
-        <motion.details
-          key={f.id}
-          variants={fadeUp}
-          className="border-b border-hairline-soft first:border-t"
-        >
-          <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-4 py-4 font-display text-xl text-ink [&::-webkit-details-marker]:hidden">
-            {lt(f.question)}
-            <span className="text-gold-ink transition-transform">+</span>
-          </summary>
-          <p className="max-w-[56ch] pb-4 text-ink-soft">{lt(f.answer)}</p>
-        </motion.details>
-      ))}
+      {items.map((f) => {
+        const open = openId === f.id;
+        return (
+          <motion.div
+            key={f.id}
+            variants={fadeUp}
+            className="border-b border-hairline-soft first:border-t"
+          >
+            <button
+              type="button"
+              aria-expanded={open}
+              onClick={() => setOpenId(open ? null : f.id)}
+              className="flex min-h-14 w-full cursor-pointer items-center justify-between gap-4 py-4 text-left font-display text-xl text-ink"
+            >
+              {lt(f.question)}
+              <span
+                className={`shrink-0 text-gold-ink transition-transform duration-200 ${open ? "rotate-45" : ""}`}
+                aria-hidden
+              >
+                +
+              </span>
+            </button>
+            {open ? <p className="max-w-[56ch] pb-4 text-ink-soft">{lt(f.answer)}</p> : null}
+          </motion.div>
+        );
+      })}
     </motion.div>
   );
 }

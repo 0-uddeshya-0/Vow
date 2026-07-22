@@ -13,8 +13,15 @@ export function MapsButton({ location, align = "left" }: { location: Location; a
   const links = mapLinks(location);
   if (!links) return null;
 
-  const link = (href: string, label: string) => (
-    <a className={popoverItem} href={href} target="_blank" rel="noreferrer noopener" role="menuitem">
+  const link = (href: string, label: string, close: () => void) => (
+    <a
+      className={popoverItem}
+      href={href}
+      target="_blank"
+      rel="noreferrer noopener"
+      role="menuitem"
+      onClick={close}
+    >
       {label}
     </a>
   );
@@ -35,11 +42,11 @@ export function MapsButton({ location, align = "left" }: { location: Location; a
         </span>
       )}
     >
-      {() => (
+      {(close) => (
         <>
-          {link(links.google, t.schedule.google)}
-          {link(links.apple, t.schedule.apple)}
-          {link(links.osm, t.schedule.osm)}
+          {link(links.google, t.schedule.google, close)}
+          {link(links.apple, t.schedule.apple, close)}
+          {link(links.osm, t.schedule.osm, close)}
         </>
       )}
     </Popover>

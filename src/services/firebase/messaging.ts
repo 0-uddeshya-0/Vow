@@ -43,21 +43,47 @@ function registerMessagingSW(): Promise<ServiceWorkerRegistration> {
   return regPromise;
 }
 
-export type PushResult = "enabled" | "denied" | "unsupported" | "error";
+export type PushResult =
+  | "enabled"
+  | "denied"
+  | "unsupported"
+  | "needs-install" // iOS: only works once added to the home screen
+  | "save-failed" // token minted but Firestore rejected it (rules not deployed)
+  | "error";
+
+/** iOS/iPadOS supports web push only for a home-screen ("standalone") app. */
+export function iosNeedsInstall(): boolean {
+  const ua = navigator.userAgent;
+  const isIOS =
+    /iP(hone|ad|od)/.test(ua) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  if (!isIOS) return false;
+  const standalone =
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as Navigator & { standalone?: boolean }).standalone === true;
+  return !standalone;
+}
 
 /** Request permission, mint an FCM token, and register it for this event. */
 export async function enablePush(eventId: string, guest: Guest | null): Promise<PushResult> {
-  if (!(await pushSupported())) return "unsupported";
+  if (!(await pushSupported())) {
+    return iosNeedsInstall() ? "needs-install" : "unsupported";
+  }
+  let token: string;
   try {
     const permission = await Notification.requestPermission();
     if (permission !== "granted") return "denied";
     const reg = await registerMessagingSW();
     const messaging = getMessaging(getFirebaseApp());
-    const token = await getToken(messaging, {
-      vapidKey: VAPID_KEY,
-      serviceWorkerRegistration: reg,
-    });
-    if (!token) return "error";
+    const t = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg });
+    if (!t) return "error";
+    token = t;
+  } catch (err) {
+    console.warn("[vow] push permission/token failed", err);
+    return "error";
+  }
+  // Token exists; storing it is a separate failure mode (Firestore rules).
+  try {
     await data.savePushToken({
       token,
       eventId,
@@ -68,8 +94,8 @@ export async function enablePush(eventId: string, guest: Guest | null): Promise<
     });
     return "enabled";
   } catch (err) {
-    console.warn("[vow] push enable failed", err);
-    return "error";
+    console.warn("[vow] push token save failed (deploy pushTokens rule?)", err);
+    return "save-failed";
   }
 }
 

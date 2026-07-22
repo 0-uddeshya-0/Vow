@@ -30,11 +30,18 @@ function Unit({ n, label }: { n: number; label: string }) {
   const s = String(n).padStart(2, "0");
   return (
     <div className="flex flex-col items-center gap-1">
-      <div className="tnum font-display text-4xl sm:text-5xl text-ink" aria-hidden="true">
+      {/* inline-flex + nowrap: the two digits must never wrap to a second line
+          when the row is squeezed on a narrow phone. */}
+      <div
+        className="tnum font-display text-[2rem] leading-none whitespace-nowrap text-ink sm:text-5xl"
+        aria-hidden="true"
+      >
         <Digit value={s[0]} />
         <Digit value={s[1]} />
       </div>
-      <span className="text-xs uppercase tracking-[0.18em] text-ink-soft">{label}</span>
+      <span className="text-[0.65rem] uppercase tracking-[0.12em] text-ink-soft sm:text-xs sm:tracking-[0.18em]">
+        {label}
+      </span>
     </div>
   );
 }
@@ -53,13 +60,16 @@ export function Countdown({ targetMs }: { targetMs: number }) {
 
   return (
     <div role="timer" aria-label={`${sr} ${t.landing.until}`}>
-      <div className="flex items-start justify-center gap-5 sm:gap-8" aria-hidden="true">
+      <div
+        className="flex items-start justify-center gap-2.5 sm:gap-8"
+        aria-hidden="true"
+      >
         <Unit n={c.days} label={t.landing.days} />
-        <span className="pt-1 font-display text-3xl text-gold-ink">·</span>
+        <span className="pt-1 font-display text-2xl text-gold-ink sm:text-3xl">·</span>
         <Unit n={c.hours} label={t.landing.hours} />
-        <span className="pt-1 font-display text-3xl text-gold-ink">·</span>
+        <span className="pt-1 font-display text-2xl text-gold-ink sm:text-3xl">·</span>
         <Unit n={c.minutes} label={t.landing.minutes} />
-        <span className="pt-1 font-display text-3xl text-gold-ink">·</span>
+        <span className="pt-1 font-display text-2xl text-gold-ink sm:text-3xl">·</span>
         <Unit n={c.seconds} label={t.landing.seconds} />
       </div>
       <p className="mt-2 text-center text-sm tracking-wide text-ink-soft">{t.landing.until}</p>

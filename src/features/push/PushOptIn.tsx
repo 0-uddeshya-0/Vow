@@ -3,7 +3,12 @@ import { motion } from "motion/react";
 import { BellRing, Check, TriangleAlert } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { entrance } from "../../animations/variants";
-import { enablePush, pushSupported, type PushResult } from "../../services/firebase/messaging";
+import {
+  enablePush,
+  iosNeedsInstall,
+  pushSupported,
+  type PushResult,
+} from "../../services/firebase/messaging";
 import { AdminButton } from "../admin/kit";
 import type { EventDoc, Guest } from "../../types";
 
@@ -21,7 +26,9 @@ export function PushOptIn({ event, guest }: { event: EventDoc; guest: Guest | nu
   );
 
   useEffect(() => {
-    pushSupported().then(setSupported);
+    // Show the card when push works here, OR on iOS-not-installed so the guest
+    // sees the "add to home screen" hint instead of nothing.
+    pushSupported().then((ok) => setSupported(ok || iosNeedsInstall()));
   }, []);
 
   if (supported !== true) return null;
@@ -48,9 +55,21 @@ export function PushOptIn({ event, guest }: { event: EventDoc; guest: Guest | nu
               <p className="inline-flex items-start gap-2 text-sm text-err">
                 <TriangleAlert size={15} className="mt-0.5 shrink-0" aria-hidden /> {t.push.denied}
               </p>
-            ) : state === "error" ? (
+            ) : state === "needs-install" ? (
+              <p className="inline-flex items-start gap-2 text-sm text-ink-soft">
+                <TriangleAlert size={15} className="mt-0.5 shrink-0 text-gold-ink" aria-hidden />
+                {t.push.needsInstall}
+              </p>
+            ) : state === "unsupported" ? (
+              <p className="inline-flex items-start gap-2 text-sm text-ink-soft">
+                <TriangleAlert size={15} className="mt-0.5 shrink-0 text-gold-ink" aria-hidden />
+                {t.push.unsupported}
+              </p>
+            ) : state === "save-failed" || state === "error" ? (
               <div className="flex flex-col gap-2">
-                <p className="text-sm text-err">{t.push.error}</p>
+                <p className="text-sm text-err">
+                  {state === "save-failed" ? t.push.saveFailed : t.push.error}
+                </p>
                 <AdminButton onClick={onEnable}>{t.push.enable}</AdminButton>
               </div>
             ) : (

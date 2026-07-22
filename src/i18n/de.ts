@@ -13,7 +13,7 @@ export const de: Dict = {
     signOut: "Nicht ihr? Gast wechseln",
   },
 
-  nav: { home: "Start", event: "Event", info: "Infos", rsvp: "Rückmeldung", gallery: "Galerie", admin: "Admin" },
+  nav: { home: "Start", event: "Event", info: "Infos", rsvp: "RSVP", gallery: "Galerie", admin: "Admin" },
 
   landing: {
     viewEvent: "Zum Event",
@@ -162,6 +162,10 @@ export const de: Dict = {
     working: "Wird aktiviert…",
     enabled: "Benachrichtigungen an — alles bereit.",
     denied: "Benachrichtigungen sind blockiert. Aktiviert sie in den Browser-Einstellungen.",
+    needsInstall:
+      "Auf dem iPhone zuerst diese Seite zum Home-Bildschirm hinzufügen (Teilen → Zum Home-Bildschirm), dann von dort öffnen und aktivieren.",
+    unsupported: "Dieser Browser unterstützt keine Benachrichtigungen.",
+    saveFailed: "Anmeldung konnte nicht gespeichert werden. Bitte gleich noch einmal versuchen.",
     error: "Etwas ist schiefgelaufen. Bitte versucht es erneut.",
   },
 

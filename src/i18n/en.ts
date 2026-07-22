@@ -164,6 +164,10 @@ export const en = {
     working: "Enabling…",
     enabled: "Notifications on — you're all set.",
     denied: "Notifications are blocked. Turn them on in your browser settings to receive updates.",
+    needsInstall:
+      "On iPhone, add this page to your home screen first (Share → Add to Home Screen), then open it from there to enable notifications.",
+    unsupported: "This browser doesn't support notifications.",
+    saveFailed: "Couldn't save your subscription. Please try again in a moment.",
     error: "Something went wrong. Please try again.",
   },
 

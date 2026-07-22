@@ -14,6 +14,9 @@ import { ANIM_OFF } from "../../animations/motionSafe";
 type Pos = { top: number; left: number; minWidth: number };
 const GAP = 8;
 const MARGIN = 8;
+// Clearance for the floating dock so a menu near the bottom flips above it
+// instead of opening into (or behind) the dock.
+const DOCK_SAFE = 104;
 
 /**
  * A click-driven popover that closes ONLY on outside pointer-down or Escape —
@@ -53,12 +56,12 @@ export function Popover({
     let left = align === "right" ? r.right - minWidth : r.left;
     left = Math.max(MARGIN, Math.min(left, window.innerWidth - minWidth - MARGIN));
 
-    // Below the trigger by default; flip above when it would overflow the
-    // bottom and there's more room up top (e.g. near the floating dock).
-    let top = r.bottom + GAP;
-    if (panelH && top + panelH > window.innerHeight - MARGIN && r.top - GAP - panelH > MARGIN) {
-      top = r.top - GAP - panelH;
-    }
+    // Open below by default; flip ABOVE when the menu wouldn't fit below the
+    // trigger (keeping clear of the floating dock) and there is room above —
+    // so a Navigate button near the bottom opens upward, not off-screen.
+    const fitsBelow = r.bottom + GAP + panelH <= window.innerHeight - DOCK_SAFE;
+    const roomAbove = r.top - GAP - panelH >= MARGIN;
+    let top = fitsBelow || !roomAbove ? r.bottom + GAP : r.top - GAP - panelH;
     top = Math.max(MARGIN, Math.min(top, window.innerHeight - panelH - MARGIN));
 
     setPos({ top, left, minWidth });
@@ -81,13 +84,18 @@ export function Popover({
       if (!triggerRef.current?.contains(t) && !panelRef.current?.contains(t)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    // Close when leaving the tab (e.g. opening the maps app) so the menu is not
+    // still sitting there on return.
+    const onHide = () => document.visibilityState === "hidden" && setOpen(false);
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
+    document.addEventListener("visibilitychange", onHide);
     window.addEventListener("scroll", place, true);
     window.addEventListener("resize", place);
     return () => {
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("keydown", onKey);
+      document.removeEventListener("visibilitychange", onHide);
       window.removeEventListener("scroll", place, true);
       window.removeEventListener("resize", place);
     };

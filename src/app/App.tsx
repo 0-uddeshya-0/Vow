@@ -31,6 +31,7 @@ export default function App() {
       <I18nProvider>
         {/* HashRouter: SPA routing that survives GitHub Pages (no 404 hacks) */}
         <HashRouter>
+          <div className="app-bg" aria-hidden />
           <ThemeVars />
           <TopBar />
           <PageTransition>

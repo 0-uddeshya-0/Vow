@@ -45,7 +45,7 @@ export function ScheduleIcon({ name, size = 24 }: { name: string; size?: number 
         width={size}
         height={size}
         style={{ width: size, height: size }}
-        className="object-contain"
+        className="schedule-icon-img object-contain"
       />
     );
   }
