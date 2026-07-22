@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Mail } from "lucide-react";
+import { Mail, Paperclip } from "lucide-react";
 import { useI18n } from "../../i18n";
 import { fadeUp, reveal } from "../../animations/variants";
 import { Skeleton } from "../../components/ui/Skeleton";
@@ -38,6 +38,17 @@ export function MessagesSection({
               ) : null}
             </div>
             <p className="mt-2 max-w-[56ch] text-ink-soft">{lt(m.body)}</p>
+            {m.attachment?.url ? (
+              <a
+                href={m.attachment.url}
+                download={m.attachment.name}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-hairline-soft px-3.5 py-2 text-sm text-ink-soft transition-colors hover:border-hairline hover:text-gold-ink"
+              >
+                <Paperclip size={14} aria-hidden /> {m.attachment.name}
+              </a>
+            ) : null}
           </motion.li>
         );
       })}

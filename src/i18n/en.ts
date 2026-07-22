@@ -34,6 +34,7 @@ export const en = {
     placeholder: "Email or phone number",
     cta: "Find me",
     notFound: "We couldn't find that — try the other contact detail, or ask the couple directly.",
+    failed: "The connection hiccuped — please tap again.",
     demoHint: "Demo guests: demo@vow.app · witness@vow.app",
     welcome: "Welcome",
     switch: "Switch guest",

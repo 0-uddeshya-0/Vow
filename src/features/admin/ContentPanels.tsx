@@ -1021,6 +1021,7 @@ export function MessagesPanel({ event }: { event: EventDoc }) {
   const save = useSaveMessage();
   const del = useDeleteMessage();
   const [editing, setEditing] = useState<Message | null>(null);
+  const [attachErr, setAttachErr] = useState("");
 
   const blank = (): Message => ({
     id: `m-${newId()}`,
@@ -1028,8 +1029,27 @@ export function MessagesPanel({ event }: { event: EventDoc }) {
     createdAt: new Date().toISOString(),
     title: emptyText(),
     body: emptyText(),
+    attachment: null,
     visibility: { allowedRoles: [], allowedGuests: [] },
   });
+
+  const attachFile = async (file: File | undefined) => {
+    if (!file || !editing) return;
+    setAttachErr("");
+    try {
+      const { ensureUnder, blobToDataUrl } = await import("../../lib/image");
+      let blob: Blob = file;
+      if (file.type.startsWith("image/")) blob = await ensureUnder(file);
+      else if (file.size > 680_000) {
+        setAttachErr("PDFs must be under ~650 KB (they're stored inline).");
+        return;
+      }
+      const url = await blobToDataUrl(blob);
+      setEditing({ ...editing, attachment: { name: file.name, url } });
+    } catch {
+      setAttachErr("Couldn't read that file.");
+    }
+  };
 
   return (
     <Panel
@@ -1100,6 +1120,37 @@ export function MessagesPanel({ event }: { event: EventDoc }) {
             onChange={(v) => setEditing({ ...editing, body: v })}
             multiline
           />
+          <div className="flex flex-col gap-2">
+            <span className="text-xs font-medium uppercase tracking-[0.1em] text-ink-soft">
+              Attachment — image or PDF (optional)
+            </span>
+            {editing.attachment ? (
+              <div className="flex items-center justify-between gap-2 rounded-xl border border-hairline-soft px-3 py-2 text-sm">
+                <span className="min-w-0 truncate text-ink">{editing.attachment.name}</span>
+                <button
+                  type="button"
+                  className="shrink-0 text-err hover:underline"
+                  onClick={() => setEditing({ ...editing, attachment: null })}
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <label className="inline-flex w-fit cursor-pointer items-center gap-1.5 rounded-full border border-hairline-soft px-4 py-2 text-sm text-ink hover:border-hairline">
+                <input
+                  type="file"
+                  accept="image/*,application/pdf"
+                  className="hidden"
+                  onChange={(e) => {
+                    void attachFile(e.target.files?.[0]);
+                    e.target.value = "";
+                  }}
+                />
+                Choose file
+              </label>
+            )}
+            {attachErr ? <span className="text-xs text-err">{attachErr}</span> : null}
+          </div>
           <VisibilityEditor
             eventId={event.id}
             value={editing.visibility}

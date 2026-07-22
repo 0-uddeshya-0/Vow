@@ -33,7 +33,7 @@ const zPlusOne = z
   .refine((v) => v.contact.includes("@") || /\d{4,}/.test(v.contact), { path: ["contact"] });
 
 function PlusOneBlock({ event, guest }: { event: EventDoc; guest: Guest }) {
-  const { t } = useI18n();
+  const { t, lt } = useI18n();
   const { data: requests } = usePlusOneRequests(event.id, guest.id);
   const create = useCreatePlusOne();
   const [fullName, setFullName] = useState("");
@@ -57,6 +57,7 @@ function PlusOneBlock({ event, guest }: { event: EventDoc; guest: Guest }) {
       email: isEmail ? contact.trim() : "",
       phone: isEmail ? "" : contact.trim(),
       status: "pending",
+      response: null,
       createdAt: new Date().toISOString(),
     });
     setFullName("");
@@ -74,9 +75,13 @@ function PlusOneBlock({ event, guest }: { event: EventDoc; guest: Guest }) {
       {requests?.length ? (
         <ul className="mt-3 flex flex-col gap-2">
           {requests.map((r) => (
-            <li key={r.id} className="flex items-center justify-between rounded-2xl border border-hairline-soft px-4 py-2.5 text-sm">
+            <li key={r.id} className="flex items-center justify-between gap-3 rounded-2xl border border-hairline-soft px-4 py-2.5 text-sm">
               <span className="text-ink">{r.fullName}</span>
-              <span className="text-ink-soft">{statusLabel[r.status]}</span>
+              <span className="text-right text-ink-soft">
+                {r.response && (r.response.en || r.response.de)
+                  ? lt(r.response)
+                  : statusLabel[r.status]}
+              </span>
             </li>
           ))}
         </ul>

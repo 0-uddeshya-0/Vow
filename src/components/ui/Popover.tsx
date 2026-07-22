@@ -79,7 +79,10 @@ export function Popover({
 
   useEffect(() => {
     if (!open) return;
-    const onDown = (e: PointerEvent) => {
+    // Close on outside CLICK (not pointerdown): a click needs press+release on
+    // the same spot, so selecting text inside the menu — press inside, drag,
+    // release outside — never dismisses it, while a genuine outside click does.
+    const onClick = (e: MouseEvent) => {
       const t = e.target as Node;
       if (!triggerRef.current?.contains(t) && !panelRef.current?.contains(t)) setOpen(false);
     };
@@ -87,13 +90,13 @@ export function Popover({
     // Close when leaving the tab (e.g. opening the maps app) so the menu is not
     // still sitting there on return.
     const onHide = () => document.visibilityState === "hidden" && setOpen(false);
-    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("click", onClick);
     document.addEventListener("keydown", onKey);
     document.addEventListener("visibilitychange", onHide);
     window.addEventListener("scroll", place, true);
     window.addEventListener("resize", place);
     return () => {
-      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("click", onClick);
       document.removeEventListener("keydown", onKey);
       document.removeEventListener("visibilitychange", onHide);
       window.removeEventListener("scroll", place, true);

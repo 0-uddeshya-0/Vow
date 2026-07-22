@@ -199,6 +199,8 @@ export const zMessage = z.object({
   createdAt: z.string(),
   title: zLocalizedText,
   body: zLocalizedText,
+  /** Optional single file (image or PDF) stored inline as a data URL. */
+  attachment: z.object({ name: z.string(), url: z.string() }).nullable().default(null),
   visibility: zVisibility.default({ allowedRoles: [], allowedGuests: [] }),
 });
 export type Message = z.infer<typeof zMessage>;
@@ -225,6 +227,8 @@ export const zPlusOneRequest = z.object({
   email: z.string().default(""),
   phone: z.string().default(""),
   status: z.enum(["pending", "approved", "rejected"]).default("pending"),
+  /** Optional custom bilingual reply the couple writes on approve/reject. */
+  response: zLocalizedText.nullable().default(null),
   createdAt: z.string(),
 });
 export type PlusOneRequest = z.infer<typeof zPlusOneRequest>;

@@ -16,18 +16,25 @@ export function IdentifyCard({ eventId }: { eventId: string }) {
   const [contact, setContact] = useState("");
   const [busy, setBusy] = useState(false);
   const [notFound, setNotFound] = useState(false);
+  const [failed, setFailed] = useState(false);
 
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     if (!contact.trim() || busy) return;
     setBusy(true);
     setNotFound(false);
-    const guest = await data.findGuest(eventId, contact);
-    setBusy(false);
-    if (guest) {
-      signIn({ eventId, guestId: guest.id });
-    } else {
-      setNotFound(true);
+    setFailed(false);
+    try {
+      const guest = await data.findGuest(eventId, contact);
+      if (guest) signIn({ eventId, guestId: guest.id });
+      else setNotFound(true);
+    } catch {
+      // A timed-out / dropped Firestore call used to leave the button stuck on
+      // "loading" forever (setBusy(false) never ran). Now it surfaces a
+      // retryable error — tapping again re-issues on a warm connection.
+      setFailed(true);
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -63,6 +70,15 @@ export function IdentifyCard({ eventId }: { eventId: string }) {
           className="mt-3 text-sm text-err"
         >
           {t.identify.notFound}
+        </motion.p>
+      ) : failed ? (
+        <motion.p
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          role="alert"
+          className="mt-3 text-sm text-err"
+        >
+          {t.identify.failed}
         </motion.p>
       ) : null}
       {data.kind === "seed" ? (

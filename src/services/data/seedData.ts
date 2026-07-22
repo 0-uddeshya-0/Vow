@@ -336,8 +336,9 @@ export function defaultDb(): SeedDb {
         title: ph("Welcome", "Willkommen"),
         body: ph(
           "This inbox shows announcements meant for you. (Demo content.)",
-          "Hier erscheinen Nachrichten, die für euch bestimmt sind. (Demo-Inhalt.)",
+          "Hier erscheinen Nachrichten, die für dich bestimmt sind. (Demo-Inhalt.)",
         ),
+        attachment: null,
         visibility: { allowedRoles: [], allowedGuests: [] },
       },
       {
@@ -346,6 +347,7 @@ export function defaultDb(): SeedDb {
         createdAt: "2026-07-18T10:05:00Z",
         title: ph("For our witnesses", "Für unsere Trauzeugen"),
         body: ph("Role-targeted demo message.", "Rollenbasierte Demo-Nachricht."),
+        attachment: null,
         visibility: { allowedRoles: ["Witness"], allowedGuests: [] },
       },
     ],

@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { Check, X } from "lucide-react";
-import { Panel, Stat, AdminButton, newId } from "./kit";
+import { Panel, Stat, AdminButton, LocalizedInput, emptyText, newId } from "./kit";
 import { useAdminGuests, useAdminPlusOnes, useAdminRsvps, useSaveGuest, useSavePlusOne } from "../../hooks/adminQueries";
 import { useGallery } from "../../hooks/queries";
 import { countdownTo, eventStartMs } from "../../lib/datetime";
-import type { EventDoc, Guest, PlusOneRequest, Rsvp } from "../../types";
+import type { EventDoc, Guest, LocalizedText, PlusOneRequest, Rsvp } from "../../types";
 
 const DIET = ["vegetarian", "vegan", "gluten_free", "lactose_free"] as const;
 const DIET_LABEL: Record<(typeof DIET)[number], string> = {
@@ -118,6 +119,13 @@ function PlusOnePanel({
 }) {
   const savePlusOne = useSavePlusOne();
   const saveGuest = useSaveGuest();
+  // Optional custom bilingual reply per request (blank = default status label).
+  const [replies, setReplies] = useState<Record<string, LocalizedText>>({});
+  const replyOf = (id: string) => replies[id] ?? emptyText();
+  const usedReply = (id: string): LocalizedText | null => {
+    const r = replies[id];
+    return r && (r.en.trim() || r.de.trim()) ? r : null;
+  };
 
   const nameOf = (id: string) => guests.find((g) => g.id === id)?.fullName ?? id;
 
@@ -136,7 +144,7 @@ function PlusOnePanel({
       createdVia: "plus_one",
     };
     saveGuest.mutate(guest);
-    savePlusOne.mutate({ ...req, status: "approved" });
+    savePlusOne.mutate({ ...req, status: "approved", response: usedReply(req.id) });
   };
 
   return (
@@ -148,36 +156,48 @@ function PlusOnePanel({
           {requests.map((r) => (
             <li
               key={r.id}
-              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline-soft px-4 py-3"
+              className="flex flex-col gap-3 rounded-xl border border-hairline-soft px-4 py-3"
             >
-              <div className="min-w-0">
-                <p className="text-ink">
-                  {r.fullName}{" "}
-                  <span className="text-sm text-ink-soft">
-                    · requested by {nameOf(r.guestId)}
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-ink">
+                    {r.fullName}{" "}
+                    <span className="text-sm text-ink-soft">· requested by {nameOf(r.guestId)}</span>
+                  </p>
+                  <p className="text-sm text-ink-soft">{r.email || r.phone || "no contact given"}</p>
+                  {r.response && (r.response.en || r.response.de) ? (
+                    <p className="mt-1 text-sm italic text-ink-soft">“{r.response.en || r.response.de}”</p>
+                  ) : null}
+                </div>
+                {r.status === "pending" ? (
+                  <div className="flex gap-2">
+                    <AdminButton onClick={() => approve(r)}>
+                      <Check size={14} /> Approve
+                    </AdminButton>
+                    <AdminButton
+                      variant="danger"
+                      onClick={() =>
+                        savePlusOne.mutate({ ...r, status: "rejected", response: usedReply(r.id) })
+                      }
+                    >
+                      <X size={14} /> Reject
+                    </AdminButton>
+                  </div>
+                ) : (
+                  <span
+                    className={`text-sm ${r.status === "approved" ? "text-sage-deep" : "text-ink-soft"}`}
+                  >
+                    {r.status}
                   </span>
-                </p>
-                <p className="text-sm text-ink-soft">{r.email || r.phone || "no contact given"}</p>
+                )}
               </div>
               {r.status === "pending" ? (
-                <div className="flex gap-2">
-                  <AdminButton onClick={() => approve(r)}>
-                    <Check size={14} /> Approve
-                  </AdminButton>
-                  <AdminButton
-                    variant="danger"
-                    onClick={() => savePlusOne.mutate({ ...r, status: "rejected" })}
-                  >
-                    <X size={14} /> Reject
-                  </AdminButton>
-                </div>
-              ) : (
-                <span
-                  className={`text-sm ${r.status === "approved" ? "text-sage-deep" : "text-ink-soft"}`}
-                >
-                  {r.status}
-                </span>
-              )}
+                <LocalizedInput
+                  label="Custom reply (optional — else the default is shown)"
+                  value={replyOf(r.id)}
+                  onChange={(v) => setReplies((m) => ({ ...m, [r.id]: v }))}
+                />
+              ) : null}
             </li>
           ))}
         </ul>

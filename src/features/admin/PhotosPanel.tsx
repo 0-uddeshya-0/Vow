@@ -1,4 +1,5 @@
-import { Check } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { AdminButton, Panel, newId } from "./kit";
 import { useDeletePhoto, useSaveGalleryImage, useSavePhoto } from "../../hooks/adminQueries";
@@ -37,8 +38,29 @@ export function PhotosPanel({ event }: { event: EventDoc }) {
 
   const pending = photos.filter((p) => p.status === "uploaded").length;
 
+  // Pending (needs-approval) first so the Approve buttons are never buried, then
+  // paginate — a full wedding gallery is far too long to show all at once.
+  const PAGE = 12;
+  const [page, setPage] = useState(0);
+  const sorted = useMemo(
+    () => [...photos].sort((a, b) => (a.status === "uploaded" ? -1 : 0) - (b.status === "uploaded" ? -1 : 0)),
+    [photos],
+  );
+  const pageCount = Math.max(1, Math.ceil(sorted.length / PAGE));
+  const safePage = Math.min(page, pageCount - 1);
+  const shown = sorted.slice(safePage * PAGE, safePage * PAGE + PAGE);
+
   return (
-    <Panel title={`Guest photos (${photos.length} · ${pending} pending)`}>
+    <Panel
+      title={`Guest photos (${photos.length} · ${pending} pending)`}
+      action={
+        pending > 0 ? (
+          <AdminButton onClick={() => photos.filter((p) => p.status === "uploaded").forEach(approve)}>
+            <Check size={14} /> Approve all {pending}
+          </AdminButton>
+        ) : null
+      }
+    >
       {photosQuery.isError ? (
         <p role="alert" className="py-4 text-sm text-err">
           Could not load photos — check that Firestore rules are deployed and ADMIN_EMAIL in{" "}
@@ -49,7 +71,7 @@ export function PhotosPanel({ event }: { event: EventDoc }) {
         <p className="py-6 text-center text-sm text-ink-soft">No uploads yet.</p>
       ) : (
         <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {photos.map((p) => (
+          {shown.map((p) => (
             <li key={p.id} className="overflow-hidden rounded-xl border border-hairline-soft">
               <img src={p.url} alt="" loading="lazy" className="aspect-square w-full object-cover" />
               <div className="flex flex-col gap-1.5 p-2.5 text-xs">
@@ -79,9 +101,33 @@ export function PhotosPanel({ event }: { event: EventDoc }) {
           ))}
         </ul>
       )}
+
+      {pageCount > 1 ? (
+        <div className="mt-4 flex items-center justify-center gap-3 text-sm text-ink-soft">
+          <AdminButton
+            variant="quiet"
+            className="min-h-8 px-2"
+            disabled={safePage === 0}
+            onClick={() => setPage((p) => Math.max(0, p - 1))}
+          >
+            <ChevronLeft size={14} />
+          </AdminButton>
+          <span className="tnum">
+            {safePage * PAGE + 1}–{Math.min(sorted.length, (safePage + 1) * PAGE)} of {sorted.length}
+          </span>
+          <AdminButton
+            variant="quiet"
+            className="min-h-8 px-2"
+            disabled={safePage >= pageCount - 1}
+            onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+          >
+            <ChevronRight size={14} />
+          </AdminButton>
+        </div>
+      ) : null}
+
       <p className="mt-4 text-xs text-ink-soft">
-        Approving adds the photo to the public gallery. OneDrive sync (Cloud Function, needs the
-        Blaze plan + Azure setup — see docs/ONEDRIVE.md) marks items “synced”.
+        Approving adds the photo to the public gallery. Pending uploads are shown first.
       </p>
     </Panel>
   );
