@@ -9,6 +9,7 @@ import { GuestsPanel } from "../features/admin/GuestsPanel";
 import {
   FaqPanel,
   GalleryPanel,
+  GiftsPanel,
   HotelsPanel,
   MessagesPanel,
   SchedulePanel,
@@ -29,6 +30,7 @@ const TABS = [
   "Gallery",
   "Messages",
   "FAQ",
+  "Gifts",
   "Settings",
 ] as const;
 type Tab = (typeof TABS)[number];
@@ -105,6 +107,7 @@ export default function AdminPage() {
           {tab === "Gallery" ? <GalleryPanel event={event} /> : null}
           {tab === "Messages" ? <MessagesPanel event={event} /> : null}
           {tab === "FAQ" ? <FaqPanel event={event} /> : null}
+          {tab === "Gifts" ? <GiftsPanel event={event} /> : null}
           {tab === "Settings" ? (
             <>
               <EventSettingsPanel event={event} />

@@ -5,6 +5,7 @@ import {
   useEvent,
   useFaq,
   useForecast,
+  useGifts,
   useGuest,
   useHotels,
   useMessages,
@@ -16,6 +17,7 @@ import { useGuestSession } from "../features/guest/useGuestSession";
 import { IdentifyCard } from "../features/guest/IdentifyCard";
 import { ScheduleSection } from "../features/schedule/ScheduleSection";
 import { HotelsSection } from "../features/hotels/HotelsSection";
+import { GiftsSection } from "../features/gifts/GiftsSection";
 import { WeatherCard } from "../features/weather/WeatherCard";
 import { MessagesSection } from "../features/messages/MessagesSection";
 import { RsvpBanner } from "../features/rsvp/RsvpBanner";
@@ -42,6 +44,7 @@ export default function EventPage() {
   const messagesQuery = useMessages(event?.id);
   const settingsQuery = useSettings(event?.id);
   const faqQuery = useFaq(event?.id);
+  const giftsQuery = useGifts(event?.id);
   const weatherSettings = useWeatherSettings(event?.id).data;
 
   // Forecast only inside the CMS-configured window (default: final week).
@@ -150,6 +153,12 @@ export default function EventPage() {
           {faqQuery.data?.length ? (
             <Section id="faq" title={t.faq.title}>
               <FaqSection items={faqQuery.data} />
+            </Section>
+          ) : null}
+
+          {giftsQuery.data?.length ? (
+            <Section id="gifts" title={t.gifts.title} lead={t.gifts.lead}>
+              <GiftsSection gifts={giftsQuery.data} loading={giftsQuery.isLoading} />
             </Section>
           ) : null}
 

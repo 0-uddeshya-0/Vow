@@ -4,6 +4,7 @@ import type {
   EventDoc,
   FaqItem,
   GalleryImage,
+  Gift,
   Guest,
   Hotel,
   Message,
@@ -111,6 +112,11 @@ export const useSaveMessage = () =>
   useAdminMutation<Message>((m) => data.adminSaveMessage(m), [["messages"]]);
 export const useDeleteMessage = () =>
   useAdminMutation<Ref>((v) => data.adminDeleteMessage(v.eventId, v.id), [["messages"]]);
+
+export const useSaveGift = () =>
+  useAdminMutation<Gift>((g) => data.adminSaveGift(g), [["gifts"]]);
+export const useDeleteGift = () =>
+  useAdminMutation<Ref>((v) => data.adminDeleteGift(v.eventId, v.id), [["gifts"]]);
 
 /* photos — approving one copies it into the public gallery */
 export const useSavePhoto = () =>

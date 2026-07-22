@@ -143,6 +143,12 @@ export const de: Dict = {
 
   faq: { title: "Gut zu wissen" },
 
+  gifts: {
+    title: "Geschenke",
+    lead: "Dass ihr da seid, ist genug — wer dennoch schenken mag, findet hier ein paar Wege.",
+    view: "Link öffnen",
+  },
+
   photos: {
     title: "Eure Fotos",
     lead: "Teilt jedes Foto mit uns — direkt vom Handy, ohne App.",

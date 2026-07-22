@@ -73,6 +73,9 @@ export function useGallery(eventId: string | undefined) {
 export function useMessages(eventId: string | undefined) {
   return useQuery(list("messages", eventId, (id) => data.listMessages(id)));
 }
+export function useGifts(eventId: string | undefined) {
+  return useQuery(list("gifts", eventId, (id) => data.listGifts(id)));
+}
 export function useSettings(eventId: string | undefined) {
   return useQuery(list("settings", eventId, (id) => data.getSettings(id)));
 }

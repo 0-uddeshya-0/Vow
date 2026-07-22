@@ -3,6 +3,7 @@ import type {
   FaqItem,
   GalleryImage,
   Guest,
+  Gift,
   Hotel,
   Message,
   ScheduleItem,
@@ -45,6 +46,7 @@ export type SeedDb = {
   faq: FaqItem[];
   gallery: GalleryImage[];
   messages: Message[];
+  gifts: Gift[];
   settings: Settings;
   weatherSettings: WeatherSettings;
 };
@@ -341,6 +343,33 @@ export function defaultDb(): SeedDb {
         title: ph("For our witnesses", "Für unsere Trauzeugen"),
         body: ph("Role-targeted demo message.", "Rollenbasierte Demo-Nachricht."),
         visibility: { allowedRoles: ["Witness"], allowedGuests: [] },
+      },
+    ],
+
+    gifts: [
+      {
+        id: "g1",
+        eventId: EVENT_ID,
+        order: 1,
+        title: ph("Honeymoon fund", "Flitterwochen-Kasse"),
+        description: ph(
+          "Your presence is the real gift — but if you'd like to help us toward our honeymoon, thank you. (Demo content.)",
+          "Dass ihr da seid, ist das schönste Geschenk — wer mag, kann etwas zu unseren Flitterwochen beitragen. (Demo-Inhalt.)",
+        ),
+        url: "https://example.com/honeymoon-fund",
+        imageUrl: "",
+      },
+      {
+        id: "g2",
+        eventId: EVENT_ID,
+        order: 2,
+        title: ph("Our registry", "Unsere Wunschliste"),
+        description: ph(
+          "A few things for our new home, if you prefer a classic gift. (Demo content.)",
+          "Ein paar Dinge für unser Zuhause, falls ihr ein klassisches Geschenk bevorzugt. (Demo-Inhalt.)",
+        ),
+        url: "https://example.com/registry",
+        imageUrl: "",
       },
     ],
 

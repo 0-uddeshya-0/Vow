@@ -145,6 +145,12 @@ export const en = {
 
   faq: { title: "Good to know" },
 
+  gifts: {
+    title: "Gifts",
+    lead: "Your presence is all we ask — but if you'd like to give, here are a few ways.",
+    view: "Open link",
+  },
+
   photos: {
     title: "Your photos",
     lead: "Share every photo you take with us — straight from your phone, no app.",

@@ -16,23 +16,26 @@ import {
 import {
   useDeleteFaq,
   useDeleteGalleryImage,
+  useDeleteGift,
   useDeleteHotel,
   useDeleteMessage,
   useDeleteScheduleItem,
   useSaveFaq,
   useSaveGalleryImage,
+  useSaveGift,
   useSaveHotel,
   useSaveMessage,
   useSaveScheduleItem,
 } from "../../hooks/adminQueries";
 import { useAdminGuests } from "../../hooks/adminQueries";
-import { useFaq, useGallery, useHotels, useMessages, useSchedule } from "../../hooks/queries";
+import { useFaq, useGallery, useGifts, useHotels, useMessages, useSchedule } from "../../hooks/queries";
 import { ImageField } from "./ImageField";
 import { IconField } from "./IconField";
 import type {
   EventDoc,
   FaqItem,
   GalleryImage,
+  Gift,
   Hotel,
   Location,
   Message,
@@ -605,6 +608,114 @@ export function FaqPanel({ event }: { event: EventDoc }) {
             onChange={(v) => setEditing({ ...editing, answer: v })}
             multiline
           />
+        </Modal>
+      ) : null}
+    </Panel>
+  );
+}
+
+/* ——— Gifts / registry links ——— */
+
+export function GiftsPanel({ event }: { event: EventDoc }) {
+  const items = useGifts(event.id).data ?? [];
+  const save = useSaveGift();
+  const del = useDeleteGift();
+  const move = useReorder<Gift>((g) => save.mutate(g));
+  const [editing, setEditing] = useState<Gift | null>(null);
+
+  const blank = (): Gift => ({
+    id: `g-${newId()}`,
+    eventId: event.id,
+    order: (items.at(-1)?.order ?? 0) + 1,
+    title: emptyText(),
+    description: emptyText(),
+    url: "",
+    imageUrl: "",
+  });
+
+  return (
+    <Panel
+      title={`Gifts (${items.length})`}
+      action={
+        <AdminButton onClick={() => setEditing(blank())}>
+          <Plus size={14} /> Add gift
+        </AdminButton>
+      }
+    >
+      <p className="mb-3 text-sm text-ink-soft">
+        Plain registry or fund links shown to guests — no affiliate tags. Leave empty to hide the
+        section entirely.
+      </p>
+      <ul className="flex flex-col gap-2">
+        {items.map((g, i) => (
+          <li
+            key={g.id}
+            className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hairline-soft px-4 py-3"
+          >
+            <p className="min-w-0 truncate text-ink">{g.title.en || g.title.de || "(untitled)"}</p>
+            <div className="flex items-center gap-2">
+              <AdminButton variant="quiet" onClick={() => setEditing(g)}>
+                Edit
+              </AdminButton>
+              <ReorderControls
+                onUp={() => move(items, i, -1)}
+                onDown={() => move(items, i, 1)}
+                onDelete={() => confirm("Delete this gift link?") && del.mutate({ eventId: event.id, id: g.id })}
+                disableUp={i === 0}
+                disableDown={i === items.length - 1}
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      {editing ? (
+        <Modal
+          title="Gift link"
+          onClose={() => setEditing(null)}
+          footer={
+            <>
+              <AdminButton variant="quiet" onClick={() => setEditing(null)}>
+                Cancel
+              </AdminButton>
+              <AdminButton
+                onClick={() => {
+                  save.mutate(editing);
+                  setEditing(null);
+                }}
+              >
+                Save
+              </AdminButton>
+            </>
+          }
+        >
+          <LocalizedInput
+            label="Title"
+            value={editing.title}
+            onChange={(v) => setEditing({ ...editing, title: v })}
+          />
+          <LocalizedInput
+            label="Description"
+            value={editing.description ?? emptyText()}
+            onChange={(v) => setEditing({ ...editing, description: v })}
+            multiline
+          />
+          <Labeled label="Link URL" hint="The registry or fund page. Paste it exactly — no affiliate tags.">
+            <Input
+              value={editing.url}
+              inputMode="url"
+              placeholder="https://…"
+              onChange={(e) => setEditing({ ...editing, url: e.target.value })}
+            />
+          </Labeled>
+          <Labeled label="Image URL (optional)" hint="A public image link, or leave blank for the gift icon.">
+            <Input
+              value={editing.imageUrl}
+              inputMode="url"
+              placeholder="https://…"
+              onChange={(e) => setEditing({ ...editing, imageUrl: e.target.value })}
+            />
+          </Labeled>
         </Modal>
       ) : null}
     </Panel>

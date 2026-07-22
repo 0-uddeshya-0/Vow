@@ -127,6 +127,22 @@ export const zHotel = z.object({
 });
 export type Hotel = z.infer<typeof zHotel>;
 
+/**
+ * A registry / gift-fund link. Deliberately just a curated outbound link — no
+ * affiliate tags, no reservation state — the couple points guests at whatever
+ * registry or fund they already use.
+ */
+export const zGift = z.object({
+  id: zId,
+  eventId: zId,
+  order: z.number(),
+  title: zLocalizedText,
+  description: zLocalizedText.nullable().default(null),
+  url: z.string().default(""),
+  imageUrl: z.string().default(""),
+});
+export type Gift = z.infer<typeof zGift>;
+
 export const zFaqItem = z.object({
   id: zId,
   eventId: zId,

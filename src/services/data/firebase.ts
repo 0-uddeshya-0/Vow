@@ -17,6 +17,7 @@ import {
   zEvent,
   zFaqItem,
   zGalleryImage,
+  zGift,
   zGuest,
   zHotel,
   zMessage,
@@ -132,6 +133,11 @@ export const firebaseDataSource: DataSource = {
   async listMessages(eventId) {
     const snap = await getDocs(query(sub(eventId, "messages"), orderBy("createdAt", "desc")));
     return parseAll(zMessage, snap.docs).map((m) => ({ ...m, eventId }));
+  },
+
+  async listGifts(eventId) {
+    const snap = await getDocs(query(sub(eventId, "gifts"), orderBy("order")));
+    return parseAll(zGift, snap.docs).map((g) => ({ ...g, eventId }));
   },
 
   async getSettings(eventId) {
@@ -322,6 +328,13 @@ export const firebaseDataSource: DataSource = {
   },
   async adminDeleteMessage(eventId, id) {
     await deleteDoc(doc(getDb(), "events", eventId, "messages", id));
+  },
+
+  async adminSaveGift(gift) {
+    await setDoc(doc(getDb(), "events", gift.eventId, "gifts", gift.id), gift);
+  },
+  async adminDeleteGift(eventId, id) {
+    await deleteDoc(doc(getDb(), "events", eventId, "gifts", id));
   },
 
   async adminListPhotos(eventId) {

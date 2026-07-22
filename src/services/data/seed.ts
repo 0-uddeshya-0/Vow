@@ -2,6 +2,7 @@ import type {
   EventDoc,
   FaqItem,
   GalleryImage,
+  Gift,
   Hotel,
   Message,
   Photo,
@@ -137,6 +138,11 @@ export const seedDataSource: DataSource = {
   async listGallery(eventId) {
     await wait(LATENCY);
     return db.gallery.filter((g) => g.eventId === eventId).sort(byOrder);
+  },
+
+  async listGifts(eventId) {
+    await wait(LATENCY);
+    return db.gifts.filter((g) => g.eventId === eventId).sort(byOrder);
   },
 
   async listMessages(eventId) {
@@ -301,6 +307,15 @@ export const seedDataSource: DataSource = {
   async adminDeleteMessage(_eventId, id) {
     await wait(ADMIN);
     remove(db.messages, id);
+  },
+
+  async adminSaveGift(gift: Gift) {
+    await wait(ADMIN);
+    upsert(db.gifts, gift);
+  },
+  async adminDeleteGift(_eventId, id) {
+    await wait(ADMIN);
+    remove(db.gifts, id);
   },
 
   async adminListPhotos(eventId) {

@@ -2,6 +2,7 @@ import type {
   EventDoc,
   FaqItem,
   GalleryImage,
+  Gift,
   Guest,
   Hotel,
   Message,
@@ -37,6 +38,7 @@ export interface DataSource {
   listFaq(eventId: string): Promise<FaqItem[]>;
   listGallery(eventId: string): Promise<GalleryImage[]>;
   listMessages(eventId: string): Promise<Message[]>;
+  listGifts(eventId: string): Promise<Gift[]>;
   getSettings(eventId: string): Promise<Settings | null>;
   getWeatherSettings(eventId: string): Promise<WeatherSettings | null>;
 
@@ -83,6 +85,9 @@ export interface DataSource {
 
   adminSaveMessage(message: Message): Promise<void>;
   adminDeleteMessage(eventId: string, id: string): Promise<void>;
+
+  adminSaveGift(gift: Gift): Promise<void>;
+  adminDeleteGift(eventId: string, id: string): Promise<void>;
 
   adminListPhotos(eventId: string): Promise<Photo[]>;
   adminSavePhoto(photo: Photo): Promise<void>;
