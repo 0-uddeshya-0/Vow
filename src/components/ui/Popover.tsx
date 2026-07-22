@@ -12,16 +12,19 @@ import { AnimatePresence, motion } from "motion/react";
 import { ANIM_OFF } from "../../animations/motionSafe";
 
 type Pos = { top: number; left: number; minWidth: number };
+const GAP = 8;
+const MARGIN = 8;
 
 /**
  * A click-driven popover that closes ONLY on outside pointer-down or Escape —
- * never on mouse-leave (the old menus closed on hover-off, which dismissed
- * them the moment you tried to select text or nudged the cursor out).
+ * never on mouse-leave (the old menus closed on hover-off, dismissing them the
+ * moment you tried to select text or nudged the cursor out).
  *
- * The panel is PORTALLED to <body> with position:fixed and positioned from the
- * trigger's rect, so it can never be clipped by an ancestor's overflow:hidden
- * (schedule/hotel cards clip their banner image) or by a backdrop-filter
- * stacking context. Repositions on scroll/resize.
+ * The panel is PORTALLED to <body> with position:fixed, positioned from the
+ * trigger's rect, so it can't be clipped by an ancestor's overflow:hidden
+ * (schedule/hotel cards clip their banner image) or a backdrop-filter stacking
+ * context. It is clamped to the viewport and flips above the trigger when
+ * there isn't room below. Repositions on scroll/resize.
  */
 export function Popover({
   trigger,
@@ -42,17 +45,34 @@ export function Popover({
     const el = triggerRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
+    // The trigger MUST have a real box — display:contents would give an
+    // all-zero rect and pin the menu to the top-left corner.
+    const panelH = panelRef.current?.offsetHeight ?? 0;
     const minWidth = Math.max(r.width, 192);
-    setPos({
-      top: r.bottom + 8,
-      left: align === "right" ? r.right - minWidth : r.left,
-      minWidth,
-    });
+
+    let left = align === "right" ? r.right - minWidth : r.left;
+    left = Math.max(MARGIN, Math.min(left, window.innerWidth - minWidth - MARGIN));
+
+    // Below the trigger by default; flip above when it would overflow the
+    // bottom and there's more room up top (e.g. near the floating dock).
+    let top = r.bottom + GAP;
+    if (panelH && top + panelH > window.innerHeight - MARGIN && r.top - GAP - panelH > MARGIN) {
+      top = r.top - GAP - panelH;
+    }
+    top = Math.max(MARGIN, Math.min(top, window.innerHeight - panelH - MARGIN));
+
+    setPos({ top, left, minWidth });
   }, [align]);
 
+  // Two-pass: place once on open (panelH unknown → 0), then again after the
+  // panel has measured so the flip/clamp uses its real height.
   useLayoutEffect(() => {
     if (open) place();
   }, [open, place]);
+  useLayoutEffect(() => {
+    if (open && pos && panelRef.current) place();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, panelRef.current?.offsetHeight]);
 
   useEffect(() => {
     if (!open) return;
@@ -61,16 +81,15 @@ export function Popover({
       if (!triggerRef.current?.contains(t) && !panelRef.current?.contains(t)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
-    const reflow = () => place();
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("keydown", onKey);
-    window.addEventListener("scroll", reflow, true);
-    window.addEventListener("resize", reflow);
+    window.addEventListener("scroll", place, true);
+    window.addEventListener("resize", place);
     return () => {
       document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("keydown", onKey);
-      window.removeEventListener("scroll", reflow, true);
-      window.removeEventListener("resize", reflow);
+      window.removeEventListener("scroll", place, true);
+      window.removeEventListener("resize", place);
     };
   }, [open, place]);
 
@@ -82,7 +101,7 @@ export function Popover({
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((v) => !v)}
-        className="contents"
+        className="inline-flex"
       >
         {trigger(open)}
       </button>
@@ -93,7 +112,13 @@ export function Popover({
               ref={panelRef}
               id={id}
               role="menu"
-              style={{ position: "fixed", top: pos.top, left: pos.left, minWidth: pos.minWidth, zIndex: 60 }}
+              style={{
+                position: "fixed",
+                top: pos.top,
+                left: pos.left,
+                minWidth: pos.minWidth,
+                zIndex: 60,
+              }}
               initial={ANIM_OFF ? false : { opacity: 0, y: -6 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -6 }}

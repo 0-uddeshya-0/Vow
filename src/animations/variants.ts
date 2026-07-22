@@ -19,13 +19,22 @@ export const fadeIn: Variants = {
   show: { opacity: 1, transition: { duration: 0.55, ease: easeOut } },
 };
 
-/** Props for a staggered section container (children use `fadeUp`/`fadeIn`). */
-export function reveal(amount = 0.25) {
+/**
+ * Props for a staggered section container (children use `fadeUp`/`fadeIn`).
+ *
+ * Animates on MOUNT, not on scroll. The previous `whileInView` with a 0.25
+ * visibility threshold left tall sections stuck at opacity 0: the heading
+ * scrolled past before a quarter of the (very tall) section was visible, so
+ * it never revealed — the reported "Schedule heading is just empty space".
+ * On-mount reveal can never hide content: below-the-fold sections finish
+ * their entrance while off-screen and are simply visible when scrolled to.
+ * (`_amount` kept for call-site compatibility, intentionally unused.)
+ */
+export function reveal(_amount = 0) {
   return {
     variants: stagger,
     initial: ANIM_OFF ? false : ("hidden" as const),
-    whileInView: "show" as const,
-    viewport: { once: true, amount },
+    animate: "show" as const,
   };
 }
 

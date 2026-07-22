@@ -78,9 +78,13 @@ service cloud.firestore {
         allow delete: if isAdmin();
       }
 
+      // Photos are stored as data URLs in the doc (no paid Storage). Read is
+      // open so an identified guest sees their own uploads and the shared
+      // gallery; the site is already invite-gated, and celebration photos are
+      // meant to be seen. Only the admin can approve/edit/delete.
       match /photos/{id} {
-        allow get, list: if isAdmin();
-        allow create: if true;               // guest uploads (Phase 4)
+        allow get, list: if true;
+        allow create: if true;               // guest uploads
         allow update, delete: if isAdmin();
       }
     }

@@ -69,16 +69,19 @@ export default function EventPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-5 pb-[var(--dock-space)] pt-24">
-      {event.placeholder ? <DemoRibbon text={t.common.demoRibbon} /> : null}
+      {event.placeholder ? (
+        <div className="mb-8">
+          <DemoRibbon text={t.common.demoRibbon} />
+        </div>
+      ) : null}
 
       {!session ? (
-        <div className="mt-10">
-          <IdentifyCard eventId={event.id} />
-        </div>
+        <IdentifyCard eventId={event.id} />
       ) : (
-        <>
+        // One uniform vertical rhythm for every block on the page.
+        <div className="flex flex-col gap-10">
           {guest ? (
-            <div className="mt-6 flex flex-wrap items-baseline justify-between gap-2">
+            <div className="flex flex-wrap items-baseline justify-between gap-2">
               <p className="font-display text-2xl text-ink">
                 {t.identify.welcome}, <span className="text-gold-ink">{guest.fullName}</span>
               </p>
@@ -150,14 +153,14 @@ export default function EventPage() {
             </Section>
           ) : null}
 
-          <div className="mt-4 flex justify-center">
+          <div className="flex justify-center">
             <Link to="/rsvp">
               <Button variant="gold">
                 {t.nav.rsvp} <ArrowRight size={15} aria-hidden />
               </Button>
             </Link>
           </div>
-        </>
+        </div>
       )}
     </div>
   );

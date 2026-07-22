@@ -25,15 +25,17 @@ export default function GalleryPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-5 pb-[var(--dock-space)] pt-24">
-      {event.placeholder ? <DemoRibbon text={t.common.demoRibbon} /> : null}
+      {event.placeholder ? (
+        <div className="mb-8">
+          <DemoRibbon text={t.common.demoRibbon} />
+        </div>
+      ) : null}
 
       {/* The whole gallery — viewing and uploading — is guests-only. */}
       {!guest ? (
-        <div className="mt-10">
-          <IdentifyCard eventId={event.id} />
-        </div>
+        <IdentifyCard eventId={event.id} />
       ) : (
-        <>
+        <div className="flex flex-col gap-10">
           <Section id="gallery" title={t.gallery.title} lead={t.gallery.lead}>
             <GallerySection images={galleryQuery.data} loading={galleryQuery.isLoading} />
           </Section>
@@ -41,7 +43,7 @@ export default function GalleryPage() {
           <Section id="photos" title={t.photos.title} lead={t.photos.lead}>
             <PhotoUpload event={event} guest={guest} />
           </Section>
-        </>
+        </div>
       )}
     </div>
   );

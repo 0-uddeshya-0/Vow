@@ -19,7 +19,7 @@ export function RsvpBanner({ event, guest }: { event: EventDoc; guest: Guest }) 
   if (rsvp.isLoading || rsvp.data || !beforeDeadline(event)) return null;
 
   return (
-    <motion.div {...entrance()} className="glass-strong mt-6 rounded-[var(--radius-panel)] p-5 sm:p-6">
+    <motion.div {...entrance()} className="glass-strong rounded-[var(--radius-panel)] p-5 sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div className="flex items-start gap-3">
           <PartyPopper size={22} className="mt-0.5 shrink-0 text-gold-ink" aria-hidden />

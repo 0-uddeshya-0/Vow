@@ -14,7 +14,10 @@ export function Section({
   children: ReactNode;
 }) {
   return (
-    <motion.section id={id} aria-labelledby={`${id}-title`} className="py-12 sm:py-16" {...reveal()}>
+    // Vertical rhythm comes from the parent's `gap`, not per-section padding,
+    // so spacing stays uniform. `scroll-mt-24` keeps hash-nav clear of the
+    // fixed top bar.
+    <motion.section id={id} aria-labelledby={`${id}-title`} className="scroll-mt-24" {...reveal()}>
       <motion.h2
         id={`${id}-title`}
         variants={fadeUp}
@@ -27,7 +30,7 @@ export function Section({
           {lead}
         </motion.p>
       ) : null}
-      <div className="mt-7">{children}</div>
+      <div className="mt-6">{children}</div>
     </motion.section>
   );
 }

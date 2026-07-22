@@ -50,6 +50,32 @@ function parseAll<T>(schema: z.ZodType<T>, snaps: { id: string; data: () => unkn
   return snaps.map((s) => schema.parse({ ...(s.data() as object), id: s.id }));
 }
 
+/**
+ * Tolerant variant: drop (and warn about) documents that fail validation
+ * instead of throwing the whole batch away. Used for guest-generated
+ * collections (photos) where a single partially-written or legacy doc must
+ * never blank the entire admin list — the exact bug that hid *all* uploads
+ * from the review panel because one orphan doc had no url/guestId/createdAt.
+ * CMS-owned content still uses the strict `parseAll` so real schema drift
+ * fails loudly.
+ */
+function parseAllSafe<T>(
+  schema: z.ZodType<T>,
+  snaps: { id: string; data: () => unknown }[],
+  extend: (raw: Record<string, unknown>, id: string) => Record<string, unknown> = (raw, id) => ({
+    ...raw,
+    id,
+  }),
+): T[] {
+  const out: T[] = [];
+  for (const s of snaps) {
+    const parsed = schema.safeParse(extend(s.data() as Record<string, unknown>, s.id));
+    if (parsed.success) out.push(parsed.data);
+    else console.warn(`[vow] skipping malformed doc ${s.id}:`, parsed.error.issues);
+  }
+  return out;
+}
+
 const sub = (eventId: string, name: string) => collection(getDb(), "events", eventId, name);
 
 export const firebaseDataSource: DataSource = {
@@ -147,47 +173,33 @@ export const firebaseDataSource: DataSource = {
   },
 
   /**
-   * Browser → Storage direct (resumable, real progress), then a Firestore
-   * photo doc. The OneDrive Cloud Function picks it up from `uploaded`
-   * (see functions/ + docs/ONEDRIVE.md).
+   * NO Firebase Storage. Firebase Storage requires the paid Blaze plan, so
+   * the photo is compressed under the 1MB Firestore-document limit and stored
+   * as a data URL directly in the photo doc. This works on the free plan and
+   * makes uploads appear in the admin review tab immediately (they are just
+   * documents). `storagePath` stays empty. (A future OneDrive sync would read
+   * the data URL from Firestore instead of a Storage object.)
    */
   async uploadPhoto(eventId, guest, blob, onProgress) {
-    const { getStorage, ref, uploadBytesResumable, getDownloadURL } = await import(
-      "firebase/storage"
-    );
-    const { getFirebaseApp } = await import("../firebase/app");
+    onProgress(0.2);
+    const { ensureUnder, blobToDataUrl } = await import("../../lib/image");
+    const small = await ensureUnder(blob);
+    onProgress(0.6);
+    const url = await blobToDataUrl(small);
+    onProgress(0.85);
     const id = `p-${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`;
-    const storagePath = `events/${eventId}/photos/${id}.jpg`;
-    const task = uploadBytesResumable(ref(getStorage(getFirebaseApp()), storagePath), blob, {
-      contentType: "image/jpeg",
-    });
-    await new Promise<void>((resolve, reject) => {
-      task.on(
-        "state_changed",
-        (s) => onProgress(s.bytesTransferred / s.totalBytes),
-        reject,
-        () => resolve(),
-      );
-    });
-    // Needs storage.rules `read` for guests (no Firebase Auth). Admin can
-    // backfill from storagePath in adminListPhotos if this ever fails.
-    let url = "";
-    try {
-      url = await getDownloadURL(task.snapshot.ref);
-    } catch {
-      /* doc still written — admin resolves URL when signed in */
-    }
     const photo: Photo = {
       id,
       eventId,
       guestId: guest.id,
       guestName: guest.fullName,
-      storagePath,
+      storagePath: "",
       url,
       status: "uploaded",
       createdAt: new Date().toISOString(),
     };
     await setDoc(doc(getDb(), "events", eventId, "photos", id), photo);
+    onProgress(1);
     return photo;
   },
 
@@ -195,7 +207,7 @@ export const firebaseDataSource: DataSource = {
     const snap = await getDocs(
       query(sub(eventId, "photos"), where("guestId", "==", guestId)),
     );
-    return snap.docs.map((d) => zPhoto.parse({ ...d.data(), id: d.id, eventId }));
+    return parseAllSafe(zPhoto, snap.docs, (raw, id) => ({ ...raw, id, eventId }));
   },
 
   /* ——— admin (security enforced by firestore.rules, not by this file) ——— */
@@ -314,7 +326,7 @@ export const firebaseDataSource: DataSource = {
 
   async adminListPhotos(eventId) {
     const snap = await getDocs(sub(eventId, "photos"));
-    const photos = snap.docs.map((d) => zPhoto.parse({ ...d.data(), id: d.id, eventId }));
+    const photos = parseAllSafe(zPhoto, snap.docs, (raw, id) => ({ ...raw, id, eventId }));
     const missing = photos.filter((p) => !p.url && p.storagePath);
     if (!missing.length) return photos;
 
