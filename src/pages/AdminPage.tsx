@@ -19,6 +19,7 @@ import {
 import {
   ContactSettingsPanel,
   EventSettingsPanel,
+  LabelsPanel,
   WeatherSettingsPanel,
 } from "../features/admin/SettingsPanel";
 import { CardSkeleton } from "../components/ui/Skeleton";
@@ -117,6 +118,7 @@ export default function AdminPage() {
           {tab === "Settings" ? (
             <>
               <EventSettingsPanel event={event} />
+              <LabelsPanel event={event} />
               <ContactSettingsPanel event={event} />
               <WeatherSettingsPanel event={event} />
             </>

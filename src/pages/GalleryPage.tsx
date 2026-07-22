@@ -1,11 +1,12 @@
 import { useI18n } from "../i18n";
-import { useEvent, useGallery, useGuest } from "../hooks/queries";
+import { useEvent, useGallery, useGuest, useSettings } from "../hooks/queries";
 import { useGuestSession } from "../features/guest/useGuestSession";
 import { IdentifyCard } from "../features/guest/IdentifyCard";
 import { GallerySection } from "../features/gallery/GallerySection";
 import { PhotoUpload } from "../features/photos/PhotoUpload";
 import { Section, DemoRibbon } from "../components/ui/Section";
 import { CardSkeleton } from "../components/ui/Skeleton";
+import { useSectionLabels } from "../hooks/useSectionLabels";
 
 /** Gallery + guest photo upload — its own tab by decision (nav declutter). */
 export default function GalleryPage() {
@@ -14,6 +15,7 @@ export default function GalleryPage() {
   const { session } = useGuestSession();
   const guest = useGuest(event?.id, session?.guestId).data ?? null;
   const galleryQuery = useGallery(event?.id);
+  const label = useSectionLabels(useSettings(event?.id).data);
 
   if (isLoading || !event) {
     return (
@@ -36,11 +38,11 @@ export default function GalleryPage() {
         <IdentifyCard eventId={event.id} />
       ) : (
         <div className="flex flex-col gap-10">
-          <Section id="gallery" title={t.gallery.title} lead={t.gallery.lead}>
+          <Section id="gallery" {...label("gallery", t.gallery.title, t.gallery.lead)}>
             <GallerySection images={galleryQuery.data} loading={galleryQuery.isLoading} />
           </Section>
 
-          <Section id="photos" title={t.photos.title} lead={t.photos.lead}>
+          <Section id="photos" {...label("photos", t.photos.title, t.photos.lead)}>
             <PhotoUpload event={event} guest={guest} />
           </Section>
         </div>

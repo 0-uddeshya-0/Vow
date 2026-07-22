@@ -23,6 +23,7 @@ import {
 } from "../features/info/InfoSections";
 import { Section, DemoRibbon } from "../components/ui/Section";
 import { CardSkeleton } from "../components/ui/Skeleton";
+import { useSectionLabels } from "../hooks/useSectionLabels";
 
 /**
  * Login-gated "everything else" tab — split off the Event page so that page can
@@ -50,6 +51,7 @@ export default function InfoPage() {
   }
 
   const guest = guestQuery.data ?? null;
+  const label = useSectionLabels(settingsQuery.data);
 
   return (
     <div className="mx-auto max-w-2xl px-5 pb-[var(--dock-space)] pt-24">
@@ -72,19 +74,19 @@ export default function InfoPage() {
           />
 
           {faqQuery.data?.length ? (
-            <Section id="faq" title={t.faq.title}>
+            <Section id="faq" {...label("faq", t.faq.title)}>
               <FaqSection items={faqQuery.data} />
             </Section>
           ) : null}
 
           {promosQuery.data?.length ? (
-            <Section id="recommendations" title={t.recommendations.title} lead={t.recommendations.lead}>
+            <Section id="recommendations" {...label("recommendations", t.recommendations.title, t.recommendations.lead)}>
               <PromosSection promos={promosQuery.data} loading={promosQuery.isLoading} />
             </Section>
           ) : null}
 
           {giftsQuery.data?.length ? (
-            <Section id="gifts" title={t.gifts.title} lead={t.gifts.lead}>
+            <Section id="gifts" {...label("gifts", t.gifts.title, t.gifts.lead)}>
               <GiftsSection gifts={giftsQuery.data} loading={giftsQuery.isLoading} />
             </Section>
           ) : null}
@@ -92,13 +94,13 @@ export default function InfoPage() {
           <EmbedsSection embeds={embedsQuery.data} />
 
           {settingsQuery.data?.contact.length ? (
-            <Section id="contact" title={t.contact.title} lead={t.contact.lead}>
+            <Section id="contact" {...label("contact", t.contact.title, t.contact.lead)}>
               <ContactSection settings={settingsQuery.data} />
             </Section>
           ) : null}
 
           {settingsQuery.data?.emergency.length ? (
-            <Section id="emergency" title={t.emergency.title} lead={t.emergency.lead}>
+            <Section id="emergency" {...label("emergency", t.emergency.title, t.emergency.lead)}>
               <EmergencySection settings={settingsQuery.data} />
             </Section>
           ) : null}

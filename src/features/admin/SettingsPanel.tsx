@@ -3,7 +3,64 @@ import { Plus, Trash2 } from "lucide-react";
 import { AdminButton, Input, Labeled, LocalizedInput, Panel, Select, emptyText } from "./kit";
 import { useSaveEvent, useSaveSettings, useSaveWeatherSettings } from "../../hooks/adminQueries";
 import { useSettings, useWeatherSettings } from "../../hooks/queries";
-import type { EventDoc, Settings, WeatherSettings } from "../../types";
+import { EDITABLE_SECTIONS } from "../../hooks/useSectionLabels";
+import type { EventDoc, LocalizedText, Settings, WeatherSettings } from "../../types";
+
+const SECTION_NAMES: Record<(typeof EDITABLE_SECTIONS)[number], string> = {
+  schedule: "Schedule / Programm",
+  weather: "Weather",
+  stay: "Where to stay",
+  parking: "Parking",
+  faq: "FAQ / Good to know",
+  recommendations: "Recommendations",
+  gifts: "Gifts",
+  contact: "Contact",
+  emergency: "Emergency",
+  gallery: "Gallery",
+  photos: "Photo upload",
+};
+
+/** Rename any guest-page section heading + tagline (blank = built-in text). */
+export function LabelsPanel({ event }: { event: EventDoc }) {
+  const saved = useSettings(event.id).data;
+  const save = useSaveSettings();
+  const [d, setD] = useDraft<Settings>(saved);
+  if (!d) return null;
+
+  const labelFor = (id: string): { id: string; title: LocalizedText; lead: LocalizedText } =>
+    d.labels.find((l) => l.id === id) ?? { id, title: emptyText(), lead: emptyText() };
+  const setLabel = (id: string, patch: Partial<{ title: LocalizedText; lead: LocalizedText }>) => {
+    const merged = { ...labelFor(id), ...patch };
+    setD({ ...d, labels: [...d.labels.filter((l) => l.id !== id), merged] });
+  };
+
+  return (
+    <Panel
+      title="Section headings"
+      action={<AdminButton onClick={() => save.mutate(d)}>Save</AdminButton>}
+    >
+      <p className="mb-4 text-sm text-ink-soft">
+        Rename any section's heading and tagline. Leave a field blank to keep the built-in text.
+      </p>
+      <div className="flex flex-col gap-4">
+        {EDITABLE_SECTIONS.map((id) => {
+          const l = labelFor(id);
+          return (
+            <div key={id} className="rounded-xl border border-hairline-soft p-4">
+              <p className="mb-2 text-xs uppercase tracking-[0.12em] text-ink-soft">
+                {SECTION_NAMES[id]}
+              </p>
+              <div className="flex flex-col gap-3">
+                <LocalizedInput label="Heading" value={l.title} onChange={(v) => setLabel(id, { title: v })} />
+                <LocalizedInput label="Tagline" value={l.lead} onChange={(v) => setLabel(id, { lead: v })} />
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </Panel>
+  );
+}
 
 /** Small helper: local draft that resyncs whenever the saved value changes. */
 function useDraft<T>(value: T | null | undefined): [T | null, (v: T) => void] {

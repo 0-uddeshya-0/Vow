@@ -259,6 +259,11 @@ export const zSettings = z.object({
     .nullable()
     .default(null),
   footerText: zLocalizedText.nullable().default(null),
+  /** Per-section heading + tagline overrides, keyed by section id. Empty text
+   *  on either field falls back to the built-in translation. */
+  labels: z
+    .array(z.object({ id: z.string(), title: zLocalizedText, lead: zLocalizedText }))
+    .default([]),
 });
 export type Settings = z.infer<typeof zSettings>;
 

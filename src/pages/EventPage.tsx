@@ -21,6 +21,7 @@ import { ParkingSection, hasParking } from "../features/info/InfoSections";
 import { Section, DemoRibbon } from "../components/ui/Section";
 import { Button } from "../components/ui/Button";
 import { CardSkeleton } from "../components/ui/Skeleton";
+import { useSectionLabels } from "../hooks/useSectionLabels";
 import { withinDaysBefore } from "../lib/datetime";
 
 /**
@@ -60,6 +61,7 @@ export default function EventPage() {
   }
 
   const guest = guestQuery.data ?? null;
+  const label = useSectionLabels(settingsQuery.data);
 
   return (
     <div className="mx-auto max-w-2xl px-5 pb-[var(--dock-space)] pt-24">
@@ -78,7 +80,7 @@ export default function EventPage() {
 
           {guest ? <RsvpBanner event={event} guest={guest} /> : null}
 
-          <Section id="schedule" title={t.schedule.title} lead={t.schedule.lead}>
+          <Section id="schedule" {...label("schedule", t.schedule.title, t.schedule.lead)}>
             <ScheduleSection
               event={event}
               items={scheduleQuery.data}
@@ -88,7 +90,7 @@ export default function EventPage() {
           </Section>
 
           {weatherWindow ? (
-            <Section id="weather" title={t.weather.title} lead={t.weather.lead}>
+            <Section id="weather" {...label("weather", t.weather.title, t.weather.lead)}>
               <WeatherCard
                 forecast={forecast.data}
                 loading={forecast.isLoading}
@@ -97,12 +99,12 @@ export default function EventPage() {
             </Section>
           ) : null}
 
-          <Section id="stay" title={t.stay.title} lead={t.stay.lead}>
+          <Section id="stay" {...label("stay", t.stay.title, t.stay.lead)}>
             <HotelsSection hotels={hotelsQuery.data} loading={hotelsQuery.isLoading} />
           </Section>
 
           {hasParking(settingsQuery.data) ? (
-            <Section id="parking" title={t.parking.title} lead={t.parking.lead}>
+            <Section id="parking" {...label("parking", t.parking.title, t.parking.lead)}>
               <ParkingSection settings={settingsQuery.data} />
             </Section>
           ) : null}

@@ -422,6 +422,7 @@ export function defaultDb(): SeedDb {
     // Demo values only — no real personal numbers live in this public repo.
     settings: {
       eventId: EVENT_ID,
+      labels: [],
       contact: [
         { label: "Groom", name: "Michael", phone: "+490000000001", email: "" },
         { label: "Bride", name: "Dina", phone: "+490000000002", email: "" },
