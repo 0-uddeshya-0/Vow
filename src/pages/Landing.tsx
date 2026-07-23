@@ -16,13 +16,15 @@ import { eventStartMs, formatEventDate, isEventDay } from "../lib/datetime";
 function HeroSkeleton() {
   return (
     <div className="mx-auto my-auto w-full max-w-xl px-5" aria-busy="true">
-      <div className="glass rounded-[var(--radius-panel)] p-10 text-center">
-        <Skeleton className="mx-auto size-36 rounded-full" />
-        <Skeleton className="mx-auto mt-8 h-5 w-40" />
-        <Skeleton className="mx-auto mt-4 h-12 w-72" />
-        <Skeleton className="mx-auto mt-4 h-5 w-56" />
-        <Skeleton className="mx-auto mt-8 h-16 w-80" />
-        <Skeleton className="mx-auto mt-8 h-12 w-44 rounded-full" />
+      {/* overflow-hidden + percentage widths so no placeholder can spill past
+          the card edge on a narrow phone (fixed rem widths used to overflow). */}
+      <div className="glass overflow-hidden rounded-[var(--radius-panel)] p-6 text-center sm:p-10">
+        <Skeleton className="mx-auto size-32 rounded-full sm:size-36" />
+        <Skeleton className="mx-auto mt-8 h-5 w-2/5" />
+        <Skeleton className="mx-auto mt-4 h-12 w-4/5" />
+        <Skeleton className="mx-auto mt-4 h-5 w-3/5" />
+        <Skeleton className="mx-auto mt-8 h-16 w-full" />
+        <Skeleton className="mx-auto mt-8 h-12 w-2/5 rounded-full" />
       </div>
     </div>
   );

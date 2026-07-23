@@ -29,17 +29,18 @@ function Digit({ value }: { value: string }) {
 function Unit({ n, label }: { n: number; label: string }) {
   const s = String(n).padStart(2, "0");
   return (
-    <div className="flex flex-col items-center gap-1">
-      {/* inline-flex + nowrap: the two digits must never wrap to a second line
-          when the row is squeezed on a narrow phone. */}
+    <div className="flex min-w-0 flex-col items-center gap-1.5 rounded-2xl border border-hairline-soft bg-surface/25 px-1 py-3 sm:py-4">
+      {/* clamp() sizes to the viewport so four tiles always fit — never wraps,
+          never overflows, from the narrowest phone to desktop. */}
       <div
-        className="tnum font-display text-[2rem] leading-none whitespace-nowrap text-ink sm:text-5xl"
+        className="tnum font-display leading-none text-ink"
+        style={{ fontSize: "clamp(1.35rem, 6.5vw, 2.75rem)" }}
         aria-hidden="true"
       >
         <Digit value={s[0]} />
         <Digit value={s[1]} />
       </div>
-      <span className="text-[0.65rem] uppercase tracking-[0.12em] text-ink-soft sm:text-xs sm:tracking-[0.18em]">
+      <span className="text-[0.6rem] uppercase leading-none tracking-[0.08em] text-ink-soft sm:text-[0.68rem] sm:tracking-[0.14em]">
         {label}
       </span>
     </div>
@@ -60,19 +61,15 @@ export function Countdown({ targetMs }: { targetMs: number }) {
 
   return (
     <div role="timer" aria-label={`${sr} ${t.landing.until}`}>
-      <div
-        className="flex items-start justify-center gap-2.5 sm:gap-8"
-        aria-hidden="true"
-      >
+      {/* grid-cols-4: equal fractions that shrink together, so it is impossible
+          to overflow or drop a unit to a new line on any device. */}
+      <div className="mx-auto grid max-w-sm grid-cols-4 gap-2 sm:gap-3" aria-hidden="true">
         <Unit n={c.days} label={t.landing.days} />
-        <span className="pt-1 font-display text-2xl text-gold-ink sm:text-3xl">·</span>
         <Unit n={c.hours} label={t.landing.hours} />
-        <span className="pt-1 font-display text-2xl text-gold-ink sm:text-3xl">·</span>
         <Unit n={c.minutes} label={t.landing.minutes} />
-        <span className="pt-1 font-display text-2xl text-gold-ink sm:text-3xl">·</span>
         <Unit n={c.seconds} label={t.landing.seconds} />
       </div>
-      <p className="mt-2 text-center text-sm tracking-wide text-ink-soft">{t.landing.until}</p>
+      <p className="mt-3 text-center text-sm tracking-wide text-ink-soft">{t.landing.until}</p>
     </div>
   );
 }

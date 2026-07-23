@@ -74,9 +74,10 @@ export function CharacterStage({
               src={src}
               onError={() => setFailed(true)}
               alt={coupleNames}
-              width={396}
-              height={452}
-              className="w-44 rounded-[20px] sm:w-52"
+              /* fixed 3/4 portrait frame + object-cover: a photo of any size
+                 (or the fallback illustration) fills it cleanly, never squished,
+                 no layout shift. */
+              className="aspect-[3/4] w-44 rounded-[20px] object-cover object-center sm:w-52"
               animate={still ? undefined : { scale: [1, 1.028, 1] }}
               transition={
                 still
