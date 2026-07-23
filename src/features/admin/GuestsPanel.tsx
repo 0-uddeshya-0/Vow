@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
-import { Download, Mail, MessageCircle, Plus, Printer, Search, Upload, UserPen } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+import { Download, Mail, MessageCircle, Plus, Printer, RefreshCw, Search, Upload, UserPen } from "lucide-react";
 import {
   AdminButton,
   Input,
@@ -11,6 +12,7 @@ import {
 } from "./kit";
 import { useAdminGuests, useAdminRsvps, useDeleteGuest, useSaveGuest } from "../../hooks/adminQueries";
 import { ImportGuestsModal } from "./ImportGuestsModal";
+import { data } from "../../services/data";
 import { exportCsv, exportExcel, printTable, type Column } from "../../lib/export";
 import { mailtoUrl, whatsappUrl } from "../../lib/reminders";
 import type { EventDoc, Guest, Rsvp } from "../../types";
@@ -60,6 +62,24 @@ export function GuestsPanel({ event }: { event: EventDoc }) {
   const [sort, setSort] = useState<"name" | "status" | "role">("name");
   const [editing, setEditing] = useState<Guest | null>(null);
   const [importing, setImporting] = useState(false);
+  const [repair, setRepair] = useState<{ done: number; total: number } | null>(null);
+  const qc = useQueryClient();
+
+  // Re-save every guest so their login-lookup docs are re-hashed with the
+  // current phone/email normalizer — fixes guests who can't sign in because
+  // their number was stored in a format the old matcher didn't canonicalize.
+  const repairLogins = async () => {
+    if (repair || !guests.length) return;
+    if (!confirm(`Rebuild login matching for all ${guests.length} guests? This is safe to run.`)) return;
+    setRepair({ done: 0, total: guests.length });
+    for (let i = 0; i < guests.length; i++) {
+      await data.adminSaveGuest(guests[i]);
+      setRepair({ done: i + 1, total: guests.length });
+    }
+    await qc.invalidateQueries({ queryKey: ["admin", "guests", event.id] });
+    setRepair(null);
+    alert("Login matching rebuilt — guests can now sign in with any number format.");
+  };
 
   const rsvpOf = (id: string) => rsvps.find((r) => r.guestId === id) ?? null;
 
@@ -116,6 +136,9 @@ export function GuestsPanel({ event }: { event: EventDoc }) {
           </AdminButton>
           <AdminButton variant="quiet" onClick={() => printTable(rows, columns, "Guest list")}>
             <Printer size={14} /> Print
+          </AdminButton>
+          <AdminButton variant="quiet" disabled={!!repair} onClick={repairLogins}>
+            <RefreshCw size={14} /> {repair ? `Repairing ${repair.done}/${repair.total}…` : "Repair logins"}
           </AdminButton>
           <AdminButton variant="quiet" onClick={() => setImporting(true)}>
             <Upload size={14} /> Import
