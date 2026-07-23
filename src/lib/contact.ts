@@ -5,7 +5,15 @@
 export function normalizeContact(raw: string): string {
   const t = raw.trim().toLowerCase();
   if (t.includes("@")) return t;
-  return t.replace(/[^\d+]/g, "").replace(/^00/, "+").replace(/^0/, "+49");
+  // Phone: keep only digits and a leading +, then collapse the common ways the
+  // same German number gets written so they all hash to one value.
+  let d = t.replace(/[^\d+]/g, ""); // drop spaces, dashes, dots, parentheses, "(0)" wrappers…
+  if (!d || d === "+") return d;
+  d = d.replace(/^00/, "+"); // 0049… → +49… (international access code)
+  d = d.replace(/^0/, "+49"); // 0151… → +49151… (national trunk 0, German default)
+  d = d.replace(/^\+490+/, "+49"); // "+49 (0)151…" left a trunk 0 after the code → drop it
+  if (!d.startsWith("+")) d = "+49" + d; // bare national "151…" → assume German
+  return d;
 }
 
 /**

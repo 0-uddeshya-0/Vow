@@ -15,6 +15,7 @@ import type {
   WeatherSettings,
 } from "../../types";
 import type { DataSource } from "./types";
+import { normalizeContact } from "../../lib/contact";
 import { defaultDb, type SeedDb } from "./seedData";
 
 /**
@@ -80,10 +81,6 @@ const LATENCY = 320; // guest-facing reads: lets skeleton loaders actually appea
 // guest site, and a fake 180ms on every CMS save just makes the tool feel slow.
 const ADMIN = 0;
 
-function normalizeContact(c: string): string {
-  const t = c.trim().toLowerCase();
-  return t.includes("@") ? t : t.replace(/[^\d+]/g, "").replace(/^00/, "+").replace(/^0/, "+49");
-}
 
 /** Upsert by id into a collection, then persist. */
 function upsert<T extends { id: string }>(list: T[], item: T): void {
@@ -110,9 +107,12 @@ export const seedDataSource: DataSource = {
   async findGuest(eventId, contact) {
     await wait(LATENCY);
     const n = normalizeContact(contact);
+    // Normalize BOTH sides so a stored "+49 151…" matches a typed "0151…".
     return (
       db.guests.find(
-        (g) => g.eventId === eventId && (g.email.toLowerCase() === n || g.phone === n),
+        (g) =>
+          g.eventId === eventId &&
+          (normalizeContact(g.email) === n || normalizeContact(g.phone) === n),
       ) ?? null
     );
   },
